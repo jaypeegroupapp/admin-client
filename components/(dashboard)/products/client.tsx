@@ -8,9 +8,7 @@ import ProductModal from "@/components/ui/modal";
 import ProductAddForm from "./add-form";
 import { ProductList } from "./list";
 import ProductFilter from "./filter";
-import { deleteProductAction } from "@/actions/product";
 import { getProducts } from "@/data/product";
-import DeleteModal from "@/components/ui/delete-modal";
 
 interface Props {
   initialProducts: IProduct[];
@@ -20,8 +18,6 @@ export function ProductClientPage({ initialProducts }: Props) {
   const [products, setProducts] = useState<IProduct[]>(initialProducts || []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<IProduct | null>(null);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [deletingProduct, setDeletingProduct] = useState<IProduct | null>(null);
 
   const [filterText, setFilterText] = useState("");
 
@@ -45,26 +41,6 @@ export function ProductClientPage({ initialProducts }: Props) {
     setIsModalOpen(true);
   };
 
-  const handleEdit = (product: IProduct) => {
-    setEditingProduct(product);
-    setIsModalOpen(true);
-  };
-
-  const handleDeleteClick = (product: IProduct) => {
-    setDeletingProduct(product);
-    setIsDeleteOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!deletingProduct?.id) return;
-    const res = await deleteProductAction(deletingProduct.id);
-    if (res?.success) {
-      setProducts((p) => p.filter((x) => x.id !== deletingProduct.id));
-    }
-    setIsDeleteOpen(false);
-    setDeletingProduct(null);
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -74,11 +50,7 @@ export function ProductClientPage({ initialProducts }: Props) {
     >
       <ProductHeader onAdd={handleAdd} />
       <ProductFilter onFilterChange={(text) => setFilterText(text)} />
-      <ProductList
-        initialProducts={filtered}
-        onEdit={handleEdit}
-        onDelete={handleDeleteClick}
-      />
+      <ProductList initialProducts={filtered} />
       <ProductModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <ProductAddForm
           product={editingProduct}
@@ -87,13 +59,6 @@ export function ProductClientPage({ initialProducts }: Props) {
           }}
         />
       </ProductModal>
-
-      <DeleteModal
-        isOpen={isDeleteOpen}
-        onCancel={() => setIsDeleteOpen(false)}
-        onConfirm={handleConfirmDelete}
-        itemName={deletingProduct?.name || ""}
-      />
     </motion.div>
   );
 }

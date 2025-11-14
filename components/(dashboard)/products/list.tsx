@@ -5,12 +5,8 @@ import { ProductCard } from "./card";
 
 export function ProductList({
   initialProducts,
-  onEdit,
-  onDelete,
 }: {
   initialProducts: IProduct[];
-  onEdit: (p: IProduct) => void;
-  onDelete: (p: IProduct) => void;
 }) {
   return (
     <motion.div
@@ -33,12 +29,7 @@ export function ProductList({
           </motion.p>
         ) : (
           initialProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onEdit={() => onEdit(product)}
-              onDelete={() => onDelete(product)}
-            />
+            <ProductCard key={product.id} product={product} />
           ))
         )}
       </AnimatePresence>
