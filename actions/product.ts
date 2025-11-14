@@ -49,8 +49,9 @@ export async function createProductAction(
     };
   }
 
-  revalidatePath("/products");
-  redirect("/products");
+  let url = productId ? `/products/${productId}` : "/products";
+  revalidatePath(url);
+  redirect(url);
 }
 
 export async function deleteProductAction(productId: string) {

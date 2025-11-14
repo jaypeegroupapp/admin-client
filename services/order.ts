@@ -76,6 +76,29 @@ export async function getOrderByIdService(id: string) {
     items,
   };
 }
+
+/**
+ * ✅ Get all Orders for the logged-in user
+ */
+
+export async function getOrdersByProductIdService(productId: string) {
+  await connectDB();
+
+  try {
+    const orders = await Order.find({ productId })
+      .populate("userId", "fullName email")
+      .populate("companyId", "companyName")
+      .populate("productId", "name price")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return JSON.parse(JSON.stringify(orders));
+  } catch (error: any) {
+    console.error("❌ getOrdersByProductIdService error:", error);
+    return [];
+  }
+}
+
 /**
  * ✅ Create a new Order and associated OrderItems
  */

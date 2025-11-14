@@ -10,6 +10,8 @@ export interface IProduct {
   categoryId: Types.ObjectId | string;
   imageUrl: string;
   isPublished?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type ProductFormState = {

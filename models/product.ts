@@ -2,7 +2,7 @@
 import { IProduct } from "@/definitions/product";
 import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
-interface ProductDocument extends Document, Omit<IProduct, "id"> {
+interface ProductDocument extends Document, Omit<IProduct, "id" | "createdAt" | "updatedAt"> {
   categoryId: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;

@@ -2,6 +2,7 @@ import {
   getOrdersService,
   getOrderByIdService,
   getOrdersByCompanyIdService,
+  getOrdersByProductIdService,
 } from "@/services/order";
 
 const orderMap = (order: any) => ({
@@ -86,5 +87,19 @@ export async function getOrderById(id: string) {
   } catch (err) {
     console.error("❌ getOrderById error:", err);
     return null;
+  }
+}
+
+/**
+ * 🧾 Fetch all orders and map to UI-friendly format
+ */
+export async function getOrdersByProductId(productId: string) {
+  try {
+    const orders = await getOrdersByProductIdService(productId);
+
+    return Array.isArray(orders) ? orders.map(orderMap) : [];
+  } catch (err) {
+    console.error("❌ getOrdersByProductId error:", err);
+    return [];
   }
 }
