@@ -1,0 +1,180 @@
+"use server";
+
+import { connectDB } from "@/lib/db";
+import Order from "@/models/order";
+import OrderItem from "@/models/order-item";
+import { verifySession } from "@/lib/dal";
+import { Types } from "mongoose";
+import { CreateOrderInput } from "@/definitions/order";
+
+/**
+ * ✅ Get all Orders for the logged-in user
+ */
+export async function getOrdersService() {
+  await connectDB();
+
+  try {
+    const orders = await Order.find()
+      .populate("userId", "fullName email")
+      .populate("companyId", "companyName")
+      .populate("productId", "name price")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return JSON.parse(JSON.stringify(orders));
+  } catch (error: any) {
+    console.error("❌ getOrdersService error:", error);
+    return [];
+  }
+}
+
+/**
+ * ✅ Get all Orders for the logged-in user
+ */
+
+export async function getOrdersByCompanyIdService(companyId: string) {
+  await connectDB();
+
+  try {
+    const orders = await Order.find({
+      companyId: new Types.ObjectId(companyId),
+    })
+      .populate("userId", "fullName email")
+      .populate("companyId", "companyName")
+      .populate("productId", "name price")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return JSON.parse(JSON.stringify(orders));
+  } catch (error: any) {
+    console.error("❌ getOrdersService error:", error);
+    return [];
+  }
+}
+
+/**
+ * ✅ Get a single Order by ID
+ */
+export async function getOrderByIdService(id: string) {
+  await connectDB();
+  const order = (await Order.findById(id)
+    .populate("productId")
+    .populate("companyId")
+    .populate("userId")
+    .lean()) as any;
+
+  if (!order) return null;
+
+  // fetch order items
+  const items = (await OrderItem.find({ orderId: id })
+    .populate("truckId", "registrationNumber plateNumber")
+    .lean()) as any[];
+
+  return {
+    ...order,
+    id: order._id.toString(),
+    items,
+  };
+}
+/**
+ * ✅ Create a new Order and associated OrderItems
+ */
+export async function createOrderService(data: CreateOrderInput) {
+  await connectDB();
+
+  const session = await Order.startSession();
+  session.startTransaction();
+
+  try {
+    // 1️⃣ Create main order
+    const [order] = await Order.create(
+      [
+        {
+          userId: new Types.ObjectId(data.userId),
+          companyId: new Types.ObjectId(data.companyId),
+          productId: new Types.ObjectId(data.productId),
+          totalAmount: data.totalAmount,
+          collectionDate: new Date(data.collectionDate),
+          status: data.status || "pending",
+        },
+      ],
+      { session }
+    );
+
+    // 2️⃣ Create related order items
+    if (data.items && data.items.length > 0) {
+      const orderItems = data.items.map((item) => ({
+        orderId: order._id,
+        truckId: new Types.ObjectId(item.truckId),
+        quantity: item.quantity,
+      }));
+
+      await OrderItem.insertMany(orderItems, { session });
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true, orderId: order._id.toString() };
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error("❌ createOrderService error:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+/**
+ * 🗑️ Delete an order if it's still pending
+ */
+export async function deleteOrderService(orderId: string) {
+  await connectDB();
+
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) return { success: false, message: "Order not found" };
+
+    if (order.status !== "pending") {
+      return {
+        success: false,
+        message: "Only pending orders can be deleted",
+      };
+    }
+
+    // Delete related order items first
+    await OrderItem.deleteMany({ orderId });
+    await Order.findByIdAndDelete(orderId);
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("❌ deleteOrderService error:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+/**
+ * Updates the collection date for a given order
+ */
+export async function updateCollectionDateService(
+  orderId: string,
+  collectionDate: string
+) {
+  await connectDB();
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    return { success: false, message: "Order not found" };
+  }
+
+  if (order.status !== "pending") {
+    return {
+      success: false,
+      message: "Only pending orders can be rescheduled",
+    };
+  }
+
+  order.collectionDate = new Date(collectionDate);
+  await order.save();
+
+  return { success: true, message: "Collection date updated successfully" };
+}
