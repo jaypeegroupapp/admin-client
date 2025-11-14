@@ -1,0 +1,47 @@
+"use client";
+import { motion, AnimatePresence } from "framer-motion";
+import { IProduct } from "@/definitions/product";
+import { ProductCard } from "./card";
+
+export function ProductList({
+  initialProducts,
+  onEdit,
+  onDelete,
+}: {
+  initialProducts: IProduct[];
+  onEdit: (p: IProduct) => void;
+  onDelete: (p: IProduct) => void;
+}) {
+  return (
+    <motion.div
+      layout
+      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      <AnimatePresence>
+        {initialProducts.length === 0 ? (
+          <motion.p
+            key="empty"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="text-gray-500 text-center col-span-full py-10"
+          >
+            No products yet. Add your first one!
+          </motion.p>
+        ) : (
+          initialProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onEdit={() => onEdit(product)}
+              onDelete={() => onDelete(product)}
+            />
+          ))
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
