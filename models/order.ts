@@ -46,7 +46,7 @@ const OrderSchema = new Schema<IOrderDoc>(
     invoiceId: {
       type: Schema.Types.ObjectId,
       ref: CompanyInvoice.modelName,
-      required: true,
+      required: false,
     },
     totalAmount: {
       type: Number,

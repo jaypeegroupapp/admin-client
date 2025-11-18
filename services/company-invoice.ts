@@ -19,10 +19,16 @@ export async function completeOrderWithInvoice(orderId: string) {
 
     if (!order) throw new Error("Order not found.");
 
-    // 4. Find existing invoice (pending only)
+    // 4. Find an open invoice (pending AND within 31 days)
+    const THIRTY_ONE_DAYS = 31 * 24 * 60 * 60 * 1000;
+    const now = new Date();
+
     let invoice = (await CompanyInvoice.findOne({
       companyId: order.companyId,
-      status: "pending", // Only add orders to open invoice
+      status: "pending",
+      createdAt: {
+        $gte: new Date(now.getTime() - THIRTY_ONE_DAYS), // invoice must be <= 31 days old
+      },
     }).session(session)) as any;
 
     // 5. If no pending invoice exists → create one
@@ -106,12 +112,149 @@ export async function getCompanyInvoiceByIdService(id: string) {
 
   try {
     const invoice = await CompanyInvoice.findById(id)
-      .populate("companyId", "name")
+      .populate("companyId", "companyName")
       .lean();
 
     return invoice ? JSON.parse(JSON.stringify(invoice)) : null;
   } catch (error) {
     console.error("❌ getCompanyInvoiceByIdService error:", error);
     return null;
+  }
+}
+
+/**
+ * CompanyInvoice fields:
+ * companyId: string
+ * status: "pending" | "published" | "paid" | "closed"
+ * totalAmount: number
+ * paymentDate?: Date
+ */
+
+// ---------------- PUBLISH INVOICE ----------------
+export async function publishInvoiceService(invoiceId: string) {
+  await connectDB();
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    // 1️⃣ Fetch invoice
+    const invoice = await CompanyInvoice.findById(invoiceId).session(session);
+
+    if (!invoice) {
+      await session.abortTransaction();
+      return { success: false, message: "Invoice not found." };
+    }
+
+    if (invoice.status !== "pending") {
+      await session.abortTransaction();
+      return { success: false, message: "Invoice cannot be published." };
+    }
+
+    // 2️⃣ Fetch all orders linked to this invoice
+    const orders = await Order.find({ invoiceId }).session(session);
+
+    if (!orders.length) {
+      await session.abortTransaction();
+      return { success: false, message: "No orders linked to this invoice." };
+    }
+
+    // 3️⃣ Calculate total invoice amount
+    const totalAmount = orders.reduce(
+      (sum, order) => sum + Number(order.totalAmount || 0),
+      0
+    );
+
+    // 4️⃣ Update invoice fields
+    invoice.totalAmount = totalAmount;
+    invoice.status = "published";
+
+    await invoice.save({ session });
+
+    // 5️⃣ Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true, totalAmount };
+  } catch (error) {
+    console.error("❌ publishInvoiceService error:", error);
+    await session.abortTransaction();
+    session.endSession();
+    return { success: false, message: "Failed to publish invoice." };
+  }
+}
+
+// ---------------- CONFIRM PAYMENT ----------------
+export async function confirmInvoicePaymentService(invoiceId: string) {
+  await connectDB();
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const invoice = (await CompanyInvoice.findById(invoiceId).session(
+      session
+    )) as any;
+
+    if (!invoice) {
+      await session.abortTransaction();
+      return { success: false, message: "Invoice not found." };
+    }
+
+    if (invoice.status !== "published") {
+      await session.abortTransaction();
+      return { success: false, message: "Invoice must be published first." };
+    }
+
+    invoice.status = "paid";
+    invoice.paymentDate = new Date();
+
+    await invoice.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ confirmInvoicePaymentService error:", error);
+    await session.abortTransaction();
+    session.endSession();
+    return { success: false, message: "Failed to confirm payment." };
+  }
+}
+
+// ---------------- CLOSE INVOICE ----------------
+export async function closeInvoiceService(invoiceId: string) {
+  await connectDB();
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const invoice = await CompanyInvoice.findById(invoiceId).session(session);
+
+    if (!invoice) {
+      await session.abortTransaction();
+      return { success: false, message: "Invoice not found." };
+    }
+
+    if (invoice.status !== "paid") {
+      await session.abortTransaction();
+      return { success: false, message: "Invoice must be paid first." };
+    }
+
+    // Mark invoice closed
+    invoice.status = "closed";
+    await invoice.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ closeInvoiceService error:", error);
+    await session.abortTransaction();
+    session.endSession();
+    return { success: false, message: "Failed to close invoice." };
   }
 }
