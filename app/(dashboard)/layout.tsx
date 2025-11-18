@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Home,
-  Calendar,
-  Users,
-  MenuIcon,
-  Truck,
-  Package,
-  Building2,
-  PackageCheck,
-} from "lucide-react";
+import { Home, Package, Building2, PackageCheck, FileText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -20,6 +11,7 @@ const navItems = [
   { name: "Orders", href: "/orders", icon: PackageCheck },
   { name: "Products", href: "/products", icon: Package },
   { name: "Companies", href: "/companies", icon: Building2 },
+  { name: "Company Invoice", href: "/company-invoices", icon: FileText },
 ];
 
 export default function DashboardLayout({
