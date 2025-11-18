@@ -8,7 +8,7 @@ interface Props {
   onBack: () => void;
 }
 
-export function OrderHeader({ order, onBack }: Props) {
+export function OrderHeader({ onBack }: Props) {
   return (
     <div className="flex items-center justify-between">
       <button
