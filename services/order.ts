@@ -3,9 +3,11 @@
 import { connectDB } from "@/lib/db";
 import Order from "@/models/order";
 import OrderItem from "@/models/order-item";
-import { verifySession } from "@/lib/dal";
 import { Types } from "mongoose";
 import { CreateOrderInput } from "@/definitions/order";
+import mongoose from "mongoose";
+import Product from "@/models/product";
+import StockMovement from "@/models/stock-movement";
 
 /**
  * ✅ Get all Orders for the logged-in user
@@ -200,4 +202,88 @@ export async function updateCollectionDateService(
   await order.save();
 
   return { success: true, message: "Collection date updated successfully" };
+}
+
+export async function acceptOrderWithTransaction(
+  orderId: string,
+  quantity: number
+) {
+  await connectDB();
+
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    // 1️⃣ Get the order
+    const order = await Order.findById(orderId).session(session);
+
+    if (!order) {
+      await session.abortTransaction();
+      return { success: false, message: "Order not found." };
+    }
+
+    if (order.status !== "pending") {
+      await session.abortTransaction();
+      return { success: false, message: "Order already processed." };
+    }
+
+    // 2️⃣ Get the product
+    const product = await Product.findById(order.productId).session(session);
+
+    if (!product) {
+      await session.abortTransaction();
+      return { success: false, message: "Product not found." };
+    }
+
+    if (product.stock < quantity) {
+      await session.abortTransaction();
+      return { success: false, message: "Not enough stock available." };
+    }
+
+    // 3️⃣ Update Order → accepted
+    order.status = "accepted";
+    await order.save({ session });
+
+    // 4️⃣ Deduct stock
+    product.stock -= quantity;
+    await product.save({ session });
+
+    // 5️⃣ Record stock movement (🆕 Added)
+    await StockMovement.create(
+      [
+        {
+          productId: product._id,
+          type: "OUT",
+          quantity: quantity,
+          purchasedPrice: product.costPrice,
+          sellingPriceAtPurchase: product.sellingPrice,
+          reason: `Order accepted: ${order._id}`,
+        },
+      ],
+      { session }
+    );
+
+    // 6️⃣ Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Transaction failed:", error);
+
+    await session.abortTransaction();
+    session.endSession();
+
+    return { success: false, message: "Transaction failed." };
+  }
+}
+
+export async function declineOrderService(orderId: string, reason: string) {
+  await connectDB();
+  return await Order.findByIdAndUpdate(
+    orderId,
+    { status: "declined", declineReason: reason },
+    { new: true }
+  ).lean();
 }

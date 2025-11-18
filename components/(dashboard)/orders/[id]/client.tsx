@@ -10,6 +10,9 @@ import { OrderItemsList } from "./item-list";
 
 export function OrderDetailsClient({ order }: { order: IOrder }) {
   const router = useRouter();
+  const totalStockToDeduct = order.items
+    ? order.items.reduce((acc, item) => acc + item.quantity, 0)
+    : 0;
 
   return (
     <motion.div
@@ -20,7 +23,7 @@ export function OrderDetailsClient({ order }: { order: IOrder }) {
     >
       <OrderHeader order={order} onBack={() => router.back()} />
 
-      <OrderSummary order={order} />
+      <OrderSummary order={order} totalStockToDeduct={totalStockToDeduct} />
 
       {/* 🧩 Order Items Section */}
       <OrderItemsList items={order.items || []} />

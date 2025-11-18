@@ -7,6 +7,7 @@ export interface IOrder {
   totalAmount: number;
   collectionDate: string;
   status: string;
+  reason?: string;
   createdAt?: string;
   updatedAt?: string;
   items?: {

@@ -10,12 +10,31 @@ export const productFormSchema = z.object({
     .string()
     .min(5, "Description must be at least 5 characters")
     .max(500, "Description too long"),
-  price: z.coerce.number().min(0).nonnegative("Price cannot be negative"),
-  stock: z.coerce.number().min(0).int().nonnegative("Stock cannot be negative"),
+});
+
+export type ProductForm = z.infer<typeof productFormSchema>;
+
+export const editProductFormSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Product name is required")
+    .max(100, "Name is too long"),
+  description: z
+    .string()
+    .min(5, "Description must be at least 5 characters")
+    .max(500, "Description too long"),
+  sellingPrice: z.coerce
+    .number()
+    .min(0)
+    .nonnegative("Selling price cannot be negative"),
+  costPrice: z.coerce
+    .number()
+    .min(0)
+    .nonnegative("Cost Price cannot be negative"),
   isPublished: z
     .union([z.string(), z.boolean()])
     .transform((val) => val === "true" || val === true)
     .default(false),
 });
 
-export type ProductForm = z.infer<typeof productFormSchema>;
+export type EditProductForm = z.infer<typeof editProductFormSchema>;

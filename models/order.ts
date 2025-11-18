@@ -1,5 +1,5 @@
 import { IOrder } from "@/definitions/order";
-import mongoose, { Schema, Document, Model, Types } from "mongoose";
+import mongoose, { Schema, Model, Types } from "mongoose";
 import User from "./user";
 import Company from "./company";
 import Product from "./product";
@@ -51,8 +51,12 @@ const OrderSchema = new Schema<IOrderDoc>(
     },
     status: {
       type: String,
-      enum: ["pending", "in_progress", "completed", "cancelled"],
+      enum: ["pending", "accepted", "completed", "restock", "cancelled"],
       default: "pending",
+    },
+    reason: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: true }
