@@ -3,6 +3,7 @@ import {
   getOrderByIdService,
   getOrdersByCompanyIdService,
   getOrdersByProductIdService,
+  getInvoiceOrdersService,
 } from "@/services/order";
 
 const orderMap = (order: any) => ({
@@ -100,6 +101,32 @@ export async function getOrdersByProductId(productId: string) {
     return Array.isArray(orders) ? orders.map(orderMap) : [];
   } catch (err) {
     console.error("❌ getOrdersByProductId error:", err);
+    return [];
+  }
+}
+
+// data/invoice-orders.ts
+export async function getInvoiceOrders(invoiceId: string) {
+  try {
+    const orders = await getInvoiceOrdersService(invoiceId);
+    if (!orders.length) return [];
+
+    return orders.map((order: any) => {
+      const mappedItems = order.items.map((item: any) => ({
+        id: item._id.toString(),
+        truckName: item.truckId?.plateNumber || "Unknown Truck",
+        quantity: Number(item.quantity || 0),
+      }));
+
+      return {
+        id: order._id.toString(),
+        productName: order.productId?.name || "Unknown Product",
+        totalAmount: Number(order.totalAmount || 0),
+        items: mappedItems,
+      };
+    });
+  } catch (err) {
+    console.error("❌ getInvoiceOrders error:", err);
     return [];
   }
 }

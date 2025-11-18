@@ -11,7 +11,7 @@ export function CompanyInvoiceCard({ invoice }: { invoice: ICompanyInvoice }) {
     : "-";
 
   const invoiceNumber =
-    invoice.id?.slice(0, 6).toUpperCase() || Math.floor(Math.random() * 9999);
+    invoice.id?.slice(-6).toUpperCase() || Math.floor(Math.random() * 9999);
 
   return (
     <Link href={`/company-invoices/${invoice.id}`} className="block">
@@ -40,9 +40,6 @@ export function CompanyInvoiceCard({ invoice }: { invoice: ICompanyInvoice }) {
 
             <p className="text-sm text-gray-500 mt-1">
               Company: {invoice.companyName}
-            </p>
-            <p className="text-sm text-gray-700 font-medium mt-2">
-              R{invoice.totalAmount.toFixed(2)}
             </p>
           </div>
         </div>
