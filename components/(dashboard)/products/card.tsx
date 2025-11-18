@@ -30,7 +30,7 @@ export function ProductCard({ product }: { product: IProduct }) {
               {product.description}
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              R{product.price?.toFixed(2)} | Stock: {product.stock}
+              R{product.sellingPrice?.toFixed(2)} | Stock: {product.stock}
             </p>
           </div>
         </div>

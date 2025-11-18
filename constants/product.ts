@@ -11,16 +11,4 @@ export const productInputFormData = [
     placeholder: "Short description",
     type: "text",
   },
-  {
-    name: "price",
-    label: "Price (R)",
-    placeholder: "0.00",
-    type: "number",
-  },
-  {
-    name: "stock",
-    label: "Stock Quantity",
-    placeholder: "0",
-    type: "number",
-  },
 ];

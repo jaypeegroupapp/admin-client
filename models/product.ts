@@ -1,8 +1,9 @@
-// src/models/Product.ts
 import { IProduct } from "@/definitions/product";
 import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
-interface ProductDocument extends Document, Omit<IProduct, "id" | "createdAt" | "updatedAt"> {
+interface ProductDocument
+  extends Document,
+    Omit<IProduct, "id" | "createdAt" | "updatedAt"> {
   categoryId: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
@@ -12,17 +13,18 @@ const ProductSchema = new Schema<ProductDocument>(
   {
     name: { type: String, required: true, trim: true },
     description: { type: String, required: true },
-    price: { type: Number, required: true, min: 0 },
-    stock: { type: Number, required: true, min: 0 },
-    isPublished: { type: Boolean, default: false }, // 👈 new field
+    sellingPrice: { type: Number, default: 0, min: 0 },
+    costPrice: { type: Number, default: 0, min: 0 },
+    stock: { type: Number, default: 0, min: 0 },
+    isPublished: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
 ProductSchema.index({ name: "text", description: "text", tags: 1 });
 
-const Product: Model<ProductDocument> =
-  mongoose.models.Product ||
+const Product =
+  mongoose.connection.models.Product ||
   mongoose.model<ProductDocument>("Product", ProductSchema);
 
 export default Product;

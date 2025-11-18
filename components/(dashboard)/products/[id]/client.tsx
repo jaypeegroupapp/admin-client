@@ -12,9 +12,10 @@ import ProductModal from "@/components/ui/modal";
 import { DeleteProductModal } from "./delete-modal";
 
 export function ProductDetailsClient({ product }: { product: IProduct }) {
+  console.log({ product });
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"info" | "inventory" | "orders">(
-    "info"
+    "inventory"
   );
 
   const [isEditOpen, setIsEditOpen] = useState(false);

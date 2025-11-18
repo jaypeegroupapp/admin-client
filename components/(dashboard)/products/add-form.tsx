@@ -37,9 +37,6 @@ export default function ProductAddForm({
     defaultValues: {
       name: product?.name || "",
       description: product?.description || "",
-      price: product?.price || "",
-      stock: product?.stock || "",
-      isPublished: product?.isPublished || false,
     },
   });
 
@@ -74,17 +71,6 @@ export default function ProductAddForm({
             stateError={state?.errors}
           />
         ))}
-
-        <div className="flex items-center gap-2 mt-2">
-          <input
-            type="checkbox"
-            {...register("isPublished")}
-            className="accent-blue-600"
-          />
-          <label className="text-sm font-medium text-gray-700">
-            Publish Product
-          </label>
-        </div>
 
         <SubmitButton
           name={productId ? "Update Product" : "Add Product"}

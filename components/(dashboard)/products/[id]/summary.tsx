@@ -30,14 +30,16 @@ export function ProductSummary({ product }: { product: IProduct }) {
       <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
         <div className="flex items-center gap-2">
           <Tag size={16} className="text-gray-500" />
-          <span>Price: R{product.price.toFixed(2)}</span>
+          <span>Selling Price: R{(product.sellingPrice ?? 0).toFixed(2)}</span>
+        </div>{" "}
+        <div className="flex items-center gap-2">
+          <Tag size={16} className="text-gray-500" />
+          <span>Cost Price: R{(product.costPrice ?? 0).toFixed(2)}</span>
         </div>
-
         <div className="flex items-center gap-2">
           <Layers size={16} className="text-gray-500" />
           <span>Stock: {product.stock}</span>
         </div>
-
         <div className="col-span-2">
           <span
             className={`px-3 py-1 rounded-md text-xs font-medium ${

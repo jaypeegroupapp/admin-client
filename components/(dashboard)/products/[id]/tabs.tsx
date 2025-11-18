@@ -2,14 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Package,
-  ClipboardList,
-  ShoppingCart,
-  ChevronRight,
-} from "lucide-react";
+import { ShoppingCart, ChevronRight } from "lucide-react";
 import { getOrdersByProductId } from "@/data/order";
 import Link from "next/link";
+import { InventoryTab } from "./inventory-tab";
 
 interface Props {
   productId: string;
@@ -91,12 +87,7 @@ export function ProductTabs({ productId, activeTab, onTabChange }: Props) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="flex items-center gap-3">
-              <ClipboardList className="text-gray-500" size={18} />
-              <span className="text-gray-700 text-sm">
-                Inventory management coming soon...
-              </span>
-            </div>
+            <InventoryTab productId={productId} />
           </motion.div>
         )}
 
