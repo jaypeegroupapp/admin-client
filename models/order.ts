@@ -3,6 +3,7 @@ import mongoose, { Schema, Model, Types } from "mongoose";
 import User from "./user";
 import Company from "./company";
 import Product from "./product";
+import CompanyInvoice from "./company-invoice";
 
 type IOrderDoc = Omit<
   IOrder,
@@ -10,6 +11,7 @@ type IOrderDoc = Omit<
   | "userId"
   | "companyId"
   | "productId"
+  | "invoiceId"
   | "productName"
   | "collectionDate"
   | "createdAt"
@@ -18,6 +20,7 @@ type IOrderDoc = Omit<
   userId: Types.ObjectId;
   companyId: Types.ObjectId;
   productId: Types.ObjectId;
+  invoiceId: Types.ObjectId;
   collectionDate: Date;
   createdAt?: Date;
   updatedAt?: Date;
@@ -38,6 +41,11 @@ const OrderSchema = new Schema<IOrderDoc>(
     productId: {
       type: Schema.Types.ObjectId,
       ref: Product.modelName,
+      required: true,
+    },
+    invoiceId: {
+      type: Schema.Types.ObjectId,
+      ref: CompanyInvoice.modelName,
       required: true,
     },
     totalAmount: {

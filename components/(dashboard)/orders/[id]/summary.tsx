@@ -6,6 +6,7 @@ import { IOrder } from "@/definitions/order";
 import { OrderStatusBadge } from "./status-badge";
 import { AcceptOrderModal } from "./accept-order-modal";
 import { DeclineOrderModal } from "./decline-order-modal";
+import { CompleteOrderModal } from "./complete-order-modal";
 
 export function OrderSummary({
   order,
@@ -16,6 +17,7 @@ export function OrderSummary({
 }) {
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   return (
     <>
@@ -61,6 +63,16 @@ export function OrderSummary({
               </button>
             </div>
           )}
+
+          {order.status === "accepted" && (
+            <button
+              onClick={() => setShowCompleteModal(true)}
+              className="flex items-center gap-1 rounded-lg h-8 px-3 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+            >
+              Complete Order
+              <Check size={16} />
+            </button>
+          )}
         </div>
 
         <div className="border-t border-gray-200 my-4" />
@@ -100,6 +112,15 @@ export function OrderSummary({
           totalStockToDeduct={totalStockToDeduct}
           open={showAcceptModal}
           onClose={() => setShowAcceptModal(false)}
+        />
+      )}
+
+      {/* Complete Order Modal */}
+      {showCompleteModal && (
+        <CompleteOrderModal
+          orderId={order.id!}
+          open={showCompleteModal}
+          onClose={() => setShowCompleteModal(false)}
         />
       )}
 

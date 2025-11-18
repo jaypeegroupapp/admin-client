@@ -1,5 +1,6 @@
 "use server";
 
+import { completeOrderWithInvoice } from "@/services/company-invoice";
 import {
   acceptOrderWithTransaction,
   declineOrderService,
@@ -18,6 +19,20 @@ export async function acceptOrderAction(orderId: string, quantity: number) {
   } catch (error) {
     console.error("❌ acceptOrderAction error:", error);
     return { success: false, message: "Failed to accept order." };
+  }
+}
+
+// /actions/order.ts
+export async function completeOrderAction(orderId: string) {
+  try {
+    const result = await completeOrderWithInvoice(orderId);
+
+    if (!result.success) return { success: false, message: result.message };
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ completeOrderAction error:", error);
+    return { success: false, message: "Failed to complete order." };
   }
 }
 
