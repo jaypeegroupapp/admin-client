@@ -12,6 +12,7 @@ const navItems = [
   { name: "Products", href: "/products", icon: Package },
   { name: "Companies", href: "/companies", icon: Building2 },
   { name: "Company Invoice", href: "/company-invoices", icon: FileText },
+  { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
 ];
 
 export default function DashboardLayout({
