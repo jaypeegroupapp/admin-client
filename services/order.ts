@@ -256,7 +256,7 @@ export async function acceptOrderWithTransaction(
           productId: product._id,
           type: "OUT",
           quantity: quantity,
-          purchasePrice: product.costPrice,
+          purchasePrice: product.purchasePrice,
           sellingPriceAtPurchase: product.sellingPrice,
           reason: `Order accepted: ${order._id}`,
         },

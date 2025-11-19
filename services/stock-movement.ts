@@ -17,7 +17,7 @@ import { Types } from "mongoose";
     if (!product) return { success: false, message: "Product not found" };
 
     product.stock = (product.stock ?? 0) + quantity;
-    product.costPrice = purchasePrice; // update last cost price
+    product.purchasePrice = purchasePrice; // update last cost price
     product.sellingPrice = sellingPriceAtPurchase; // update last selling price
     await product.save();
 
@@ -94,7 +94,7 @@ export async function addStockService(
   if (!product) throw new Error("Product not found");
 
   product.stock += data.quantity;
-  product.costPrice = data.purchasePrice;
+  product.purchasePrice = data.purchasePrice;
   product.sellingPrice = data.sellingPrice;
   await product.save();
 

@@ -14,7 +14,7 @@ const ProductSchema = new Schema<ProductDocument>(
     name: { type: String, required: true, trim: true },
     description: { type: String, required: true },
     sellingPrice: { type: Number, default: 0, min: 0 },
-    costPrice: { type: Number, default: 0, min: 0 },
+    purchasePrice: { type: Number, default: 0, min: 0 },
     stock: { type: Number, default: 0, min: 0 },
     isPublished: { type: Boolean, default: false },
   },

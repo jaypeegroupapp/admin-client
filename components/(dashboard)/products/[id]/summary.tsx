@@ -34,7 +34,7 @@ export function ProductSummary({ product }: { product: IProduct }) {
         </div>{" "}
         <div className="flex items-center gap-2">
           <Tag size={16} className="text-gray-500" />
-          <span>Cost Price: R{(product.costPrice ?? 0).toFixed(2)}</span>
+          <span>Cost Price: R{(product.purchasePrice ?? 0).toFixed(2)}</span>
         </div>
         <div className="flex items-center gap-2">
           <Layers size={16} className="text-gray-500" />

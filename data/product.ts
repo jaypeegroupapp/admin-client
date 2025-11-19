@@ -12,7 +12,7 @@ const mapProduct = (product: any): IProduct => ({
   name: product.name,
   description: product.description,
   sellingPrice: product.sellingPrice,
-  costPrice: product.costPrice,
+  purchasePrice: product.purchasePrice,
   stock: product.stock,
   isPublished: product.isPublished ?? false,
 });

@@ -27,7 +27,7 @@ export const editProductFormSchema = z.object({
     .number()
     .min(0)
     .nonnegative("Selling price cannot be negative"),
-  costPrice: z.coerce
+  purchasePrice: z.coerce
     .number()
     .min(0)
     .nonnegative("Cost Price cannot be negative"),
