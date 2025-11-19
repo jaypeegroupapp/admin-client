@@ -24,7 +24,16 @@ export async function createSupplierInvoiceService(data: {
 // GET ALL
 export async function getSupplierInvoicesService() {
   await connectDB();
-  return await SupplierInvoice.find().sort({ createdAt: -1 }).lean();
+  return await SupplierInvoice.find()
+    .populate({
+      path: "stockMovementId",
+      populate: {
+        path: "productId",
+        select: "name",
+      },
+    })
+    .sort({ createdAt: -1 })
+    .lean();
 }
 
 // GET ONE

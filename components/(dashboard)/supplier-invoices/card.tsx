@@ -46,9 +46,9 @@ export function SupplierInvoiceCard({
               Supplier: {invoice.name}
             </p>
 
-            {/* <p className="text-sm text-gray-600 mt-2">
-              Payment Date: {formattedPayment}
-            </p> */}
+            <p className="text-sm text-gray-600 mt-2">
+              {invoice.productName}
+            </p>
           </div>
         </div>
       </motion.div>

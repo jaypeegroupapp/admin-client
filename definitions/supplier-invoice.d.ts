@@ -9,6 +9,7 @@ export interface ISupplierInvoice {
   invoiceDate: string;
   stockMovementId: string;
   totalAmount?: number;
+  productName?: string;
   createdAt?: string;
   updatedAt?: string;
 }
