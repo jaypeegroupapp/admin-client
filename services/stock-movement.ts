@@ -23,7 +23,7 @@ import { Types } from "mongoose";
 
     await StockMovement.create({
       productId,
-      type: "IN",
+      type: ADDEDSTOCK,
       quantity,
       purchasePrice,
       sellingPriceAtPurchase,

@@ -7,7 +7,7 @@ import { stockFormSchema } from "@/validations/stock-movement";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useActionState, startTransition, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { stockInputFormData } from "@/constants/stock-movement";
+import { ADDEDSTOCK, stockInputFormData } from "@/constants/stock-movement";
 import { BaseModal } from "@/components/ui/base-modal";
 
 export function AddStockModal({
@@ -20,12 +20,14 @@ export function AddStockModal({
   onClose: () => void;
 }) {
   const initialState = { message: "", errors: {} };
+  const reason = "Restock";
 
   // Bind the productId just like createProductAction
   const createStockMovementActionWithId = createStockMovementAction.bind(
     null,
     productId,
-    "IN"
+    ADDEDSTOCK,
+    reason
   );
 
   const [state, formAction, isPending] = useActionState(

@@ -9,10 +9,12 @@ import {
   updateProductSellingPriceService,
 } from "@/services/stock-movement";
 import { addStockService, removeStockService } from "@/services/stock-movement";
+import { ADDEDSTOCK } from "@/constants/stock-movement";
 
 export async function createStockMovementAction(
   productId: string,
   type: string,
+  reason: string,
   prevState: any,
   formData: FormData
 ) {
@@ -26,8 +28,7 @@ export async function createStockMovementAction(
       };
     }
 
-    const { quantity, purchasePrice, sellingPriceAtPurchase, reason } =
-      validated.data;
+    const { quantity, purchasePrice, sellingPriceAtPurchase } = validated.data;
 
     // Ensure product exists
     const product = await getProductByIdService(productId);
@@ -39,7 +40,7 @@ export async function createStockMovementAction(
     }
 
     // --- Handle movement types ---
-    if (type === "IN") {
+    if (type === ADDEDSTOCK) {
       // Update product stock
       await addStockService(productId, {
         quantity: parseFloat(quantity),

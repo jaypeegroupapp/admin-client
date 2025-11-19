@@ -1,3 +1,5 @@
+export const ADDEDSTOCK = "IN";
+export const REMOVESTOCK = "OUT";
 export const stockInputFormData = [
   {
     name: "quantity",

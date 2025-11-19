@@ -1,6 +1,7 @@
 import { IStockMovement } from "@/definitions/stock-movement";
 import mongoose, { Schema, Model } from "mongoose";
 import Product from "./product";
+import { ADDEDSTOCK } from "@/constants/stock-movement";
 
 const StockMovementSchema = new Schema<IStockMovement>(
   {
@@ -9,7 +10,7 @@ const StockMovementSchema = new Schema<IStockMovement>(
       ref: Product.modelName,
       required: true,
     },
-    type: { type: String, enum: ["IN", "OUT"], required: true },
+    type: { type: String, enum: [ADDEDSTOCK, "OUT"], required: true },
     quantity: { type: Number, required: true, min: 1 },
     purchasePrice: { type: Number, required: true },
     sellingPriceAtPurchase: { type: Number, default: 0 },

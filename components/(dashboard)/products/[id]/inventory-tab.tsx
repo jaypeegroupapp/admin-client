@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Plus, Package } from "lucide-react";
 import { getStockMovementsByProductId } from "@/data/stock-movement";
 import { AddStockModal } from "./add-stock-modal";
+import { ADDEDSTOCK } from "@/constants/stock-movement";
 
 export function InventoryTab({ productId }: { productId: string }) {
   const [movements, setMovements] = useState<any[]>([]);
@@ -45,7 +46,7 @@ export function InventoryTab({ productId }: { productId: string }) {
               {/* LEFT SIDE */}
               <div>
                 <p className="text-sm font-medium text-gray-800">
-                  {m.type === "IN" ? "Stock Added" : "Stock Removed"}
+                  {m.type === ADDEDSTOCK ? "Stock Added" : "Stock Removed"}
                 </p>
 
                 <p className="text-xs text-gray-500 mb-1">
@@ -75,7 +76,7 @@ export function InventoryTab({ productId }: { productId: string }) {
               {/* RIGHT SIDE: TYPE BADGE */}
               <span
                 className={`px-2 py-1 text-xs rounded-md ${
-                  m.type === "IN"
+                  m.type === ADDEDSTOCK
                     ? "bg-green-100 text-green-700"
                     : "bg-red-100 text-red-700"
                 }`}
