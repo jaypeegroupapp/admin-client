@@ -3,40 +3,6 @@ import StockMovement from "@/models/stock-movement";
 import { connectDB } from "@/lib/db";
 import { Types } from "mongoose";
 
-/* export async function addStockService(
-  productId: string,
-  quantity: number,
-  purchasePrice: number,
-  sellingPriceAtPurchase: number,
-  reason: string
-) {
-  await connectDB();
-
-  try {
-    const product = await Product.findById(productId);
-    if (!product) return { success: false, message: "Product not found" };
-
-    product.stock = (product.stock ?? 0) + quantity;
-    product.purchasePrice = purchasePrice; // update last cost price
-    product.sellingPrice = sellingPriceAtPurchase; // update last selling price
-    await product.save();
-
-    await StockMovement.create({
-      productId,
-      type: ADDEDSTOCK,
-      quantity,
-      purchasePrice,
-      sellingPriceAtPurchase,
-      reason,
-    });
-
-    return { success: true };
-  } catch (error) {
-    console.error("❌ addStockService", error);
-    return { success: false, message: "Failed to add stock" };
-  }
-}
- */
 export async function getStockMovementsByProductIdService(productId: string) {
   await connectDB();
 

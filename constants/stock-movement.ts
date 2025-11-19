@@ -22,9 +22,19 @@ export const stockInputFormData = [
     placeholder: "Enter current selling price",
   },
   {
-    name: "reason",
-    label: "Reason (optional)",
-    type: "textarea",
+    name: "supplierName",
+    label: "Supplier Name",
     placeholder: "Reason for adding stock",
+  },
+  {
+    name: "invoiceNumber",
+    label: "Invoice Number",
+    placeholder: "Enter invoice number",
+  },
+  {
+    name: "invoiceDate",
+    label: "Invoice Date",
+    type: "date",
+    placeholder: "Enter invoice date",
   },
 ];

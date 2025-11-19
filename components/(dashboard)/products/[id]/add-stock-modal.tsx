@@ -47,7 +47,9 @@ export function AddStockModal({
       quantity: "",
       purchasePrice: "",
       sellingPriceAtPurchase: "",
-      reason: "",
+      supplierName: "",
+      invoiceNumber: "",
+      invoiceDate: "",
     },
   });
 
