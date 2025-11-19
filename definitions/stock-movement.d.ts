@@ -3,7 +3,7 @@ export interface IStockMovement extends Document {
   productId: Types.ObjectId;
   type: "IN" | "OUT";
   quantity: number;
-  purchasedPrice: number;
+  purchasePrice: number;
   sellingPriceAtPurchase: number;
   reason?: string;
   createdAt?: Date;

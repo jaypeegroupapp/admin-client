@@ -12,7 +12,6 @@ type IOrderDoc = Omit<
   | "companyId"
   | "productId"
   | "invoiceId"
-  | "productName"
   | "collectionDate"
   | "createdAt"
   | "updatedAt"
@@ -43,6 +42,8 @@ const OrderSchema = new Schema<IOrderDoc>(
       ref: Product.modelName,
       required: true,
     },
+    purchasePrice: { type: Number, required: true, default: 0 },
+    sellingPrice: { type: Number, required: true, default: 0 },
     invoiceId: {
       type: Schema.Types.ObjectId,
       ref: CompanyInvoice.modelName,

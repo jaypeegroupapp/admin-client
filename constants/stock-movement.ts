@@ -6,7 +6,7 @@ export const stockInputFormData = [
     placeholder: "Enter quantity",
   },
   {
-    name: "purchasedPrice",
+    name: "purchasePrice",
     label: "Purchased Price",
     type: "number",
     step: "0.01",

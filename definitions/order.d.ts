@@ -3,6 +3,8 @@ export interface IOrder {
   userId: string;
   companyId: string;
   productId: string;
+  purchasePrice?: number;
+  sellingPrice?: number;
   invoiceId?: string;
   productName: string;
   totalAmount: number;

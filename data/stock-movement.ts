@@ -8,7 +8,7 @@ function stockMovementMap(movement: any) {
     productId: movement.productId?.toString(),
     type: movement.type,
     quantity: movement.quantity,
-    purchasedPrice: movement.purchasedPrice,
+    purchasePrice: movement.purchasePrice,
     sellingPriceAtPurchase: movement.sellingPriceAtPurchase,
     reason: movement.reason,
     createdAt: movement.createdAt,

@@ -26,7 +26,7 @@ export async function createStockMovementAction(
       };
     }
 
-    const { quantity, purchasedPrice, sellingPriceAtPurchase, reason } =
+    const { quantity, purchasePrice, sellingPriceAtPurchase, reason } =
       validated.data;
 
     // Ensure product exists
@@ -43,7 +43,7 @@ export async function createStockMovementAction(
       // Update product stock
       await addStockService(productId, {
         quantity: parseFloat(quantity),
-        purchasedPrice: parseFloat(purchasedPrice),
+        purchasePrice: parseFloat(purchasePrice),
         sellingPrice: parseFloat(sellingPriceAtPurchase),
       });
 
@@ -61,7 +61,7 @@ export async function createStockMovementAction(
     // Record movement for history / accounting
     await createStockMovementService(productId, {
       quantity,
-      purchasedPrice,
+      purchasePrice,
       sellingPriceAtPurchase,
       reason,
       type,

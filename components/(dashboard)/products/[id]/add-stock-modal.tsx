@@ -43,7 +43,7 @@ export function AddStockModal({
     resolver: zodResolver(stockFormSchema),
     defaultValues: {
       quantity: "",
-      purchasedPrice: "",
+      purchasePrice: "",
       sellingPriceAtPurchase: "",
       reason: "",
     },

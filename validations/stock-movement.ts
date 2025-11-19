@@ -6,7 +6,7 @@ export const stockFormSchema = z.object({
     .min(1, "Quantity is required")
     .refine((v) => Number(v) > 0, "Quantity must be greater than 0"),
 
-  purchasedPrice: z.coerce
+  purchasePrice: z.coerce
     .string()
     .min(1, "Purchased price is required")
     .refine((v) => Number(v) >= 0, "Must be a positive number"),

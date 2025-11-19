@@ -6,7 +6,7 @@ import { Types } from "mongoose";
 /* export async function addStockService(
   productId: string,
   quantity: number,
-  purchasedPrice: number,
+  purchasePrice: number,
   sellingPriceAtPurchase: number,
   reason: string
 ) {
@@ -17,7 +17,7 @@ import { Types } from "mongoose";
     if (!product) return { success: false, message: "Product not found" };
 
     product.stock = (product.stock ?? 0) + quantity;
-    product.costPrice = purchasedPrice; // update last cost price
+    product.costPrice = purchasePrice; // update last cost price
     product.sellingPrice = sellingPriceAtPurchase; // update last selling price
     await product.save();
 
@@ -25,7 +25,7 @@ import { Types } from "mongoose";
       productId,
       type: "IN",
       quantity,
-      purchasedPrice,
+      purchasePrice,
       sellingPriceAtPurchase,
       reason,
     });
@@ -66,7 +66,7 @@ export async function createStockMovementService(productId: string, data: any) {
     productId,
     quantity: data.quantity,
     type: data.type, // "IN" | "OUT"
-    purchasedPrice: data.purchasedPrice ?? null,
+    purchasePrice: data.purchasePrice ?? null,
     sellingPriceAtPurchase: data.sellingPriceAtPurchase ?? null,
     reason: data.reason || "",
   });
@@ -86,7 +86,7 @@ export async function updateProductSellingPriceService(
 
 export async function addStockService(
   productId: string,
-  data: { quantity: number; purchasedPrice: number; sellingPrice: number }
+  data: { quantity: number; purchasePrice: number; sellingPrice: number }
 ) {
   await connectDB();
 
@@ -94,7 +94,7 @@ export async function addStockService(
   if (!product) throw new Error("Product not found");
 
   product.stock += data.quantity;
-  product.costPrice = data.purchasedPrice;
+  product.costPrice = data.purchasePrice;
   product.sellingPrice = data.sellingPrice;
   await product.save();
 
