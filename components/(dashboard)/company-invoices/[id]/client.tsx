@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ICompanyInvoice } from "@/definitions/company-invoice";
 import { InvoiceHeader } from "./header";
 import { InvoiceSummary } from "./summary";
 import { InvoiceOrdersList } from "./item-list";

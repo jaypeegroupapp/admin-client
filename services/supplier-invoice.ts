@@ -1,8 +1,9 @@
+"use server";
 // data/services/supplier-invoice.service.ts
 
 import { connectDB } from "@/lib/db";
 import SupplierInvoice from "@/models/supplier-invoice";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 // CREATE
 export async function createSupplierInvoiceService(data: {
@@ -27,6 +28,7 @@ export async function getSupplierInvoicesService() {
   return await SupplierInvoice.find()
     .populate({
       path: "stockMovementId",
+      select: "quantity purchasePrice type createdAt",
       populate: {
         path: "productId",
         select: "name",
@@ -39,7 +41,17 @@ export async function getSupplierInvoicesService() {
 // GET ONE
 export async function getSupplierInvoiceByIdService(id: string) {
   await connectDB();
-  return await SupplierInvoice.findById(id).lean();
+  return await SupplierInvoice.findById(id)
+    .populate({
+      path: "stockMovementId",
+      select: "quantity purchasePrice type createdAt",
+      populate: {
+        path: "productId",
+        select: "name",
+      },
+    })
+    .sort({ createdAt: -1 })
+    .lean();
 }
 
 // UPDATE
@@ -63,4 +75,81 @@ export async function deleteSupplierInvoiceService(id: string) {
   await connectDB();
 
   return await SupplierInvoice.findByIdAndDelete(id).lean();
+}
+
+/* ------------------------------------------------------
+ * CONFIRM PAYMENT (SERVICE)
+ * ------------------------------------------------------ */
+export async function confirmSupplierInvoicePaymentService(invoiceId: string) {
+  await connectDB();
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const invoice = (await SupplierInvoice.findById(invoiceId).session(
+      session
+    )) as any;
+
+    if (!invoice) {
+      await session.abortTransaction();
+      return { success: false, message: "Invoice not found." };
+    }
+
+    invoice.status = "paid";
+    invoice.paymentDate = new Date();
+
+    await invoice.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ confirmSupplierInvoicePaymentService error:", error);
+    await session.abortTransaction();
+    session.endSession();
+    return { success: false, message: "Failed to confirm payment." };
+  }
+}
+
+/* ------------------------------------------------------
+ * CLOSE INVOICE (SERVICE)
+ * ------------------------------------------------------ */
+export async function closeSupplierInvoiceService(invoiceId: string) {
+  await connectDB();
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const invoice = await SupplierInvoice.findById(invoiceId).session(session);
+
+    if (!invoice) {
+      await session.abortTransaction();
+      return { success: false, message: "Invoice not found." };
+    }
+
+    if (invoice.status !== "paid") {
+      await session.abortTransaction();
+      return {
+        success: false,
+        message: "Invoice must be marked paid before closing.",
+      };
+    }
+
+    invoice.status = "closed";
+
+    await invoice.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ closeSupplierInvoiceService error:", error);
+    await session.abortTransaction();
+    session.endSession();
+    return { success: false, message: "Failed to close invoice." };
+  }
 }

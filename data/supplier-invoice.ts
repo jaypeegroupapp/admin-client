@@ -20,7 +20,9 @@ function supplierInvoiceMap(invoice: any) {
     stockMovementId: invoice.stockMovementId?._id
       ? invoice.stockMovementId._id.toString()
       : invoice.stockMovementId?.toString() || "",
-    totalAmount: invoice.totalAmount ?? 0,
+    totalAmount:
+      (invoice.stockMovementId?.purchasePrice ?? 0) *
+      (invoice.stockMovementId?.quantity ?? 0),
     productName: invoice.stockMovementId?.productId?.name || "Unknown Product",
     createdAt: invoice.createdAt
       ? new Date(invoice.createdAt).toISOString()

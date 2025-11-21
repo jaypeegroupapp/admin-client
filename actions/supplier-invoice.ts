@@ -1,4 +1,8 @@
+"use server";
+
 import {
+  closeSupplierInvoiceService,
+  confirmSupplierInvoicePaymentService,
   deleteSupplierInvoiceService,
   updateSupplierInvoiceService,
 } from "@/services/supplier-invoice";
@@ -44,5 +48,41 @@ export async function deleteSupplierInvoice(id: string) {
   } catch (err) {
     console.error("❌ deleteSupplierInvoice error:", err);
     return null;
+  }
+}
+
+/* ------------------------------------------------------
+ * CONFIRM PAYMENT (ACTION)
+ * ------------------------------------------------------ */
+export async function confirmSupplierInvoicePaymentAction(invoiceId: string) {
+  try {
+    const result = await confirmSupplierInvoicePaymentService(invoiceId);
+
+    if (!result.success) {
+      return { success: false, message: result.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ confirmSupplierInvoicePaymentAction error:", error);
+    return { success: false, message: "Failed to confirm invoice payment." };
+  }
+}
+
+/* ------------------------------------------------------
+ * CLOSE INVOICE (ACTION)
+ * ------------------------------------------------------ */
+export async function closeSupplierInvoiceAction(invoiceId: string) {
+  try {
+    const result = await closeSupplierInvoiceService(invoiceId);
+
+    if (!result.success) {
+      return { success: false, message: result.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ closeSupplierInvoiceAction error:", error);
+    return { success: false, message: "Failed to close invoice." };
   }
 }
