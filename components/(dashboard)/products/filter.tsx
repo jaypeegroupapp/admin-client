@@ -8,11 +8,11 @@ export default function ProductFilter({
   onFilterChange: (text: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3 mb-4">
       <Input
         placeholder="Search products..."
         onChange={(e) => onFilterChange(e.target.value)}
-        className="w-full sm:w-64"
+        className="flex-1 rounded-md border px-3 py-2"
       />
     </div>
   );
