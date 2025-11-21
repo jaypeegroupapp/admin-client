@@ -4,6 +4,7 @@ import {
   getOrdersByCompanyIdService,
   getOrdersByProductIdService,
   getInvoiceOrdersService,
+  getOrdersByMineService,
 } from "@/services/order";
 
 const orderMap = (order: any) => ({
@@ -43,6 +44,19 @@ export async function getOrdersByCompanyId(companyId: string) {
     return Array.isArray(orders) ? orders.map(orderMap) : [];
   } catch (err) {
     console.error("❌ getOrders error:", err);
+    return [];
+  }
+}
+
+/**
+ * 🧾 Fetch all orders and map to UI-friendly format
+ */
+export async function getOrdersByMine(mineId: string) {
+  try {
+    const orders = await getOrdersByMineService(mineId);
+    return Array.isArray(orders) ? orders.map(orderMap) : [];
+  } catch (err) {
+    console.error("❌ getOrdersByMine error:", err);
     return [];
   }
 }

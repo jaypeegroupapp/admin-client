@@ -55,6 +55,31 @@ export async function getOrdersByCompanyIdService(companyId: string) {
 }
 
 /**
+ *
+ * @param mineId
+ * @returns
+ */
+export async function getOrdersByMineService(mineId: string) {
+  await connectDB();
+
+  try {
+    const orders = await Order.find({
+      mineId: new Types.ObjectId(mineId),
+    })
+      .populate("userId", "fullName email")
+      .populate("companyId", "companyName")
+      .populate("productId", "name price")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return JSON.parse(JSON.stringify(orders));
+  } catch (error) {
+    console.error("❌ getOrdersByMineService error:", error);
+    return [];
+  }
+}
+
+/**
  * ✅ Get a single Order by ID
  */
 export async function getOrderByIdService(id: string) {
