@@ -1,6 +1,13 @@
 "use client";
 
-import { Home, Package, Building2, PackageCheck, FileText } from "lucide-react";
+import {
+  Home,
+  Package,
+  Building2,
+  PackageCheck,
+  FileText,
+  Mountain,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -13,6 +20,7 @@ const navItems = [
   { name: "Companies", href: "/companies", icon: Building2 },
   { name: "Company Invoice", href: "/company-invoices", icon: FileText },
   { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
+  { name: "Mines", href: "/mines", icon: Mountain },
 ];
 
 export default function DashboardLayout({
