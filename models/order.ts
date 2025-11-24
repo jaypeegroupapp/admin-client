@@ -4,11 +4,13 @@ import User from "./user";
 import Company from "./company";
 import Product from "./product";
 import CompanyInvoice from "./company-invoice";
+import Mine from "./mine";
 
 type IOrderDoc = Omit<
   IOrder,
   | "id"
   | "userId"
+  | "mineId"
   | "companyId"
   | "productId"
   | "invoiceId"
@@ -17,6 +19,7 @@ type IOrderDoc = Omit<
   | "updatedAt"
 > & {
   userId: Types.ObjectId;
+  mineId: Types.ObjectId;
   companyId: Types.ObjectId;
   productId: Types.ObjectId;
   invoiceId: Types.ObjectId;
@@ -35,6 +38,11 @@ const OrderSchema = new Schema<IOrderDoc>(
     userId: {
       type: Schema.Types.ObjectId,
       ref: User.modelName,
+      required: true,
+    },
+    mineId: {
+      type: Schema.Types.ObjectId,
+      ref: Mine.modelName,
       required: true,
     },
     productId: {

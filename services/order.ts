@@ -18,6 +18,7 @@ export async function getOrdersService() {
   try {
     const orders = await Order.find()
       .populate("userId", "fullName email")
+      .populate("mineId", "name")
       .populate("companyId", "companyName")
       .populate("productId", "name price")
       .sort({ createdAt: -1 })
@@ -67,6 +68,7 @@ export async function getOrdersByMineService(mineId: string) {
       mineId: new Types.ObjectId(mineId),
     })
       .populate("userId", "fullName email")
+      .populate("mineId", "name")
       .populate("companyId", "companyName")
       .populate("productId", "name price")
       .sort({ createdAt: -1 })
@@ -86,6 +88,7 @@ export async function getOrderByIdService(id: string) {
   await connectDB();
   const order = (await Order.findById(id)
     .populate("productId")
+    .populate("mineId")
     .populate("companyId")
     .populate("userId")
     .lean()) as any;
@@ -114,6 +117,7 @@ export async function getOrdersByProductIdService(productId: string) {
   try {
     const orders = await Order.find({ productId })
       .populate("userId", "fullName email")
+      .populate("mineId", "name")
       .populate("companyId", "companyName")
       .populate("productId", "name price")
       .sort({ createdAt: -1 })

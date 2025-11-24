@@ -9,6 +9,7 @@ export interface ITruck {
   make?: string;
   model?: string;
   year?: number;
+  tankSize?: number;
   colour?: string;
   isActive?: boolean;
   createdAt?: string;

@@ -1,6 +1,6 @@
 // models/Truck.ts
 import { ITruck } from "@/definitions/truck";
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Model } from "mongoose";
 import User from "./user";
 import Company from "./company";
 
@@ -21,10 +21,16 @@ const TruckSchema: Schema<ITruckDoc> = new Schema(
       trim: true,
     },
     colour: { type: String },
+    tankSize: { type: Number, min: 0, required: true },
     make: { type: String },
     model: { type: String },
     year: { type: Number },
     isActive: { type: Boolean, default: true },
+    companyId: {
+      type: Schema.Types.ObjectId,
+      ref: Company.modelName,
+      required: true,
+    },
     userId: {
       type: Schema.Types.ObjectId,
       ref: User.modelName,
