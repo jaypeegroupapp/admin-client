@@ -85,6 +85,8 @@ export async function getOrderById(id: string) {
     return {
       id: order._id.toString(),
       userId: order.userId?._id?.toString() || "",
+      mineId: order.mineId?._id?.toString() || "",
+      mineName: order.mineId?.name || "",
       userName: order.userId?.fullName || "",
       companyId: order.companyId?._id?.toString() || "",
       companyName: order.companyId?.name || "",

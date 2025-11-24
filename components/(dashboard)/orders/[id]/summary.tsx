@@ -101,6 +101,10 @@ export function OrderSummary({
             <p className="font-semibold text-gray-900">
               {totalStockToDeduct} Litres
             </p>
+          </div>{" "}
+          <div>
+            <p className="text-gray-500">Mine</p>
+            <p className="font-semibold text-gray-900">{order.mineName}</p>
           </div>
         </div>
       </div>
