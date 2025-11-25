@@ -13,3 +13,5 @@ export interface ISupplierInvoice {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export type SupplierInvoiceTab = "All" | "Pending" | "Paid" | "Closed";
