@@ -54,7 +54,7 @@ export function MinesClientPage({ initialMines }: Props) {
     >
       <MineHeader onAdd={() => setIsModalOpen(true)} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-8">
+      <div className="flex flex-col lg:flex-row items-center gap-4">
         {/* TABS */}
         <MineTabs
           activeTab={activeTab}

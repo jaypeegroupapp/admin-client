@@ -8,7 +8,7 @@ export default function MineFilter({
   onFilterChange: (text: string) => void;
 }) {
   return (
-    <div className="col-span-6 flex items-center gap-3 mb-4">
+    <div className="md:flex-auto w-full lg:w-auto flex items-center gap-3">
       <Input
         placeholder="Search mines..."
         onChange={(e) => onFilterChange(e.target.value)}

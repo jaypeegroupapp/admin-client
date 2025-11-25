@@ -14,7 +14,7 @@ export function MineTabs({
   const tabs: MineTab[] = ["All", "Active", "Inactive"];
 
   return (
-    <div className="col-span-2 flex gap-2 mb-4">
+    <div className="w-full lg:w-auto flex-none flex gap-2 flex-wrap md:flex-nowrap">
       {tabs.map((tab) => (
         <button
           key={tab}
