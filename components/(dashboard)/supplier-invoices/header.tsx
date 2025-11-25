@@ -1,8 +1,11 @@
 "use client";
 
+import { FileText } from "lucide-react";
+
 export function SupplierInvoiceHeader() {
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex items-center gap-2">
+      <FileText className="w-6 h-6 text-gray-700" />
       <h1 className="text-xl font-semibold text-gray-800">Supplier Invoices</h1>
     </div>
   );

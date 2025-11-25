@@ -20,6 +20,7 @@ import {
   getProductProfitMarginStats,
   getMinePerformanceStats,
 } from "@/data/dashboard";
+import { Home } from "lucide-react";
 
 export default async function AdminDashboardPage() {
   const summary = await getDashboardSummary();
@@ -39,7 +40,13 @@ export default async function AdminDashboardPage() {
   const minePerformance = await getMinePerformanceStats();
 
   return (
-    <div className="py-4 md:p-4 space-y-6">
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex items-center gap-2">
+        <Home className="w-6 h-6 text-gray-700" />
+        <h1 className="text-xl font-semibold text-gray-800">Dashboard</h1>
+      </div>
+
       {/* Summary Tile Section */}
       <TilesSummary data={summary} />
 
