@@ -30,3 +30,11 @@ export async function deleteProductService(id: string) {
   await connectDB();
   return await Product.findByIdAndDelete(id);
 }
+
+export async function updateProductPublishStatusService(
+  id: string,
+  isPublished: boolean
+) {
+  await connectDB();
+  return await Product.findByIdAndUpdate(id, { isPublished }, { new: true });
+}

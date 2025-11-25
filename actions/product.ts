@@ -8,6 +8,7 @@ import {
   updateProductService,
   deleteProductService,
   getProductByIdService,
+  updateProductPublishStatusService,
 } from "@/services/product";
 import { IProduct } from "@/definitions/product";
 
@@ -63,5 +64,20 @@ export async function deleteProductAction(productId: string) {
   } catch (error: any) {
     console.error("❌ deleteProductAction error:", error);
     return { success: false, message: "Failed to delete product." };
+  }
+}
+
+export async function updateProductPublishStatusAction(
+  productId: string,
+  isPublished: boolean
+) {
+  try {
+    await updateProductPublishStatusService(productId, isPublished);
+    revalidatePath("/products");
+
+    return { success: true, message: "Product updated successfully." };
+  } catch (err) {
+    console.error("❌ updateProductPublishStatusAction error:", err);
+    return { success: false, message: "Failed to update product status." };
   }
 }
