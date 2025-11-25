@@ -11,6 +11,7 @@ interface MineDocument
 const MineSchema = new Schema<MineDocument>(
   {
     name: { type: String, required: true, trim: true },
+    isActive: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

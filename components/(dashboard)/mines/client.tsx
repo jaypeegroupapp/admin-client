@@ -8,6 +8,7 @@ import MineModal from "@/components/ui/modal";
 import MineAddForm from "./add-form";
 import { MineList } from "./list";
 import MineFilter from "./filter";
+import { MineTabs, MineTab } from "./tabs";
 import { getMines } from "@/data/mine";
 
 interface Props {
@@ -19,10 +20,7 @@ export function MinesClientPage({ initialMines }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMine, setEditingMine] = useState<IMine | null>(null);
   const [filterText, setFilterText] = useState("");
-
-  const filtered = mines.filter((m) =>
-    `${m.name}`.toLowerCase().includes(filterText.toLowerCase())
-  );
+  const [activeTab, setActiveTab] = useState<MineTab>("All");
 
   const fetchMines = async () => {
     const res = await getMines();
@@ -33,10 +31,19 @@ export function MinesClientPage({ initialMines }: Props) {
     fetchMines();
   }, []);
 
-  const handleAdd = () => {
-    setEditingMine(null);
-    setIsModalOpen(true);
-  };
+  /** COUNT LOGIC */
+  const allCount = mines.length;
+  const activeCount = mines.filter((m) => m.isActive).length;
+  const inactiveCount = mines.filter((m) => !m.isActive).length;
+
+  /** FILTER LOGIC */
+  const filtered = mines
+    .filter((m) => `${m.name}`.toLowerCase().includes(filterText.toLowerCase()))
+    .filter((m) => {
+      if (activeTab === "Active") return m.isActive === true;
+      if (activeTab === "Inactive") return m.isActive === false;
+      return true;
+    });
 
   return (
     <motion.div
@@ -45,15 +52,34 @@ export function MinesClientPage({ initialMines }: Props) {
       transition={{ duration: 0.4 }}
       className="space-y-6"
     >
-      <MineHeader onAdd={handleAdd} />
-      <MineFilter onFilterChange={(text) => setFilterText(text)} />
+      <MineHeader onAdd={() => setIsModalOpen(true)} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-8">
+        {/* TABS */}
+        <MineTabs
+          activeTab={activeTab}
+          onChange={(tab) => setActiveTab(tab)}
+          counts={{
+            All: allCount,
+            Active: activeCount,
+            Inactive: inactiveCount,
+          }}
+        />
+
+        {/* SEARCH FILTER */}
+        <MineFilter onFilterChange={(text) => setFilterText(text)} />
+      </div>
+
+      {/* LIST */}
       <MineList initialMines={filtered} />
 
+      {/* MODAL */}
       <MineModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <MineAddForm
           mine={editingMine}
           onClose={() => {
             fetchMines();
+            setIsModalOpen(false);
           }}
         />
       </MineModal>

@@ -27,3 +27,9 @@ export async function deleteMineService(id: string) {
   await connectDB();
   return await Mine.findByIdAndDelete(id);
 }
+
+export async function updateMineStatusService(id: string, isActive: boolean) {
+  await connectDB();
+
+  return await Mine.findByIdAndUpdate(id, { isActive }, { new: true });
+}

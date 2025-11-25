@@ -8,6 +8,7 @@ import {
   updateMineService,
   deleteMineService,
   getMineByIdService,
+  updateMineStatusService,
 } from "@/services/mine";
 import { IMine } from "@/definitions/mine";
 
@@ -62,5 +63,20 @@ export async function deleteMineAction(mineId: string) {
   } catch (error: any) {
     console.error("❌ deleteMineAction error:", error);
     return { success: false, message: "Failed to delete mine." };
+  }
+}
+
+export async function updateMineStatusAction(
+  mineId: string,
+  isActive: boolean
+) {
+  try {
+    await updateMineStatusService(mineId, isActive);
+    revalidatePath("/mines");
+
+    return { success: true, message: "Mine updated successfully." };
+  } catch (err) {
+    console.error("❌ updateMineStatusAction error:", err);
+    return { success: false, message: "Failed to update mine status." };
   }
 }

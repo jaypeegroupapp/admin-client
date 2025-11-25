@@ -6,6 +6,7 @@ import { IMine } from "@/definitions/mine";
 const mapMine = (mine: any): IMine => ({
   id: mine._id?.toString?.() ?? mine.id ?? "",
   name: mine.name,
+  isActive: mine.isActive ?? false,
   createdAt: mine.createdAt?.toISOString?.() ?? "",
   updatedAt: mine.updatedAt?.toISOString?.() ?? "",
 });

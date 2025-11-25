@@ -17,10 +17,10 @@ export function MineCard({ mine }: { mine: IMine }) {
         className="
           bg-white rounded-2xl border border-gray-200 p-4 shadow-sm 
           hover:shadow-md transition-all flex flex-col justify-between
-          cursor-pointer
+          cursor-pointer flex flex-row justify-between items-start
         "
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-center gap-3">
           <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-sm">
             <Mountain />
           </div>
@@ -29,6 +29,18 @@ export function MineCard({ mine }: { mine: IMine }) {
             <h3 className="font-semibold text-gray-800">{mine.name}</h3>
           </div>
         </div>
+        <span
+          className={`
+                mt-2 text-xs font-medium px-2 py-1 rounded-lg w-fit
+                ${
+                  mine.isActive
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }
+              `}
+        >
+          {mine.isActive ? "Enabled" : "Disabled"}
+        </span>
       </motion.div>
     </Link>
   );
