@@ -36,6 +36,7 @@ export function OrderClientPage({ initialOrders }: Props) {
     All: orders.length,
     Pending: orders.filter((o) => o.status === "pending").length,
     Completed: orders.filter((o) => o.status === "completed").length,
+    Accepted: orders.filter((o) => o.status === "accepted").length,
     Cancelled: orders.filter((o) => o.status === "cancelled").length,
   };
 
@@ -50,6 +51,7 @@ export function OrderClientPage({ initialOrders }: Props) {
     )
     .filter((o) => {
       if (activeTab === "Pending") return o.status === "pending";
+      if (activeTab === "Accepted") return o.status === "accepted";
       if (activeTab === "Completed") return o.status === "completed";
       if (activeTab === "Cancelled") return o.status === "cancelled";
       return true; // All

@@ -1,6 +1,11 @@
 "use client";
 
-export type OrderTab = "All" | "Pending" | "Completed" | "Cancelled";
+export type OrderTab =
+  | "All"
+  | "Pending"
+  | "Accepted"
+  | "Completed"
+  | "Cancelled";
 
 export function OrderTabs({
   activeTab,
@@ -11,7 +16,13 @@ export function OrderTabs({
   onChange: (tab: OrderTab) => void;
   counts: Record<OrderTab, number>;
 }) {
-  const tabs: OrderTab[] = ["All", "Pending", "Completed", "Cancelled"];
+  const tabs: OrderTab[] = [
+    "All",
+    "Pending",
+    "Accepted",
+    "Completed",
+    "Cancelled",
+  ];
 
   return (
     <div className="w-full lg:w-auto flex-none flex gap-2 flex-wrap md:flex-nowrap">
