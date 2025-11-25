@@ -1,7 +1,6 @@
 "use client";
 
 import { Building2, PlusCircle } from "lucide-react";
-import Link from "next/link";
 
 export function CompanyHeader() {
   return (
