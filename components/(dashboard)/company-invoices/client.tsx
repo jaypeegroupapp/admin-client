@@ -7,6 +7,8 @@ import { ICompanyInvoice } from "@/definitions/company-invoice";
 import { CompanyInvoiceHeader } from "./header";
 import CompanyInvoiceFilter from "./filter";
 import { CompanyInvoiceList } from "./list";
+import { InvoiceTabs } from "./tabs";
+import { InvoiceTab } from "@/definitions/company-invoice";
 import { getCompanyInvoices } from "@/data/company-invoice";
 
 interface Props {
@@ -14,30 +16,52 @@ interface Props {
 }
 
 export function CompanyInvoiceClientPage({ initialInvoices }: Props) {
-  const [invoices, setInvoices] = useState<ICompanyInvoice[]>(initialInvoices);
+  const [invoices, setInvoices] = useState<ICompanyInvoice[]>(
+    initialInvoices || []
+  );
+
   const [filterText, setFilterText] = useState("");
+  const [activeTab, setActiveTab] = useState<InvoiceTab>("All");
 
   const router = useRouter();
 
-  const filtered = invoices.filter((i) =>
-    `${i.status} ${i.totalAmount}`
-      .toLowerCase()
-      .includes(filterText.toLowerCase())
-  );
-
   const fetchInvoices = async () => {
     const res = await getCompanyInvoices();
-    if (res?.length) setInvoices(res);
+    if (Array.isArray(res)) setInvoices(res);
   };
 
   useEffect(() => {
     fetchInvoices();
   }, []);
 
-  const handleAdd = () => {
-    router.push("/company-invoices/add");
+  /** --------------------------------
+   * STATUS COUNTS
+   --------------------------------*/
+  const counts: Record<InvoiceTab, number> = {
+    All: invoices.length,
+    Pending: invoices.filter((i) => i.status === "pending").length,
+    Published: invoices.filter((i) => i.status === "published").length,
+    Paid: invoices.filter((i) => i.status === "paid").length,
+    Closed: invoices.filter((i) => i.status === "closed").length,
   };
 
+  /** --------------------------------
+   * FILTERING: Search + Tabs
+   --------------------------------*/
+  const filtered = invoices
+    .filter((inv) =>
+      `${inv.status} ${inv.totalAmount}`
+        .toLowerCase()
+        .includes(filterText.toLowerCase())
+    )
+    .filter((inv) => {
+      if (activeTab === "All") return true;
+      return inv.status.toLowerCase() === activeTab.toLowerCase();
+    });
+
+  /** --------------------------------
+   * PAGE UI
+   --------------------------------*/
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -46,7 +70,17 @@ export function CompanyInvoiceClientPage({ initialInvoices }: Props) {
       className="space-y-6"
     >
       <CompanyInvoiceHeader />
-      <CompanyInvoiceFilter onFilterChange={(text) => setFilterText(text)} />
+
+      <div className="flex flex-col lg:flex-row items-center gap-4">
+        <InvoiceTabs
+          activeTab={activeTab}
+          onChange={setActiveTab}
+          counts={counts}
+        />
+
+        <CompanyInvoiceFilter onFilterChange={(text) => setFilterText(text)} />
+      </div>
+
       <CompanyInvoiceList initialInvoices={filtered} />
     </motion.div>
   );

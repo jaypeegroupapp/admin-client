@@ -9,3 +9,5 @@ export interface ICompanyInvoice {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export type InvoiceTab = "All" | "Pending" | "Published" | "Paid" | "Closed";
