@@ -6,7 +6,7 @@ export default function OrderFilter({
   onFilterChange: (text: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-3 mb-4">
+    <div className="md:flex-auto w-full lg:w-auto flex items-center gap-3">
       <input
         type="text"
         onChange={(e) => onFilterChange(e.target.value)}

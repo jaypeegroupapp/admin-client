@@ -7,6 +7,7 @@ import { IOrder } from "@/definitions/order";
 import { OrderHeader } from "./header";
 import OrderFilter from "./filter";
 import { OrderList } from "./list";
+import { OrderTabs, OrderTab } from "./tabs";
 import { getOrders } from "@/data/order";
 
 interface Props {
@@ -16,13 +17,8 @@ interface Props {
 export function OrderClientPage({ initialOrders }: Props) {
   const [orders, setOrders] = useState<IOrder[]>(initialOrders || []);
   const [filterText, setFilterText] = useState("");
+  const [activeTab, setActiveTab] = useState<OrderTab>("All");
   const router = useRouter();
-
-  const filtered = orders.filter((o) =>
-    `${o.status} ${o.totalAmount}`
-      .toLowerCase()
-      .includes(filterText.toLowerCase())
-  );
 
   const fetchOrders = async () => {
     const res = await getOrders();
@@ -33,9 +29,31 @@ export function OrderClientPage({ initialOrders }: Props) {
     fetchOrders();
   }, []);
 
-  const handleAdd = () => {
-    router.push("/orders/add");
+  /** -----------------------------
+   * COUNT LOGIC
+   * -----------------------------*/
+  const counts = {
+    All: orders.length,
+    Pending: orders.filter((o) => o.status === "pending").length,
+    Completed: orders.filter((o) => o.status === "completed").length,
+    Cancelled: orders.filter((o) => o.status === "cancelled").length,
   };
+
+  /** -----------------------------
+   * FILTER: search + tab
+   * -----------------------------*/
+  const filtered = orders
+    .filter((o) =>
+      `${o.status} ${o.totalAmount}`
+        .toLowerCase()
+        .includes(filterText.toLowerCase())
+    )
+    .filter((o) => {
+      if (activeTab === "Pending") return o.status === "pending";
+      if (activeTab === "Completed") return o.status === "completed";
+      if (activeTab === "Cancelled") return o.status === "cancelled";
+      return true; // All
+    });
 
   return (
     <motion.div
@@ -45,7 +63,20 @@ export function OrderClientPage({ initialOrders }: Props) {
       className="space-y-6"
     >
       <OrderHeader />
-      <OrderFilter onFilterChange={(text: string) => setFilterText(text)} />
+
+      <div className="flex flex-col lg:flex-row items-center gap-4">
+        {/* TAB FILTERS */}
+        <OrderTabs
+          activeTab={activeTab}
+          onChange={(tab) => setActiveTab(tab)}
+          counts={counts}
+        />
+
+        {/* SEARCH BAR */}
+        <OrderFilter onFilterChange={(text: string) => setFilterText(text)} />
+      </div>
+
+      {/* LIST */}
       <OrderList initialOrders={filtered} />
     </motion.div>
   );
