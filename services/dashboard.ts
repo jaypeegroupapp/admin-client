@@ -7,6 +7,7 @@ import Product from "@/models/product";
 import Order from "@/models/order";
 import Mine from "@/models/mine";
 import { connectDB } from "@/lib/db";
+import { fillMissingMonths } from "@/lib/utils";
 
 /* -----------------------------------------------------
    1. DASHBOARD SUMMARY
@@ -67,7 +68,7 @@ async function getRevenueForCurrentMonth() {
 export async function getMonthlyOrdersStatsService() {
   await connectDB();
 
-  return await Order.aggregate([
+  const results = await Order.aggregate([
     {
       $group: {
         _id: { $month: "$createdAt" },
@@ -83,15 +84,18 @@ export async function getMonthlyOrdersStatsService() {
       },
     },
   ]);
+
+  return fillMissingMonths(results, "orders");
 }
 
 /* -----------------------------------------------------
    3. MONTHLY REVENUE STATS
 ----------------------------------------------------- */
+
 export async function getRevenueStatsService() {
   await connectDB();
 
-  return await Order.aggregate([
+  const results = await Order.aggregate([
     {
       $group: {
         _id: { $month: "$createdAt" },
@@ -107,6 +111,8 @@ export async function getRevenueStatsService() {
       },
     },
   ]);
+
+  return fillMissingMonths(results, "revenue");
 }
 
 /* -----------------------------------------------------
@@ -256,7 +262,7 @@ export async function getStockMovementService() {
 export async function getMonthlyCompanyInvoiceService() {
   await connectDB();
 
-  return await Order.aggregate([
+  const results = await Order.aggregate([
     {
       $match: { status: { $ne: "cancelled" } },
     },
@@ -275,12 +281,14 @@ export async function getMonthlyCompanyInvoiceService() {
       },
     },
   ]);
+
+  return fillMissingMonths(results, "totalAmount");
 }
 
 export async function getSupplierSpendingService() {
   await connectDB();
 
-  return await Product.aggregate([
+  const results = await Product.aggregate([
     {
       $lookup: {
         from: "stockmovements",
@@ -309,6 +317,8 @@ export async function getSupplierSpendingService() {
       },
     },
   ]);
+
+  return fillMissingMonths(results, "amount");
 }
 
 export async function getProductProfitMarginService() {

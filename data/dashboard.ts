@@ -102,7 +102,6 @@ export async function getOrdersByMineStats() {
 export async function getTopCompaniesStats() {
   try {
     const result = await getTopCompaniesStatsService();
-    console.log("result", result);
     return result.map((x: any) => ({
       company: x.company,
       orders: x.orders,
@@ -186,7 +185,6 @@ export async function getMonthlyCompanyInvoiceStats() {
 export async function getSupplierSpendingStats() {
   try {
     const result = await getSupplierSpendingService();
-    console.log("result", result);
     return result.map((x: any) => ({
       month: x.month,
       amount: x.amount,
