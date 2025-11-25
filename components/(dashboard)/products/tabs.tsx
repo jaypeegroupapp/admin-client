@@ -29,7 +29,7 @@ export function ProductTabs({
               }
             `}
         >
-          {tab} ({counts[tab]})
+          {tab} <b>{counts[tab]}</b>
         </button>
       ))}
     </div>

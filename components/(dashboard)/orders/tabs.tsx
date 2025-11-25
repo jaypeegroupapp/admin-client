@@ -40,7 +40,7 @@ export function OrderTabs({
             }
           `}
         >
-          {tab} ({counts[tab]})
+          {tab} <b>{counts[tab]}</b>
         </button>
       ))}
     </div>
