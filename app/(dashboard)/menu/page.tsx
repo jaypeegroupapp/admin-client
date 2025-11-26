@@ -1,18 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Scissors,
-  Users,
-  User,
-  Settings,
-  LogOut,
-  ChevronLeft,
-} from "lucide-react";
+import { ChevronLeft, Mountain, FileText, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const menuItems = [
-  {
+  { name: "Company Invoice", href: "/company-invoices", icon: FileText },
+  { name: "Products", href: "/products", icon: Package },
+  { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
+  { name: "Mines", href: "/mines", icon: Mountain },
+
+  /* {
     name: "Services",
     icon: Scissors,
     href: "/services",
@@ -36,7 +34,7 @@ const menuItems = [
     name: "Logout",
     icon: LogOut,
     href: "/logout",
-  },
+  }, */
 ];
 
 export default function MenuPage() {

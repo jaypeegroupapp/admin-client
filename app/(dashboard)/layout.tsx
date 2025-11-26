@@ -7,6 +7,7 @@ import {
   PackageCheck,
   FileText,
   Mountain,
+  Menu,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -16,9 +17,12 @@ import clsx from "clsx";
 const navItems = [
   { name: "Dashboard", href: "/", icon: Home },
   { name: "Orders", href: "/orders", icon: PackageCheck },
-  { name: "Products", href: "/products", icon: Package },
   { name: "Companies", href: "/companies", icon: Building2 },
+];
+
+const otherNavItems = [
   { name: "Company Invoice", href: "/company-invoices", icon: FileText },
+  { name: "Products", href: "/products", icon: Package },
   { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
   { name: "Mines", href: "/mines", icon: Mountain },
 ];
@@ -48,29 +52,57 @@ export default function DashboardLayout({
         </div>
 
         {/* Nav Links */}
-        <nav className="flex-1 mt-4 space-y-1 relative">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={clsx(
-                "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                pathname === item.href
-                  ? "bg-active font-medium"
-                  : "hover:bg-hover"
-              )}
-            >
-              <item.icon size={20} className="text-text shrink-0" />
-              <span
+        <nav className="flex-1 mt-4  relative">
+          <div className="space-y-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
                 className={clsx(
-                  "transition-opacity duration-200 text-sm whitespace-nowrap",
-                  sidebarHovered ? "opacity-100" : "opacity-0"
+                  "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                  pathname === item.href
+                    ? "bg-active font-medium"
+                    : "hover:bg-hover"
                 )}
               >
-                {item.name}
-              </span>
-            </Link>
-          ))}
+                <item.icon size={20} className="text-text shrink-0" />
+                <span
+                  className={clsx(
+                    "transition-opacity duration-200 text-sm whitespace-nowrap",
+                    sidebarHovered ? "opacity-100" : "opacity-0"
+                  )}
+                >
+                  {item.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Other Nav Desktop items */}
+          <div className="space-y-1 hidden md:block">
+            {otherNavItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={clsx(
+                  "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                  pathname === item.href
+                    ? "bg-active font-medium"
+                    : "hover:bg-hover"
+                )}
+              >
+                <item.icon size={20} className="text-text shrink-0" />
+                <span
+                  className={clsx(
+                    "transition-opacity duration-200 text-sm whitespace-nowrap",
+                    sidebarHovered ? "opacity-100" : "opacity-0"
+                  )}
+                >
+                  {item.name}
+                </span>
+              </Link>
+            ))}
+          </div>
         </nav>
       </aside>
 
@@ -118,6 +150,18 @@ export default function DashboardLayout({
               </Link>
             );
           })}
+          <Link
+            href="/menu"
+            className={clsx(
+              "flex flex-col items-center text-xs transition-colors",
+              pathname === "/menu"
+                ? "text-gray-800 font-semibold"
+                : "text-gray-500 hover:text-gray-700"
+            )}
+          >
+            <Menu size={22} strokeWidth={1.8} />
+            <span className="mt-1">Menu</span>
+          </Link>
         </nav>
       </div>
     </div>
