@@ -18,7 +18,6 @@ export function ProductDetailsClient({
   product: IProduct;
   totalOrderQuantity: number;
 }) {
-  console.log({ product });
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"info" | "inventory" | "orders">(
     "inventory"
