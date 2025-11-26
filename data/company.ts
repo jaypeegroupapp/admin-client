@@ -19,6 +19,8 @@ const mapCompany = (company: any): ICompany => ({
   billingAddress: company.billingAddress,
   vatNumber: company.vatNumber ?? "",
   invoiceFile: company.invoiceFile ?? "",
+  creditLimit: company.creditLimit ?? 0,
+  balance: company.balance ?? 0,
   createdAt: company.createdAt ?? "",
   updatedAt: company.updatedAt ?? "",
 });

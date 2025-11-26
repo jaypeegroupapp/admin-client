@@ -20,6 +20,8 @@ const CompanySchema = new Schema<CompanyDocument>(
       ref: User.modelName,
       required: true,
     },
+    creditLimit: { type: Number, required: false, default: 0 },
+    balance: { type: Number, required: false, default: 0 },
   },
   { timestamps: true }
 );

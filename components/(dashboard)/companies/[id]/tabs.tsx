@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Truck, Package, ChevronRight } from "lucide-react";
-import { getTrucks, getTrucksByCompanyId } from "@/data/truck";
+import { Truck, Package, Wallet, ChevronRight } from "lucide-react";
+import { getTrucksByCompanyId } from "@/data/truck";
 import { getOrdersByCompanyId } from "@/data/order";
 import Link from "next/link";
+import { CreditFacilityTab } from "./credit-facility-tab";
 
 interface Props {
-  activeTab: "trucks" | "orders";
-  onTabChange: (tab: "trucks" | "orders") => void;
+  activeTab: "trucks" | "orders" | "credit";
+  onTabChange: (tab: "trucks" | "orders" | "credit") => void;
   companyId: string;
 }
 
@@ -20,12 +21,12 @@ export function CompanyTabs({ activeTab, onTabChange, companyId }: Props) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [trucks, orders] = await Promise.all([
+        const [trucksData, ordersData] = await Promise.all([
           getTrucksByCompanyId(companyId),
           getOrdersByCompanyId(companyId),
         ]);
-        setTrucks(trucks || []);
-        setOrders(orders || []);
+        setTrucks(trucksData || []);
+        setOrders(ordersData || []);
       } catch (e) {
         console.error("Failed to fetch company related data", e);
       }
@@ -36,39 +37,33 @@ export function CompanyTabs({ activeTab, onTabChange, companyId }: Props) {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-      {/* 🧭 Tabs */}
+      {/* TABS */}
       <div className="flex gap-6 border-b border-gray-200 mb-6">
-        <button
-          onClick={() => onTabChange("trucks")}
-          className={`pb-2 font-medium text-sm ${
-            activeTab === "trucks"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Trucks
-        </button>
-        <button
-          onClick={() => onTabChange("orders")}
-          className={`pb-2 font-medium text-sm ${
-            activeTab === "orders"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Orders
-        </button>
+        {["trucks", "orders", "credit"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => onTabChange(tab as any)}
+            className={`pb-2 font-medium text-sm ${
+              activeTab === tab
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {tab === "trucks" && "Trucks"}
+            {tab === "orders" && "Orders"}
+            {tab === "credit" && "Credit Facility"}
+          </button>
+        ))}
       </div>
 
-      {/* 🧩 Tab Content */}
+      {/* CONTENT */}
       <AnimatePresence mode="wait">
-        {activeTab === "trucks" ? (
+        {activeTab === "trucks" && (
           <motion.div
             key="trucks"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
           >
             {trucks.length === 0 ? (
               <p className="text-sm text-gray-500">
@@ -91,7 +86,7 @@ export function CompanyTabs({ activeTab, onTabChange, companyId }: Props) {
                           truck.model +
                           " (" +
                           truck.year +
-                          ")" || "Unnamed Truck"}
+                          ")"}
                       </span>
                     </div>
                     <span className="text-gray-600 text-sm">
@@ -102,18 +97,17 @@ export function CompanyTabs({ activeTab, onTabChange, companyId }: Props) {
               </div>
             )}
           </motion.div>
-        ) : (
+        )}
+
+        {activeTab === "orders" && (
           <motion.div
             key="orders"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
           >
             {orders.length === 0 ? (
-              <p className="text-sm text-gray-500">
-                No orders for this company yet.
-              </p>
+              <p className="text-sm text-gray-500">No orders yet.</p>
             ) : (
               <div className="divide-y divide-gray-200">
                 {orders.map((order) => (
@@ -126,27 +120,33 @@ export function CompanyTabs({ activeTab, onTabChange, companyId }: Props) {
                       <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
                         <Package size={18} />
                       </div>
-                      <div className="flex flex-col">
+                      <div>
                         <span className="text-gray-800 text-sm font-medium">
                           Order #{order.id?.slice(-6).toUpperCase()}
                         </span>
-                        <span className="text-gray-600 text-xs">
+                        <p className="text-xs text-gray-600">
                           {new Date(order.createdAt).toLocaleDateString(
                             "en-ZA"
                           )}
-                        </span>
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md font-mono">
-                        {order.status}
-                      </span>
-                      <ChevronRight />
-                    </div>
+                    <ChevronRight />
                   </Link>
                 ))}
               </div>
             )}
+          </motion.div>
+        )}
+
+        {activeTab === "credit" && (
+          <motion.div
+            key="credit"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <CreditFacilityTab companyId={companyId} />
           </motion.div>
         )}
       </AnimatePresence>
