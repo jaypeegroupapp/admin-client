@@ -10,6 +10,7 @@ export const productFormSchema = z.object({
     .string()
     .min(5, "Description must be at least 5 characters")
     .max(500, "Description too long"),
+  sellingPrice: z.coerce.string().optional(),
 });
 
 export type ProductForm = z.infer<typeof productFormSchema>;
