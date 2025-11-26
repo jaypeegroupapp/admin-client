@@ -127,8 +127,14 @@ export function ProductTabs({ productId, activeTab, onTabChange }: Props) {
                         </span>
                       </div>
                     </div>
-
-                    <ChevronRight />
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`px-2.5 py-0.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-600`}
+                      >
+                        {order.status}
+                      </span>
+                      <ChevronRight />
+                    </div>
                   </Link>
                 ))}
               </div>
