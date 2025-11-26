@@ -11,7 +11,13 @@ import ProductAddForm from "../add-form";
 import ProductModal from "@/components/ui/modal";
 import { DeleteProductModal } from "./delete-modal";
 
-export function ProductDetailsClient({ product }: { product: IProduct }) {
+export function ProductDetailsClient({
+  product,
+  totalOrderQuantity,
+}: {
+  product: IProduct;
+  totalOrderQuantity: number;
+}) {
   console.log({ product });
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"info" | "inventory" | "orders">(
@@ -36,7 +42,10 @@ export function ProductDetailsClient({ product }: { product: IProduct }) {
           onDelete={() => setIsDeleteOpen(true)}
         />
 
-        <ProductSummary product={product} />
+        <ProductSummary
+          product={product}
+          totalOrderQuantity={totalOrderQuantity}
+        />
 
         <ProductTabs
           productId={product.id!}

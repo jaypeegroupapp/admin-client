@@ -5,7 +5,13 @@ import { useState } from "react";
 import { IProduct } from "@/definitions/product";
 import { EnableDisableProductModal } from "./enable-disable-modal";
 
-export function ProductSummary({ product }: { product: IProduct }) {
+export function ProductSummary({
+  product,
+  totalOrderQuantity,
+}: {
+  product: IProduct;
+  totalOrderQuantity: number;
+}) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleToggle = () => {
@@ -76,7 +82,20 @@ export function ProductSummary({ product }: { product: IProduct }) {
         </div>
         <div className="flex items-center gap-2">
           <Layers size={16} className="text-gray-500" />
-          <span>Stock: {product.stock}</span>
+          <span>Stock vs Pending Order: {product.stock}</span>
+        </div>{" "}
+        <div className="flex items-center gap-2">
+          <Package size={16} className="text-gray-500" />
+          <span>Pending Order: {totalOrderQuantity}</span>
+          <span
+            className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${
+              totalOrderQuantity > product.stock!
+                ? "bg-red-200 text-red-600"
+                : "bg-green-100 text-green-700"
+            }`}
+          >
+            {totalOrderQuantity > product.stock! ? "Restock" : "Available"}
+          </span>
         </div>
       </div>
 

@@ -1,4 +1,7 @@
-import { getOrderItemsByOrderIdService } from "@/services/order-item";
+import {
+  getOrderItemsByOrderIdService,
+  getTotalQuantityForProductService,
+} from "@/services/order-item";
 
 export async function getOrderItemsByOrderId(orderId: string) {
   try {
@@ -12,5 +15,14 @@ export async function getOrderItemsByOrderId(orderId: string) {
   } catch (err) {
     console.error("❌ getOrderItemsByOrderId error:", err);
     return [];
+  }
+}
+
+export async function getTotalQuantityForProduct(productId: string) {
+  try {
+    return await getTotalQuantityForProductService(productId);
+  } catch (err) {
+    console.error("❌ getOrderItemsByOrderId error:", err);
+    return 0;
   }
 }
