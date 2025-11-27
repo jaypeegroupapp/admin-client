@@ -10,7 +10,6 @@ import {
 export default function TilesSummary({ data }: { data: any }) {
   const tiles = [
     { icon: Building2, label: "Companies", value: data.totalCompanies },
-    { icon: Users, label: "Users", value: data.totalUsers },
     { icon: Truck, label: "Active Trucks", value: data.totalTrucks },
     { icon: Package, label: "Published Products", value: data.totalProducts },
     {
