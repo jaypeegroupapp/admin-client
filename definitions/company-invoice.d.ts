@@ -5,6 +5,7 @@ export interface ICompanyInvoice {
   companyName?: string;
   status: "pending" | "published" | "paid" | "closed";
   totalAmount: number;
+  paymentAmount?: number;
   paymentDate?: string;
   createdAt?: string;
   updatedAt?: string;

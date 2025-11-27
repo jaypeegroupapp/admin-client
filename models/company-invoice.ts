@@ -25,6 +25,10 @@ const CompanyInvoiceSchema: Schema<ICompanyInvoiceDoc> = new Schema(
       required: true,
       default: 0,
     },
+    paymentAmount: {
+      type: Number,
+      default: 0,
+    },
 
     paymentDate: {
       type: Date,

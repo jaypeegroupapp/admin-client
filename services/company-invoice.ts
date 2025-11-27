@@ -3,6 +3,8 @@ import mongoose, { Types } from "mongoose";
 import Order from "@/models/order";
 import CompanyInvoice from "@/models/company-invoice";
 import { connectDB } from "@/lib/db";
+import CompanyCreditTrail from "@/models/company-credit-trail";
+import Company from "@/models/company";
 
 export async function completeOrderWithInvoice(orderId: string) {
   await connectDB();
@@ -184,17 +186,20 @@ export async function publishInvoiceService(invoiceId: string) {
   }
 }
 
-// ---------------- CONFIRM PAYMENT ----------------
-export async function confirmInvoicePaymentService(invoiceId: string) {
+export async function confirmInvoicePaymentService(
+  invoiceId: string,
+  data: { amount: number; paymentDate: Date }
+) {
   await connectDB();
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
 
-    const invoice = (await CompanyInvoice.findById(invoiceId).session(
-      session
-    )) as any;
+    /* ------------------ FETCH INVOICE ------------------ */
+    const invoice = (await CompanyInvoice.findById(invoiceId)
+      .session(session)
+      .exec()) as any;
 
     if (!invoice) {
       await session.abortTransaction();
@@ -206,11 +211,47 @@ export async function confirmInvoicePaymentService(invoiceId: string) {
       return { success: false, message: "Invoice must be published first." };
     }
 
-    invoice.status = "paid";
-    invoice.paymentDate = new Date();
+    /* ------------------ FETCH COMPANY ------------------ */
+    const company = await Company.findById(invoice.companyId)
+      .session(session)
+      .exec();
 
+    if (!company) {
+      await session.abortTransaction();
+      return { success: false, message: "Company not found." };
+    }
+
+    const oldBalance = company.balance ?? 0;
+    const paymentAmount = data.amount;
+    const newBalance = oldBalance + paymentAmount;
+
+    /* ------------------ UPDATE INVOICE ------------------ */
+    invoice.status = "paid";
+    invoice.paymentDate = new Date(data.paymentDate);
+    invoice.paymentAmount = paymentAmount;
     await invoice.save({ session });
 
+    /* ------------------ UPDATE COMPANY BALANCE ------------------ */
+    company.balance = newBalance;
+    await company.save({ session });
+
+    /* ------------------ CREATE CREDIT TRAIL ENTRY ------------------ */
+    await CompanyCreditTrail.create(
+      [
+        {
+          companyId: company._id,
+          type: "invoice-payment",
+          amount: paymentAmount,
+          oldBalance,
+          newBalance,
+          description: `Payment for Invoice #${invoice._id}`,
+          createdAt: new Date(),
+        },
+      ],
+      { session }
+    );
+
+    /* ------------------ COMMIT ------------------ */
     await session.commitTransaction();
     session.endSession();
 

@@ -22,7 +22,7 @@ const CompanyCreditTrailSchema = new Schema<CompanyCreditTrailDocument>(
       enum: [
         "credit-updated",
         "order-debit",
-        "invoice-paid",
+        "invoice-payment",
         "admin-adjustment",
       ],
       required: true,
