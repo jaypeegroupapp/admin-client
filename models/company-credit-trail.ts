@@ -19,7 +19,7 @@ const CompanyCreditTrailSchema = new Schema<CompanyCreditTrailDocument>(
     },
     type: {
       type: String,
-      enum: ["credit-added", "order-used", "invoice-paid", "admin-adjustment"],
+      enum: ["credit-updated", "order-used", "invoice-paid", "admin-adjustment"],
       required: true,
     },
     amount: { type: Number, required: true },

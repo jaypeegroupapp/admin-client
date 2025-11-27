@@ -23,7 +23,7 @@ export async function getCompanyCreditByCompanyIdService(companyId: string) {
   }
 }
 
-export async function addCompanyCreditService(
+export async function updateCompanyCreditService(
   companyId: string,
   data: AddCreditData
 ) {
@@ -36,18 +36,18 @@ export async function addCompanyCreditService(
   const newBalance = oldBalance + data.amount;
 
   // Update company balances
-  company.balance = newBalance;
-  company.creditLimit = (company.creditLimit ?? 0) + data.amount;
+  company.balance = data.amount;
+  company.creditLimit = data.amount;
   await company.save();
 
   // Record credit trail
   await CompanyCreditTrail.create({
     companyId: company._id,
-    type: "credit-added",
+    type: "credit-updated",
     amount: data.amount,
     oldBalance,
     newBalance,
-    description: data.reason || "Credit added via admin",
+    description: data.reason || "Credit updated via admin",
   });
 
   return company;

@@ -12,9 +12,15 @@ interface Props {
   activeTab: "trucks" | "orders" | "credit";
   onTabChange: (tab: "trucks" | "orders" | "credit") => void;
   companyId: string;
+  creditLimit: number;
 }
 
-export function CompanyTabs({ activeTab, onTabChange, companyId }: Props) {
+export function CompanyTabs({
+  activeTab,
+  onTabChange,
+  companyId,
+  creditLimit,
+}: Props) {
   const [trucks, setTrucks] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
 
@@ -146,7 +152,10 @@ export function CompanyTabs({ activeTab, onTabChange, companyId }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <CreditFacilityTab companyId={companyId} />
+            <CreditFacilityTab
+              companyId={companyId}
+              creditLimit={creditLimit}
+            />
           </motion.div>
         )}
       </AnimatePresence>

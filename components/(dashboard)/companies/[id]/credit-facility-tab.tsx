@@ -1,12 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Wallet } from "lucide-react";
+import { Edit, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
 import { getCompanyCreditsByCompanyId } from "@/data/company-credit";
-import { AddCreditModal } from "./add-credit-modal";
+import { UpdateCreditModal } from "./add-credit-modal";
 
-export function CreditFacilityTab({ companyId }: { companyId: string }) {
+export function CreditFacilityTab({
+  companyId,
+  creditLimit,
+}: {
+  companyId: string;
+  creditLimit: number;
+}) {
   const [credit, setCredit] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -33,8 +39,8 @@ export function CreditFacilityTab({ companyId }: { companyId: string }) {
           onClick={() => setShowModal(true)}
           className="flex items-center gap-2 rounded-lg p-2 text-sm font-medium bg-gray-900 text-white hover:bg-gray-700 transition"
         >
-          <Plus size={16} />
-          <span className="hidden md:block">Add Credit</span>
+          <Edit size={16} />
+          <span className="hidden md:block">Update Credit</span>
         </button>
       </div>
 
@@ -80,8 +86,9 @@ export function CreditFacilityTab({ companyId }: { companyId: string }) {
 
       {/* MODAL */}
       {showModal && (
-        <AddCreditModal
+        <UpdateCreditModal
           companyId={companyId}
+          creditLimit={creditLimit}
           open={showModal}
           onClose={() => {
             setShowModal(false);

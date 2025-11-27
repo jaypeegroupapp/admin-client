@@ -7,7 +7,7 @@ function companyCreditMap(credit: any) {
   return {
     id: credit._id.toString(),
     companyId: credit.companyId?.toString(),
-    type: credit.type, // "credit-added", "credit-used"
+    type: credit.type, // "credit-updated", "credit-used"
     amount: credit.amount,
     oldBalance: credit.oldBalance,
     newBalance: credit.newBalance,

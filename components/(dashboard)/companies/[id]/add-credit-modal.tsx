@@ -1,6 +1,6 @@
 "use client";
 
-import { addCompanyCreditAction } from "@/actions/company-credit";
+import { updateCompanyCreditAction } from "@/actions/company-credit";
 import { SubmitButton } from "@/components/ui/buttons";
 import InputValidated from "@/components/ui/input-validated";
 import { creditFormSchema } from "@/validations/company-credit";
@@ -10,24 +10,26 @@ import { useForm } from "react-hook-form";
 import { BaseModal } from "@/components/ui/base-modal";
 import { creditInputFormData } from "@/constants/company-credit";
 
-export function AddCreditModal({
+export function UpdateCreditModal({
   companyId,
+  creditLimit,
   open,
   onClose,
 }: {
   companyId: string;
+  creditLimit: number;
   open: boolean;
   onClose: () => void;
 }) {
   const initialState = { message: "", errors: {} };
 
-  const addCompanyCreditActionWithCompanyId = addCompanyCreditAction.bind(
+  const updateCompanyCreditActionWithCompanyId = updateCompanyCreditAction.bind(
     null,
     companyId
   );
 
   const [state, formAction, isPending] = useActionState(
-    addCompanyCreditActionWithCompanyId,
+    updateCompanyCreditActionWithCompanyId,
     initialState
   );
 
@@ -40,7 +42,7 @@ export function AddCreditModal({
   } = useForm({
     resolver: zodResolver(creditFormSchema),
     defaultValues: {
-      amount: "",
+      amount: creditLimit,
       issuedDate: "",
     },
   });
@@ -57,7 +59,9 @@ export function AddCreditModal({
 
   return (
     <BaseModal open={open} onClose={onClose}>
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">Add Credit</h2>
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">
+        Update Credit Limit
+      </h2>
 
       <form ref={formRef} onSubmit={onSubmit} className="flex flex-col gap-4">
         {creditInputFormData.map((input) => (
@@ -71,7 +75,7 @@ export function AddCreditModal({
           />
         ))}
 
-        <SubmitButton name="Add Credit" isPending={isPending} />
+        <SubmitButton name="Update Credit" isPending={isPending} />
       </form>
     </BaseModal>
   );

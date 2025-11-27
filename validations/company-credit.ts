@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const creditFormSchema = z.object({
-  amount: z
+  amount: z.coerce
     .string()
     .min(1, "Amount is required")
     .refine((val) => Number(val) > 0, "Amount must be greater than 0"),

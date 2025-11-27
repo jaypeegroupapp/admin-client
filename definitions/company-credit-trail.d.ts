@@ -2,7 +2,7 @@
 export interface ICompanyCreditTrail {
   id?: string;
   companyId?: string;
-  type: "credit-added" | "order-used" | "invoice-paid" | "admin-adjustment";
+  type: "credit-updated" | "order-used" | "invoice-paid" | "admin-adjustment";
   amount: number;
   oldBalance: number;
   newBalance: number;

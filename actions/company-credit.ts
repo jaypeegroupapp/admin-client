@@ -2,10 +2,10 @@
 "use server";
 
 import { creditFormSchema } from "@/validations/company-credit";
-import { addCompanyCreditService } from "@/services/company-credit";
+import { updateCompanyCreditService } from "@/services/company-credit";
 import { revalidatePath } from "next/cache";
 
-export async function addCompanyCreditAction(
+export async function updateCompanyCreditAction(
   companyId: string,
   prevState: any,
   formData: FormData
@@ -24,7 +24,7 @@ export async function addCompanyCreditAction(
     const creditAmount = parseFloat(amount);
 
     // Call the service
-    await addCompanyCreditService(companyId, {
+    await updateCompanyCreditService(companyId, {
       amount: creditAmount,
       reason: "Credit added via admin",
       issuedDate,
@@ -33,7 +33,7 @@ export async function addCompanyCreditAction(
 
     return { message: "Credit added successfully", errors: {} };
   } catch (error: any) {
-    console.error("❌ addCompanyCreditAction error:", error);
+    console.error("❌ updateCompanyCreditAction error:", error);
     return {
       message: "Failed to add credit",
       errors: { global: error.message },
