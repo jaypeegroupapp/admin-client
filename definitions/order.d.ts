@@ -34,3 +34,10 @@ export interface CreateOrderInput {
     quantity: number;
   }[];
 }
+
+export type OrderTab =
+  | "All"
+  | "Pending"
+  | "Accepted"
+  | "Completed"
+  | "Cancelled";

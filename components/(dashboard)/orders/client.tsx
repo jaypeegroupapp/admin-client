@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { IOrder } from "@/definitions/order";
+import { IOrder, OrderTab } from "@/definitions/order";
 import { OrderHeader } from "./header";
 import OrderFilter from "./filter";
 import { OrderList } from "./list";
-import { OrderTabs, OrderTab } from "./tabs";
+import { OrderTabs } from "./tabs";
 import { getOrders } from "@/data/order";
 
 interface Props {

@@ -1,11 +1,5 @@
 "use client";
-
-export type OrderTab =
-  | "All"
-  | "Pending"
-  | "Accepted"
-  | "Completed"
-  | "Cancelled";
+import { OrderTab } from "@/definitions/order";
 
 export function OrderTabs({
   activeTab,
