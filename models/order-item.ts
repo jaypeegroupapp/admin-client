@@ -27,6 +27,12 @@ const OrderItemSchema = new Schema<IOrderItemDoc>(
       required: true,
       min: 1,
     },
+    signature: { type: String, required: false }, // base64 PNG
+    status: {
+      type: String,
+      enum: ["pending", "completed", "restock", "cancelled"],
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

@@ -44,3 +44,83 @@ export async function getTotalQuantityForProductService(productId: string) {
   ]);
   return quantityObj[0]?.totalQuantity || 0;
 }
+
+export async function getAllOrderItemsService() {
+  await connectDB();
+
+  const agg = await OrderItem.aggregate([
+    {
+      $lookup: {
+        from: "orders",
+        localField: "orderId",
+        foreignField: "_id",
+        as: "order",
+      },
+    },
+    { $unwind: "$order" },
+
+    {
+      $lookup: {
+        from: "trucks",
+        localField: "truckId",
+        foreignField: "_id",
+        as: "truck",
+      },
+    },
+    { $unwind: "$truck" },
+
+    {
+      $lookup: {
+        from: "companies",
+        localField: "order.companyId",
+        foreignField: "_id",
+        as: "company",
+      },
+    },
+    {
+      $unwind: {
+        path: "$company",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
+    {
+      $lookup: {
+        from: "products",
+        localField: "order.productId",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    {
+      $unwind: {
+        path: "$product",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
+    {
+      $project: {
+        _id: 1,
+        orderId: "$order._id",
+        productId: "$product._id",
+        companyId: "$order.companyId",
+
+        quantity: 1,
+        status: 1,
+        signature: 1,
+
+        truckId: "$truck._id",
+        plateNumber: "$truck.plateNumber",
+        make: "$truck.make",
+        model: "$truck.model",
+        year: "$truck.year",
+
+        companyName: "$company.companyName",
+        productName: "$product.name",
+      },
+    },
+  ]);
+
+  return JSON.parse(JSON.stringify(agg));
+}

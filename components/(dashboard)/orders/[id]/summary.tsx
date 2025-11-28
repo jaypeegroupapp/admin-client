@@ -83,9 +83,7 @@ export function OrderSummary({
             <p className="font-medium">{order.productName}</p>
           </div>
           <div>
-            <p className="text-gray-500 flex items-center justify-between">
-              Collection Date
-            </p>
+            <p className="text-gray-500">Collection Date</p>
             <p className="font-medium">
               {new Date(order.collectionDate).toLocaleDateString("en-ZA")}
             </p>
@@ -95,18 +93,33 @@ export function OrderSummary({
             <p className="font-semibold text-gray-900">
               R{order.totalAmount.toFixed(2)}
             </p>
-          </div>{" "}
+          </div>
           <div>
             <p className="text-gray-500">Total Quantity</p>
             <p className="font-semibold text-gray-900">
               {totalStockToDeduct} Litres
             </p>
-          </div>{" "}
+          </div>
           <div>
             <p className="text-gray-500">Mine</p>
             <p className="font-semibold text-gray-900">{order.mineName}</p>
           </div>
         </div>
+
+        {/* ⭐ Driver Signature */}
+        {order.signature && (
+          <div className="pt-6 border-t border-gray-200">
+            <p className="text-gray-500 text-sm mb-2">Driver Signature</p>
+
+            <div className="w-full md:w-64 h-40 border border-gray-300 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
+              <img
+                src={order.signature}
+                alt="Driver Signature"
+                className="object-contain max-h-full"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Accept Modal */}
