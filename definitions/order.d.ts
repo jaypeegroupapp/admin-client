@@ -13,6 +13,7 @@ export interface IOrder {
   collectionDate: string;
   status: string;
   reason?: string;
+  signature?: string;
   createdAt?: string;
   updatedAt?: string;
   items?: {

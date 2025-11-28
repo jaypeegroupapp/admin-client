@@ -6,54 +6,55 @@ import { connectDB } from "@/lib/db";
 import CompanyCreditTrail from "@/models/company-credit-trail";
 import Company from "@/models/company";
 
-export async function completeOrderWithInvoice(orderId: string) {
+export async function completeOrderWithInvoice(
+  orderId: string,
+  signature: string
+) {
   await connectDB();
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    // 1. Mark the order as accepted
-    const order = await Order.findByIdAndUpdate(
-      orderId,
-      { status: "accepted" },
-      { new: true, session }
-    );
-
+    // 1️⃣ Find the order
+    const order = await Order.findById(orderId).session(session);
     if (!order) throw new Error("Order not found.");
 
-    // 4. Find an open invoice (pending AND within 31 days)
+    // 2️⃣ Save signature + mark as accepted
+    order.status = "accepted";
+    order.signature = signature; // <-- SAVE SIGNATURE IMAGE
+    await order.save({ session });
+
+    // 3️⃣ Look for an open invoice (pending + <= 31 days old)
     const THIRTY_ONE_DAYS = 31 * 24 * 60 * 60 * 1000;
     const now = new Date();
 
-    let invoice = (await CompanyInvoice.findOne({
+    let invoice = await CompanyInvoice.findOne({
       companyId: order.companyId,
       status: "pending",
-      createdAt: {
-        $gte: new Date(now.getTime() - THIRTY_ONE_DAYS), // invoice must be <= 31 days old
-      },
-    }).session(session)) as any;
+      createdAt: { $gte: new Date(now.getTime() - THIRTY_ONE_DAYS) },
+    }).session(session);
 
-    // 5. If no pending invoice exists → create one
+    // 4️⃣ If none exists → create a new invoice
     if (!invoice) {
-      invoice = await CompanyInvoice.create(
+      const created = await CompanyInvoice.create(
         [
           {
             companyId: new Types.ObjectId(order.companyId),
-            status: "pending", // REQUIRED CHANGE
-            totalAmount: 0, // totalAmount updated only when published
+            status: "pending",
+            totalAmount: 0,
           },
         ],
         { session }
       );
-      invoice = invoice[0]; // extract document
+      invoice = created[0];
     }
 
-    // 6. Attach order to invoice
+    // 5️⃣ Attach order → update to completed
     order.invoiceId = invoice._id;
     order.status = "completed";
     await order.save({ session });
 
-    // 7. DO NOT UPDATE totalAmount UNTIL PUBLISHED (your requirement)
+    // 6️⃣ Commit transaction
     await session.commitTransaction();
     session.endSession();
 
@@ -61,7 +62,7 @@ export async function completeOrderWithInvoice(orderId: string) {
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
-    console.error("completeOrderWithInvoice error:", error);
+    console.error("❌ completeOrderWithInvoice error:", error);
     return { success: false, message: error.message };
   }
 }

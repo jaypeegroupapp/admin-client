@@ -75,6 +75,7 @@ const OrderSchema = new Schema<IOrderDoc>(
       type: String,
       required: false,
     },
+    signature: { type: String, required: false }, // base64 PNG
   },
   { timestamps: true }
 );

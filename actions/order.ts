@@ -23,11 +23,13 @@ export async function acceptOrderAction(orderId: string, quantity: number) {
 }
 
 // /actions/order.ts
-export async function completeOrderAction(orderId: string) {
+export async function completeOrderAction(orderId: string, signature: string) {
   try {
-    const result = await completeOrderWithInvoice(orderId);
+    const result = await completeOrderWithInvoice(orderId, signature);
 
-    if (!result.success) return { success: false, message: result.message };
+    if (!result.success) {
+      return { success: false, message: result.message };
+    }
 
     return { success: true };
   } catch (error) {
