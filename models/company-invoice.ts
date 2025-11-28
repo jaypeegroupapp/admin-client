@@ -13,13 +13,11 @@ const CompanyInvoiceSchema: Schema<ICompanyInvoiceDoc> = new Schema(
       ref: Company.modelName,
       required: true,
     },
-
     status: {
       type: String,
       enum: ["pending", "published", "paid", "closed"],
       default: "pending",
     },
-
     totalAmount: {
       type: Number,
       required: true,
@@ -29,7 +27,10 @@ const CompanyInvoiceSchema: Schema<ICompanyInvoiceDoc> = new Schema(
       type: Number,
       default: 0,
     },
-
+    closingBalance: {
+      type: Number,
+      default: 0,
+    },
     paymentDate: {
       type: Date,
     },

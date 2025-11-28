@@ -167,9 +167,17 @@ export async function publishInvoiceService(invoiceId: string) {
       0
     );
 
+    const company = await Company.findById(invoice.companyId).session(session);
+
+    if (!company) {
+      await session.abortTransaction();
+      return { success: false, message: "Company not found" };
+    }
+
     // 4️⃣ Update invoice fields
     invoice.totalAmount = totalAmount;
     invoice.status = "published";
+    invoice.closingBalance = company.balance;
 
     await invoice.save({ session });
 
