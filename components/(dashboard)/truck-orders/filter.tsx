@@ -1,16 +1,18 @@
 "use client";
 
-export default function OrderItemFilter({
+export default function OrderFilter({
   onFilterChange,
 }: {
   onFilterChange: (text: string) => void;
 }) {
   return (
-    <input
-      type="text"
-      placeholder="Search by truck, company, product or status..."
-      className="w-full border p-2 rounded-lg"
-      onChange={(e) => onFilterChange(e.target.value)}
-    />
+    <div className="md:flex-auto w-full lg:w-auto flex items-center gap-3">
+      <input
+        type="text"
+        onChange={(e) => onFilterChange(e.target.value)}
+        placeholder="Search orders..."
+        className="flex-1 rounded-md border px-3 py-2"
+      />
+    </div>
   );
 }

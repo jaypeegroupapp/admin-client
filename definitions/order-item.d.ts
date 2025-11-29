@@ -25,3 +25,5 @@ export interface IOrderItemAggregated {
   companyName?: string;
   productName?: string;
 }
+
+export type OrderItemTab = "All" | "Pending" | "Completed";
