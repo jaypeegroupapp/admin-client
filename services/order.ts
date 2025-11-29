@@ -270,6 +270,12 @@ export async function acceptOrderWithTransaction(
       return { success: false, message: "Not enough stock available." };
     }
 
+    await OrderItem.updateMany(
+      { orderId }, // find all linked to the order
+      { $set: { status: "accepted" } },
+      { session }
+    );
+
     // 3️⃣ Update Order → accepted
     order.status = "accepted";
     await order.save({ session });

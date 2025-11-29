@@ -95,50 +95,54 @@ export function OrderItemDetailModal({
         </div>
 
         {/* SIGNATURE AREA */}
-        <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">
-            Collector Signature:
-          </p>
+        {(item.status === "accepted" || hasExistingSignature) && (
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              Collector Signature:
+            </p>
 
-          {hasExistingSignature ? (
-            // SHOW READ-ONLY IMAGE
-            <div className="border border-gray-300 rounded-md bg-white p-2">
-              <img
-                src={item.signature}
-                className="w-full h-auto object-contain"
-                alt="Existing signature"
-              />
-            </div>
-          ) : (
-            // SIGNATURE PAD
-            <>
-              <div className="border border-gray-300 rounded-md shadow-sm bg-white">
-                <SignatureCanvas
-                  ref={sigPadRef}
-                  penColor="black"
-                  canvasProps={{
-                    width: 450,
-                    height: 180,
-                    className: "signatureCanvas",
-                  }}
-                  onEnd={() => {
-                    const dataURL = sigPadRef.current
-                      ?.getTrimmedCanvas()
-                      .toDataURL("image/png");
-                    setSignature(dataURL);
-                  }}
+            {hasExistingSignature && item.signature && (
+              // SHOW READ-ONLY IMAGE
+              <div className="border border-gray-300 rounded-md bg-white p-2">
+                <img
+                  src={item.signature}
+                  className="w-full h-auto object-contain"
+                  alt="Existing signature"
                 />
               </div>
+            )}
 
-              <button
-                onClick={handleClear}
-                className="mt-2 text-xs text-red-600 underline"
-              >
-                Clear signature
-              </button>
-            </>
-          )}
-        </div>
+            {item.status === "accepted" && (
+              // SIGNATURE PAD
+              <>
+                <div className="border border-gray-300 rounded-md shadow-sm bg-white">
+                  <SignatureCanvas
+                    ref={sigPadRef}
+                    penColor="black"
+                    canvasProps={{
+                      width: 450,
+                      height: 180,
+                      className: "signatureCanvas",
+                    }}
+                    onEnd={() => {
+                      const dataURL = sigPadRef.current
+                        ?.getTrimmedCanvas()
+                        .toDataURL("image/png");
+                      setSignature(dataURL);
+                    }}
+                  />
+                </div>
+
+                <button
+                  onClick={handleClear}
+                  className="mt-2 text-xs text-red-600 underline"
+                >
+                  Clear signature
+                </button>
+              </>
+            )}
+          </div>
+        )}
 
         {/* MESSAGE */}
         {message && (
@@ -160,7 +164,7 @@ export function OrderItemDetailModal({
             Close
           </button>
 
-          {!hasExistingSignature && (
+          {item.status === "accepted" && (
             <button
               onClick={handleSubmit}
               disabled={isPending || !signature}
