@@ -4,7 +4,7 @@ export interface IOrderItem {
   truckId: string;
   quantity: number;
   signature?: string;
-  status: "pending" | "completed" | "restock" | "cancelled";
+  status: "pending" | "accepted" | "completed" | "restock" | "cancelled";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -26,4 +26,9 @@ export interface IOrderItemAggregated {
   productName?: string;
 }
 
-export type OrderItemTab = "All" | "Pending" | "Completed";
+export type OrderItemTab =
+  | "All"
+  | "Pending"
+  | "Accepted"
+  | "Completed"
+  | "Cancelled";

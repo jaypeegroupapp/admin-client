@@ -38,7 +38,9 @@ export function OrderItemsClientPage({ initialItems }: Props) {
   const counts = {
     All: items.length,
     Pending: items.filter((i) => i.status === "pending").length,
+    Accepted: items.filter((i) => i.status === "accepted").length,
     Completed: items.filter((i) => i.status === "completed").length,
+    Cancelled: items.filter((i) => i.status === "cancelled").length,
   };
 
   /** -----------------------------------
@@ -54,7 +56,9 @@ export function OrderItemsClientPage({ initialItems }: Props) {
     )
     .filter((i) => {
       if (activeTab === "Pending") return i.status === "pending";
+      if (activeTab === "Accepted") return i.status === "accepted";
       if (activeTab === "Completed") return i.status === "completed";
+      if (activeTab === "Cancelled") return i.status === "cancelled";
       return true; // All
     });
 
