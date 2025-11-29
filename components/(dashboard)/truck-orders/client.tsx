@@ -29,7 +29,7 @@ export function OrderItemsClientPage({ initialItems }: Props) {
 
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [initialItems]);
 
   return (
     <motion.div

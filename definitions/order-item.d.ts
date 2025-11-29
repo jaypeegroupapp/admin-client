@@ -16,7 +16,7 @@ export interface IOrderItemAggregated {
   companyId?: string;
   quantity: number;
   status: string;
-  signature?: string | null;
+  signature?: string | undefined;
   truckId: string;
   plateNumber: string;
   make?: string;

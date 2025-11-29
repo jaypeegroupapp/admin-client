@@ -15,8 +15,8 @@ export async function getAllOrderItems() {
       productId: i.productId || null,
       companyId: i.companyId || null,
       quantity: i.quantity,
-      status: i.status,
-      signature: i.signature || null,
+      status: i.status || "pending",
+      signature: i.signature || undefined,
       /** TRUCK DETAILS */
       truckId: i.truckId,
       plateNumber: i.plateNumber,
