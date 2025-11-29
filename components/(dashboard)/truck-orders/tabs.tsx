@@ -10,7 +10,13 @@ export function OrderItemTabs({
   onChange: (tab: OrderItemTab) => void;
   counts: Record<OrderItemTab, number>;
 }) {
-  const tabs: OrderItemTab[] = ["All", "Pending", "Completed"];
+  const tabs: OrderItemTab[] = [
+    "All",
+    "Pending",
+    "Accepted",
+    "Completed",
+    "Cancelled",
+  ];
 
   return (
     <div className="w-full lg:w-auto flex-none flex gap-2 flex-wrap md:flex-nowrap">
