@@ -5,7 +5,7 @@ import { ChevronLeft, Mountain, FileText, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const menuItems = [
-  { name: "Company Invoice", href: "/company-invoices", icon: FileText },
+  { name: "Transporter Invoices", href: "/company-invoices", icon: FileText },
   { name: "Products", href: "/products", icon: Package },
   { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
   { name: "Mines", href: "/mines", icon: Mountain },

@@ -79,7 +79,7 @@ export default async function AdminDashboardPage() {
         />
 
         <BarChartCard
-          title="Top Companies by Orders"
+          title="Top Transporters by Orders"
           data={topCompanies}
           xKey="company"
           barKey="orders"
@@ -109,7 +109,7 @@ export default async function AdminDashboardPage() {
         />
 
         <LineChartCard
-          title="Monthly Company Invoices"
+          title="Monthly Transporter Invoices"
           data={monthlyCompanyInvoices}
           dataKey="total"
         />

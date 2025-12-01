@@ -22,8 +22,8 @@ const navItems = [
 ];
 
 const otherNavItems = [
-  { name: "Companies", href: "/companies", icon: Building2 },
-  { name: "Company Invoice", href: "/company-invoices", icon: FileText },
+  { name: "Transporters", href: "/companies", icon: Building2 },
+  { name: "Transporter Invoices", href: "/company-invoices", icon: FileText },
   { name: "Products", href: "/products", icon: Package },
   { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
   { name: "Mines", href: "/mines", icon: Mountain },
