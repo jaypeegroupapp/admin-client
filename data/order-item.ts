@@ -5,6 +5,39 @@ import {
   getTotalQuantityForProductService,
 } from "@/services/order-item";
 
+// data/order-item.ts
+import { getOrderItemsService } from "@/services/order-item";
+import { orderItemMap } from "./mapper";
+
+export async function getOrderItems(
+  page = 0,
+  pageSize = 10,
+  search = "",
+  status = "all",
+  fromDate = "",
+  toDate = ""
+) {
+  try {
+    const { data, totalCount, stats } = await getOrderItemsService(
+      page,
+      pageSize,
+      search,
+      status,
+      fromDate,
+      toDate
+    );
+
+    return {
+      data: data.map(orderItemMap),
+      totalCount,
+      stats,
+    };
+  } catch (err) {
+    console.error("❌ getOrderItems error:", err);
+    return { data: [], totalCount: 0, stats: {} };
+  }
+}
+
 export async function getAllOrderItems() {
   try {
     const items = await getAllOrderItemsService();

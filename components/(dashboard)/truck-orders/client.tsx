@@ -1,70 +1,95 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
 import { IOrderItemAggregated, OrderItemTab } from "@/definitions/order-item";
+
+import { OrderItemHeader } from "./header";
 import OrderItemFilter from "./filter";
 import OrderItemList from "./list";
-import { getAllOrderItems } from "@/data/order-item";
-import { OrderItemHeader } from "./header";
 import { OrderItemTabs } from "./tabs";
+import DateFilter from "@/components/(dashboard)/orders/date-filter";
+import { Pagination } from "@/components/(dashboard)/orders/pagination";
 
-interface Props {
-  initialItems: IOrderItemAggregated[];
-}
+export function OrderItemsClientPage({
+  initialItems,
+  totalCount,
+  currentPage,
+  pageSize,
+  search,
+  status,
+  stats,
+  fromDate,
+  toDate,
+}: any) {
+  const router = useRouter();
+  const params = useSearchParams();
 
-export function OrderItemsClientPage({ initialItems }: Props) {
-  const [items, setItems] = useState<IOrderItemAggregated[]>(
-    initialItems || []
+  /** Local State */
+  const [items, setItems] = useState(initialItems);
+  const [filterText, setFilterText] = useState(search || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(filterText);
+
+  const [from, setFrom] = useState(fromDate);
+  const [to, setTo] = useState(toDate);
+
+  const [activeTab, setActiveTab] = useState<OrderItemTab>(
+    (status === "all"
+      ? "All"
+      : status.charAt(0).toUpperCase() + status.slice(1)) as OrderItemTab
   );
-  const [filterText, setFilterText] = useState("");
-  const [activeTab, setActiveTab] = useState<OrderItemTab>("All");
 
-  /** -----------------------------------
-   * Fetch fresh items
-   * ----------------------------------*/
-  const fetchItems = async () => {
-    const res = await getAllOrderItems();
-    setItems(res || []);
-  };
+  const pageCount = Math.ceil(totalCount / pageSize);
 
+  useEffect(() => setItems(initialItems), [initialItems]);
+
+  /** Debounced Search */
   useEffect(() => {
-    fetchItems();
-  }, [initialItems]);
+    const t = setTimeout(() => setDebouncedSearch(filterText), 300);
+    return () => clearTimeout(t);
+  }, [filterText]);
 
-  /** -----------------------------------
-   * Counts for tabs
-   * ----------------------------------*/
-  const counts = {
-    All: items.length,
-    Pending: items.filter((i) => i.status === "pending").length,
-    Accepted: items.filter((i) => i.status === "accepted").length,
-    Completed: items.filter((i) => i.status === "completed").length,
-    Cancelled: items.filter((i) => i.status === "cancelled").length,
+  /** Update URL on search */
+  useEffect(() => {
+    const q = new URLSearchParams(params.toString());
+    q.set("search", debouncedSearch);
+    q.set("page", "0");
+    router.push(`?${q.toString()}`);
+  }, [debouncedSearch]);
+
+  /** Date Change */
+  const handleDateChange = (f: string, t: string) => {
+    setFrom(f);
+    setTo(t);
+
+    const q = new URLSearchParams(params.toString());
+    f ? q.set("fromDate", f) : q.delete("fromDate");
+    t ? q.set("toDate", t) : q.delete("toDate");
+    q.set("page", "0");
+
+    router.push(`?${q.toString()}`);
   };
 
-  /** -----------------------------------
-   * Filtering (Search + Tabs)
-   * ----------------------------------*/
-  const filtered = items
-    .filter((i) =>
-      `${i.plateNumber} ${i.companyName || ""} ${i.productName || ""} ${
-        i.status
-      }`
-        .toLowerCase()
-        .includes(filterText.toLowerCase())
-    )
-    .filter((i) => {
-      if (activeTab === "Pending") return i.status === "pending";
-      if (activeTab === "Accepted") return i.status === "accepted";
-      if (activeTab === "Completed") return i.status === "completed";
-      if (activeTab === "Cancelled") return i.status === "cancelled";
-      return true; // All
-    });
+  /** Tab Change */
+  const handleTabChange = (tab: OrderItemTab) => {
+    setActiveTab(tab);
 
-  /** -----------------------------------
-   * UI
-   * ----------------------------------*/
+    const q = new URLSearchParams(params.toString());
+    q.set("status", tab === "All" ? "all" : tab.toLowerCase());
+    q.set("page", "0");
+
+    router.push(`?${q.toString()}`);
+  };
+
+  /** Pagination */
+  const handlePageChange = (p: number) => {
+    const q = new URLSearchParams(params.toString());
+    q.set("page", String(p));
+    q.set("pageSize", String(pageSize));
+    router.push(`?${q.toString()}`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -74,19 +99,29 @@ export function OrderItemsClientPage({ initialItems }: Props) {
     >
       <OrderItemHeader />
 
-      {/* Tabs + Search */}
-      <div className="flex flex-col lg:flex-row gap-4 items-center w-full">
+      <div className="flex flex-col lg:flex-row items-end gap-4">
         <OrderItemTabs
           activeTab={activeTab}
-          onChange={(tab) => setActiveTab(tab)}
-          counts={counts}
+          onChange={handleTabChange}
+          counts={stats}
         />
 
-        <OrderItemFilter onFilterChange={(t) => setFilterText(t)} />
+        <OrderItemFilter
+          initialValue={filterText}
+          onFilterChange={setFilterText}
+        />
+
+        <DateFilter from={from} to={to} onChange={handleDateChange} />
       </div>
 
-      {/* LIST */}
-      <OrderItemList initialItems={filtered} />
+      <OrderItemList initialItems={items} />
+
+      <Pagination
+        currentPage={currentPage}
+        pageCount={pageCount}
+        pageSize={pageSize}
+        onPageChange={handlePageChange}
+      />
     </motion.div>
   );
 }
