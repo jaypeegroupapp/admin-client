@@ -20,6 +20,7 @@ export async function getDashboardSummaryService() {
     totalUsers,
     totalTrucks,
     totalProducts,
+    totalOrders,
     ordersThisMonth,
     revenueThisMonth,
   ] = await Promise.all([
@@ -27,6 +28,7 @@ export async function getDashboardSummaryService() {
     User.countDocuments(),
     Truck.countDocuments({ isActive: true }),
     Product.countDocuments({ isPublished: true }),
+    Order.countDocuments(),
     Order.countDocuments({
       createdAt: {
         $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -40,6 +42,7 @@ export async function getDashboardSummaryService() {
     totalUsers,
     totalTrucks,
     totalProducts,
+    totalOrders,
     ordersThisMonth,
     revenueThisMonth,
   };

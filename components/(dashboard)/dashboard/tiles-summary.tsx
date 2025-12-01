@@ -14,6 +14,11 @@ export default function TilesSummary({ data }: { data: any }) {
     { icon: Package, label: "Published Products", value: data.totalProducts },
     {
       icon: PackageCheck,
+      label: "Total Orders",
+      value: data.totalOrders,
+    },
+    {
+      icon: PackageCheck,
       label: "Orders This Month",
       value: data.ordersThisMonth,
     },
