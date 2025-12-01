@@ -12,22 +12,143 @@ import StockMovement from "@/models/stock-movement";
 /**
  * ✅ Get all Orders for the logged-in user
  */
-export async function getOrdersService() {
+
+export async function getOrdersService(
+  page: number = 0,
+  pageSize: number = 10,
+  search: string = "",
+  status: string = "all"
+) {
   await connectDB();
 
   try {
-    const orders = await Order.find()
-      .populate("userId", "fullName email")
-      .populate("mineId", "name")
-      .populate("companyId", "companyName")
-      .populate("productId", "name price")
-      .sort({ createdAt: -1 })
-      .lean();
+    const term = search.trim();
+    const isObjectId = mongoose.Types.ObjectId.isValid(term);
+    const searchRegex = term ? new RegExp(term, "i") : null;
 
-    return JSON.parse(JSON.stringify(orders));
-  } catch (error: any) {
+    // -----------------------------
+    // MATCH BLOCK (shared)
+    // -----------------------------
+    const match: any = {};
+
+    if (status !== "all") {
+      match.status = status.toLowerCase();
+    }
+
+    // -----------------------------
+    // SEARCH MATCH (optional)
+    // -----------------------------
+    if (term) {
+      match.$or = [
+        { status: { $regex: searchRegex } },
+
+        // full ObjectId search
+        isObjectId ? { _id: new mongoose.Types.ObjectId(term) } : null,
+
+        // partial ObjectId search
+        {
+          $expr: {
+            $regexMatch: {
+              input: { $toString: "$_id" },
+              regex: term,
+              options: "i",
+            },
+          },
+        },
+      ].filter(Boolean);
+    }
+
+    // -----------------------------
+    // MAIN PAGINATED QUERY
+    // -----------------------------
+    const orders = await Order.aggregate([
+      { $match: match },
+      { $sort: { createdAt: -1 } },
+      { $skip: page * pageSize },
+      { $limit: pageSize },
+
+      // Populate (manual for aggregate)
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userId",
+        },
+      },
+      { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "mines",
+          localField: "mineId",
+          foreignField: "_id",
+          as: "mineId",
+        },
+      },
+      { $unwind: { path: "$mineId", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "companies",
+          localField: "companyId",
+          foreignField: "_id",
+          as: "companyId",
+        },
+      },
+      { $unwind: { path: "$companyId", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "products",
+          localField: "productId",
+          foreignField: "_id",
+          as: "productId",
+        },
+      },
+      { $unwind: { path: "$productId", preserveNullAndEmptyArrays: true } },
+    ]);
+
+    // -----------------------------
+    // TOTAL COUNT
+    // -----------------------------
+    const totalCount = await Order.countDocuments(match);
+    const totalOrders = await Order.countDocuments();
+
+    // -----------------------------
+    // STATUS COUNTS (stats)
+    // -----------------------------
+    const statsAgg = await Order.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const stats = {
+      All: totalOrders,
+      Pending: 0,
+      Accepted: 0,
+      Completed: 0,
+      Cancelled: 0,
+    };
+
+    statsAgg.forEach((s) => {
+      const key = s._id.charAt(0).toUpperCase() + "" + s._id.slice(1);
+      if (stats[key as keyof typeof stats] !== undefined)
+        stats[key as keyof typeof stats] = s.count;
+    });
+
+    return {
+      data: orders,
+      totalCount,
+      stats,
+    };
+  } catch (error) {
     console.error("❌ getOrdersService error:", error);
-    return [];
+    return { data: [], totalCount: 0, stats: {} };
   }
 }
 

@@ -3,7 +3,39 @@ import { getOrders } from "@/data/order";
 
 export const dynamic = "force-dynamic";
 
-export default async function OrdersPage() {
-  const orders = await getOrders();
-  return <OrderClientPage initialOrders={orders || []} />;
+export default async function OrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    page?: string;
+    pageSize?: string;
+    search?: string;
+    status?: string;
+  }>;
+}) {
+  const params = await searchParams;
+
+  const currentPage = Number(params?.page) || 0;
+  const pageSize = Number(params?.pageSize) || 10;
+  const search = params?.search || "";
+  const status = params?.status || "all";
+
+  const { data, totalCount, stats } = await getOrders(
+    currentPage,
+    pageSize,
+    search,
+    status
+  );
+
+  return (
+    <OrderClientPage
+      initialOrders={data || []}
+      totalCount={totalCount || 0}
+      currentPage={currentPage}
+      pageSize={pageSize}
+      search={search}
+      status={status}
+      stats={stats}
+    />
+  );
 }

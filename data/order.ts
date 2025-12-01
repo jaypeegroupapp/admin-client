@@ -9,9 +9,9 @@ import {
 
 const orderMap = (order: any) => ({
   id: order._id.toString(),
-  userId: order.userId?._id || "",
-  companyId: order.companyId?._id || "",
-  productId: order.productId?._id || "",
+  userId: order.userId?._id?.toString() || "",
+  companyId: order.companyId?._id?.toString() || "",
+  productId: order.productId?._id?.toString() || "",
   productName: order.productId?.name || "N/A",
   totalAmount: order.totalAmount,
   collectionDate: order.collectionDate,
@@ -23,17 +23,30 @@ const orderMap = (order: any) => ({
 /**
  * 🧾 Fetch all orders and map to UI-friendly format
  */
-export async function getOrders() {
+export async function getOrders(
+  page: number = 0,
+  pageSize: number = 10,
+  search: string = "",
+  status: string = "All"
+) {
   try {
-    const orders = await getOrdersService();
+    const { data, totalCount, stats } = await getOrdersService(
+      page,
+      pageSize,
+      search,
+      status
+    );
 
-    return Array.isArray(orders) ? orders.map(orderMap) : [];
+    return {
+      data: Array.isArray(data) ? data.map(orderMap) : [],
+      totalCount,
+      stats,
+    };
   } catch (err) {
     console.error("❌ getOrders error:", err);
-    return [];
+    return { data: [], totalCount: 0, stats: {} };
   }
 }
-
 /**
  * 🧾 Fetch all orders and map to UI-friendly format
  */
