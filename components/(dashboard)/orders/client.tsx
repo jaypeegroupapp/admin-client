@@ -8,8 +8,8 @@ import { OrderHeader } from "./header";
 import OrderFilter from "./filter";
 import { OrderList } from "./list";
 import { OrderTabs } from "./tabs";
-import { Pagination } from "./pagination";
-import DateFilter from "./date-filter"; // ⭐ NEW COMPONENT
+import { Pagination } from "@/components/ui/pagination";
+import DateFilter from "@/components/ui/date-filter"; // ⭐ NEW COMPONENT
 
 export function OrderClientPage({
   initialOrders,

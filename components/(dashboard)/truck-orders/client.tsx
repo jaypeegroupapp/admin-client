@@ -9,8 +9,8 @@ import { OrderItemHeader } from "./header";
 import OrderItemFilter from "./filter";
 import OrderItemList from "./list";
 import { OrderItemTabs } from "./tabs";
-import DateFilter from "@/components/(dashboard)/orders/date-filter";
-import { Pagination } from "@/components/(dashboard)/orders/pagination";
+import DateFilter from "@/components/ui/date-filter";
+import { Pagination } from "@/components/ui/pagination";
 
 export function OrderItemsClientPage({
   initialItems,

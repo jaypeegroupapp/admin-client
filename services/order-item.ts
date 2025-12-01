@@ -4,7 +4,7 @@ import mongoose, { Types } from "mongoose";
 
 export async function getOrderItemsService(
   page = 0,
-  pageSize = 10,
+  pageSize = 12,
   search = "",
   status = "all",
   fromDate = "",

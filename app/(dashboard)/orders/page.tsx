@@ -18,7 +18,7 @@ export default async function OrdersPage({
   const params = await searchParams;
 
   const currentPage = Number(params?.page) || 0;
-  const pageSize = Number(params?.pageSize) || 10;
+  const pageSize = Number(params?.pageSize) || 12;
   const search = params?.search || "";
   const status = params?.status || "all";
 

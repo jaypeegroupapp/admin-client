@@ -11,7 +11,7 @@ import { orderItemMap } from "./mapper";
 
 export async function getOrderItems(
   page = 0,
-  pageSize = 10,
+  pageSize = 12,
   search = "",
   status = "all",
   fromDate = "",

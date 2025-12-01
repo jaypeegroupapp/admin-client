@@ -15,7 +15,7 @@ import StockMovement from "@/models/stock-movement";
 
 export async function getOrdersService(
   page = 0,
-  pageSize = 10,
+  pageSize = 12,
   search = "",
   status = "all",
   fromDate = "",

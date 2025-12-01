@@ -26,7 +26,7 @@ const orderMap = (order: any) => ({
  */
 export async function getOrders(
   page = 0,
-  pageSize = 10,
+  pageSize = 12,
   search = "",
   status = "All",
   fromDate = "",
