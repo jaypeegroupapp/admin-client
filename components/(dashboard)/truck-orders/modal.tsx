@@ -22,6 +22,7 @@ export function OrderItemDetailModal({
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const orderItemNumber = item.id?.slice(-6).toUpperCase();
 
   // Load existing signature (if any)
   useEffect(() => {
@@ -93,6 +94,14 @@ export function OrderItemDetailModal({
           Status:{" "}
           <span className="font-semibold capitalize">{item.status}</span>
         </div>
+
+        {/* STATUS */}
+        {item.status === "accepted" && (
+          <div className="text-sm text-gray-700">
+            PIN:{" "}
+            <span className="font-semibold capitalize">{orderItemNumber}</span>
+          </div>
+        )}
 
         {/* SIGNATURE AREA */}
         {(item.status === "accepted" || hasExistingSignature) && (
