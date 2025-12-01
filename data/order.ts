@@ -11,6 +11,7 @@ const orderMap = (order: any) => ({
   id: order._id.toString(),
   userId: order.userId?._id?.toString() || "",
   companyId: order.companyId?._id?.toString() || "",
+  companyName: order.companyId?.companyName || "",
   productId: order.productId?._id?.toString() || "",
   productName: order.productId?.name || "N/A",
   totalAmount: order.totalAmount,
