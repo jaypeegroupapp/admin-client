@@ -9,6 +9,7 @@ import OrderFilter from "./filter";
 import { OrderList } from "./list";
 import { OrderTabs } from "./tabs";
 import { Pagination } from "./pagination";
+import DateFilter from "./date-filter"; // ⭐ NEW COMPONENT
 
 export function OrderClientPage({
   initialOrders,
@@ -18,6 +19,8 @@ export function OrderClientPage({
   search,
   status,
   stats,
+  fromDate,
+  toDate,
 }: {
   initialOrders: IOrder[];
   totalCount: number;
@@ -26,14 +29,23 @@ export function OrderClientPage({
   search: string;
   status: string;
   stats: Record<string, number>;
+  fromDate: string;
+  toDate: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [orders, setOrders] = useState<IOrder[]>(initialOrders);
+
+  // Search
   const [filterText, setFilterText] = useState(search || "");
   const [debouncedSearch, setDebouncedSearch] = useState(filterText);
 
+  // Dates
+  const [from, setFrom] = useState(fromDate || "");
+  const [to, setTo] = useState(toDate || "");
+
+  // Tabs
   const [activeTab, setActiveTab] = useState<OrderTab>(
     (status === "all"
       ? "All"
@@ -42,39 +54,40 @@ export function OrderClientPage({
 
   const pageCount = Math.ceil(totalCount / pageSize);
 
-  /** --------------------------------
-   * UPDATE ORDERS WHEN SSR CHANGES
-   * --------------------------------*/
-  useEffect(() => {
-    setOrders(initialOrders);
-  }, [initialOrders]);
+  useEffect(() => setOrders(initialOrders), [initialOrders]);
 
-  /** --------------------------------
-   * DEBOUNCE HANDLER (300ms)
-   * --------------------------------*/
+  /** Debounced search */
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedSearch(filterText);
-    }, 300);
-
+    const timeout = setTimeout(() => setDebouncedSearch(filterText), 300);
     return () => clearTimeout(timeout);
   }, [filterText]);
 
-  /** --------------------------------
-   * UPDATE URL WHEN DEBOUNCED SEARCH CHANGES
-   * --------------------------------*/
+  /** Update URL on search */
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
 
-    params.set("search", debouncedSearch || "");
+    params.set("search", debouncedSearch);
     params.set("page", "0");
 
     router.push(`?${params.toString()}`);
   }, [debouncedSearch]);
 
-  /** --------------------------------
-   * TABS → URL UPDATE
-   * --------------------------------*/
+  /** Handle Dates */
+  const handleDateChange = (newFrom: string, newTo: string) => {
+    setFrom(newFrom);
+    setTo(newTo);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    newFrom ? params.set("fromDate", newFrom) : params.delete("fromDate");
+    newTo ? params.set("toDate", newTo) : params.delete("toDate");
+
+    params.set("page", "0"); // reset pagination
+
+    router.push(`?${params.toString()}`);
+  };
+
+  /** Tabs → URL */
   const handleTabChange = (tab: OrderTab) => {
     setActiveTab(tab);
 
@@ -85,9 +98,7 @@ export function OrderClientPage({
     router.push(`?${params.toString()}`);
   };
 
-  /** --------------------------------
-   * PAGINATION HANDLER
-   * --------------------------------*/
+  /** Pagination handler */
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(newPage));
@@ -96,9 +107,6 @@ export function OrderClientPage({
     router.push(`?${params.toString()}`);
   };
 
-  /** --------------------------------
-   * COUNTS (client UI only)
-   * --------------------------------*/
   const counts = {
     All: stats.All || 0,
     Pending: stats.Pending || 0,
@@ -116,15 +124,16 @@ export function OrderClientPage({
     >
       <OrderHeader />
 
-      <div className="flex flex-col lg:flex-row items-center gap-4">
+      <div className="flex flex-col lg:flex-row items-end gap-4">
         <OrderTabs
           activeTab={activeTab}
           onChange={handleTabChange}
           counts={counts}
         />
 
-        {/* 🔥 SEARCH NOW USES DEBOUNCE */}
         <OrderFilter initialValue={filterText} onFilterChange={setFilterText} />
+
+        <DateFilter from={from} to={to} onChange={handleDateChange} />
       </div>
 
       <OrderList initialOrders={orders} />

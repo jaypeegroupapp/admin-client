@@ -11,6 +11,8 @@ export default async function OrdersPage({
     pageSize?: string;
     search?: string;
     status?: string;
+    fromDate?: string;
+    toDate?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -20,22 +22,29 @@ export default async function OrdersPage({
   const search = params?.search || "";
   const status = params?.status || "all";
 
+  const fromDate = params?.fromDate || "";
+  const toDate = params?.toDate || "";
+
   const { data, totalCount, stats } = await getOrders(
     currentPage,
     pageSize,
     search,
-    status
+    status,
+    fromDate,
+    toDate
   );
 
   return (
     <OrderClientPage
       initialOrders={data || []}
-      totalCount={totalCount || 0}
+      totalCount={totalCount}
       currentPage={currentPage}
       pageSize={pageSize}
       search={search}
       status={status}
       stats={stats}
+      fromDate={fromDate}
+      toDate={toDate}
     />
   );
 }

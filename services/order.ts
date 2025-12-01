@@ -14,10 +14,12 @@ import StockMovement from "@/models/stock-movement";
  */
 
 export async function getOrdersService(
-  page: number = 0,
-  pageSize: number = 10,
-  search: string = "",
-  status: string = "all"
+  page = 0,
+  pageSize = 10,
+  search = "",
+  status = "all",
+  fromDate = "",
+  toDate = ""
 ) {
   await connectDB();
 
@@ -26,26 +28,27 @@ export async function getOrdersService(
     const isObjectId = mongoose.Types.ObjectId.isValid(term);
     const searchRegex = term ? new RegExp(term, "i") : null;
 
-    // -----------------------------
-    // MATCH BLOCK (shared)
-    // -----------------------------
     const match: any = {};
 
+    // STATUS FILTER
     if (status !== "all") {
       match.status = status.toLowerCase();
     }
 
-    // -----------------------------
-    // SEARCH MATCH (optional)
-    // -----------------------------
+    // DATE RANGE FILTER
+    if (fromDate || toDate) {
+      match.createdAt = {};
+      if (fromDate) match.createdAt.$gte = new Date(fromDate);
+      if (toDate) match.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
+    }
+
+    // SEARCH FILTER
     if (term) {
       match.$or = [
         { status: { $regex: searchRegex } },
 
-        // full ObjectId search
         isObjectId ? { _id: new mongoose.Types.ObjectId(term) } : null,
 
-        // partial ObjectId search
         {
           $expr: {
             $regexMatch: {
@@ -58,16 +61,14 @@ export async function getOrdersService(
       ].filter(Boolean);
     }
 
-    // -----------------------------
-    // MAIN PAGINATED QUERY
-    // -----------------------------
+    // MAIN QUERY
     const orders = await Order.aggregate([
       { $match: match },
       { $sort: { createdAt: -1 } },
       { $skip: page * pageSize },
       { $limit: pageSize },
 
-      // Populate (manual for aggregate)
+      // populate (aggregate)
       {
         $lookup: {
           from: "users",
@@ -109,22 +110,11 @@ export async function getOrdersService(
       { $unwind: { path: "$productId", preserveNullAndEmptyArrays: true } },
     ]);
 
-    // -----------------------------
-    // TOTAL COUNT
-    // -----------------------------
     const totalCount = await Order.countDocuments(match);
     const totalOrders = await Order.countDocuments();
 
-    // -----------------------------
-    // STATUS COUNTS (stats)
-    // -----------------------------
     const statsAgg = await Order.aggregate([
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 },
-        },
-      },
+      { $group: { _id: "$status", count: { $sum: 1 } } },
     ]);
 
     const stats = {
@@ -136,16 +126,12 @@ export async function getOrdersService(
     };
 
     statsAgg.forEach((s) => {
-      const key = s._id.charAt(0).toUpperCase() + "" + s._id.slice(1);
-      if (stats[key as keyof typeof stats] !== undefined)
+      const key = s._id.charAt(0).toUpperCase() + s._id.slice(1);
+      if (stats[key as keyof typeof stats] != null)
         stats[key as keyof typeof stats] = s.count;
     });
 
-    return {
-      data: orders,
-      totalCount,
-      stats,
-    };
+    return { data: orders, totalCount, stats };
   } catch (error) {
     console.error("❌ getOrdersService error:", error);
     return { data: [], totalCount: 0, stats: {} };

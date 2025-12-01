@@ -24,17 +24,21 @@ const orderMap = (order: any) => ({
  * 🧾 Fetch all orders and map to UI-friendly format
  */
 export async function getOrders(
-  page: number = 0,
-  pageSize: number = 10,
-  search: string = "",
-  status: string = "All"
+  page = 0,
+  pageSize = 10,
+  search = "",
+  status = "All",
+  fromDate = "",
+  toDate = ""
 ) {
   try {
     const { data, totalCount, stats } = await getOrdersService(
       page,
       pageSize,
       search,
-      status
+      status,
+      fromDate,
+      toDate
     );
 
     return {
@@ -47,6 +51,7 @@ export async function getOrders(
     return { data: [], totalCount: 0, stats: {} };
   }
 }
+
 /**
  * 🧾 Fetch all orders and map to UI-friendly format
  */
