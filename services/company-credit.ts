@@ -4,9 +4,13 @@ import CompanyCreditTrail from "@/models/company-credit-trail";
 import { Types } from "mongoose";
 import Company from "@/models/company";
 import { AddCreditData } from "@/definitions/company-credit-trail";
+import CompanyCredit from "@/models/company-credit";
+import CompanyCreditApproval from "@/models/company-credit-approval";
 
 /* ------------------  SERVICE FUNCTION  ------------------ */
-export async function getCompanyCreditByCompanyIdService(companyId: string) {
+export async function getCompanyCreditTrailByCompanyIdService(
+  companyId: string
+) {
   try {
     await connectDB();
 
@@ -18,12 +22,12 @@ export async function getCompanyCreditByCompanyIdService(companyId: string) {
 
     return credits;
   } catch (err: any) {
-    console.error("❌ getCompanyCreditByCompanyIdService error:", err);
+    console.error("❌ getCompanyCreditTrailByCompanyIdService error:", err);
     return [];
   }
 }
 
-export async function updateCompanyCreditService(
+export async function updateCompanyCreditTrailService(
   companyId: string,
   data: AddCreditData
 ) {
@@ -51,4 +55,67 @@ export async function updateCompanyCreditService(
   });
 
   return company;
+}
+
+export async function getCompanyCreditsByCompanyIdService(companyId: string) {
+  await connectDB();
+
+  return await CompanyCredit.find({
+    companyId: new Types.ObjectId(companyId),
+  })
+    .populate("mineId") // so we get mine.name
+    .lean();
+}
+
+export async function updateCompanyCreditService(companyId: string, data: any) {
+  await connectDB();
+
+  const { creditId, creditLimit, mineId, requester, reason, document } = data;
+
+  if (creditId) {
+    // 🔹 UPDATE existing credit record
+    const existingCredit = await CompanyCredit.findOne({
+      _id: new Types.ObjectId(creditId),
+      companyId: new Types.ObjectId(companyId),
+    });
+
+    if (!existingCredit) {
+      throw new Error("Credit record not found");
+    }
+
+    // Only allow updating creditLimit, requester, reason, document
+    existingCredit.creditLimit = creditLimit ?? existingCredit.creditLimit;
+
+    await existingCredit.save();
+
+    // Store approval record
+    await CompanyCreditApproval.create({
+      companyCreditId: existingCredit._id,
+      creditLimit,
+      requester,
+      reason,
+      document,
+    });
+
+    return existingCredit;
+  } else {
+    // 🔹 CREATE new credit record
+    const companyCredit = await CompanyCredit.create({
+      companyId,
+      mineId,
+      creditLimit,
+      usedCredit: 0,
+    });
+
+    // Store approval record
+    await CompanyCreditApproval.create({
+      companyCreditId: companyCredit._id,
+      creditLimit,
+      requester,
+      reason,
+      document,
+    });
+
+    return companyCredit;
+  }
 }

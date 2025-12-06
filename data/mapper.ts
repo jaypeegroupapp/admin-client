@@ -28,3 +28,13 @@ export function orderItemMap(i: any): IOrderItemAggregated {
     productName: i.product?.name || null,
   };
 }
+
+export function mapCompanyCredit(doc: any) {
+  return {
+    id: doc._id.toString(),
+    mineName: doc.mineId?.name || "Unknown Mine",
+    creditLimit: doc.creditLimit ?? 0,
+    usedCredit: doc.usedCredit ?? 0,
+  };
+}
+

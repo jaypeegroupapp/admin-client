@@ -26,7 +26,43 @@ export async function uploadFile(formData: FormData) {
 
   uploadStream.end(buffer);
 
-  return { success: true, filename: file.name };
+  return {
+    success: true,
+    filename: file.name,
+    fileId: uploadStream.id.toString(),
+  };
+}
+
+export async function uploadFileGetFileId(formData: FormData) {
+  const file = formData.get("document") as File;
+
+  if (!file) {
+    return { success: false, message: "No file provided" };
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const { gfs } = await connectDB();
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = gfs.openUploadStream(file.name, {
+      contentType: file.type,
+    });
+
+    uploadStream.end(buffer);
+
+    uploadStream.on("finish", () => {
+      resolve({
+        success: true,
+        fileId: uploadStream.id.toString(),
+        filename: file.name,
+      });
+    });
+
+    uploadStream.on("error", (err) => {
+      reject({ success: false, message: err.message });
+    });
+  });
 }
 
 export async function uploadDoc(formData: FormData) {

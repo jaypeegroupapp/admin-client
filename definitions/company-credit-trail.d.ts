@@ -2,7 +2,12 @@
 export interface ICompanyCreditTrail {
   id?: string;
   companyId?: string;
-  type: "credit-updated" | "order-debit" | "invoice-payment" | "admin-adjustment";
+  mineId?: string;
+  type:
+    | "credit-updated"
+    | "order-debit"
+    | "invoice-payment"
+    | "admin-adjustment";
   amount: number;
   oldBalance: number;
   newBalance: number;

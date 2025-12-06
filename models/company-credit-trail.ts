@@ -2,12 +2,14 @@
 import { ICompanyCreditTrail } from "@/definitions/company-credit-trail";
 import mongoose, { Schema, Model } from "mongoose";
 import Company from "./company";
+import Mine from "./mine";
 
 type CompanyCreditTrailDocument = Omit<
   ICompanyCreditTrail,
-  "id" | "companyId"
+  "id" | "companyId" | "mineId"
 > & {
   companyId: mongoose.Types.ObjectId;
+  mineId: mongoose.Types.ObjectId;
 };
 
 const CompanyCreditTrailSchema = new Schema<CompanyCreditTrailDocument>(
@@ -15,6 +17,11 @@ const CompanyCreditTrailSchema = new Schema<CompanyCreditTrailDocument>(
     companyId: {
       type: Schema.Types.ObjectId,
       ref: Company.modelName,
+      required: true,
+    },
+    mineId: {
+      type: Schema.Types.ObjectId,
+      ref: Mine.modelName,
       required: true,
     },
     type: {

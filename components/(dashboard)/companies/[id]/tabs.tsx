@@ -6,7 +6,7 @@ import { Truck, Package, Wallet, ChevronRight } from "lucide-react";
 import { getTrucksByCompanyId } from "@/data/truck";
 import { getOrdersByCompanyId } from "@/data/order";
 import Link from "next/link";
-import { CreditFacilityTab } from "./credit-facility-tab";
+import { CreditFacilityTab } from "./credit-mine-facility-tab";
 
 interface Props {
   activeTab: "trucks" | "orders" | "credit";
@@ -152,10 +152,7 @@ export function CompanyTabs({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <CreditFacilityTab
-              companyId={companyId}
-              creditLimit={creditLimit}
-            />
+            <CreditFacilityTab companyId={companyId} />
           </motion.div>
         )}
       </AnimatePresence>

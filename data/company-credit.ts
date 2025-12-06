@@ -1,6 +1,10 @@
 "use server";
 
-import { getCompanyCreditByCompanyIdService } from "@/services/company-credit";
+import {
+  getCompanyCreditsByCompanyIdService,
+  getCompanyCreditTrailByCompanyIdService,
+} from "@/services/company-credit";
+import { mapCompanyCredit } from "./mapper";
 
 /* -------------------------  MAPPER  ------------------------- */
 function companyCreditMap(credit: any) {
@@ -17,9 +21,9 @@ function companyCreditMap(credit: any) {
 }
 
 /* ------------------  PUBLIC FETCH FUNCTION  ------------------ */
-export async function getCompanyCreditsByCompanyId(companyId: string) {
+export async function getCompanyCreditTrailsByCompanyId(companyId: string) {
   try {
-    const credits = await getCompanyCreditByCompanyIdService(companyId);
+    const credits = await getCompanyCreditTrailByCompanyIdService(companyId);
 
     // Ensure it's an array
     const list = Array.isArray(credits) ? credits : [];
@@ -28,11 +32,26 @@ export async function getCompanyCreditsByCompanyId(companyId: string) {
       trail: list.map(companyCreditMap),
     };
   } catch (err) {
-    console.error("❌ getCompanyCreditsByCompanyId error:", err);
+    console.error("❌ getCompanyCreditTrailsByCompanyId error:", err);
     return {
       limit: 0,
       balance: 0,
       trail: [],
     };
+  }
+}
+
+export async function getCompanyCreditsByCompanyId(companyId: string) {
+  try {
+    const credits = await getCompanyCreditsByCompanyIdService(companyId);
+    if (!credits) return { success: true, data: [] };
+
+    return {
+      success: true,
+      data: credits.map(mapCompanyCredit),
+    };
+  } catch (err: any) {
+    console.error("❌ getCompanyCreditsByCompanyId error:", err);
+    return { success: false, data: [] };
   }
 }
