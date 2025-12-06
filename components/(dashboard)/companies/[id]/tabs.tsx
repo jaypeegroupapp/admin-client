@@ -6,11 +6,12 @@ import { Truck, Package, Wallet, ChevronRight } from "lucide-react";
 import { getTrucksByCompanyId } from "@/data/truck";
 import { getOrdersByCompanyId } from "@/data/order";
 import Link from "next/link";
-import { CreditFacilityTab } from "./credit-mine-facility-tab";
+import { CreditMineFacilityTab } from "./credit-mine-facility-tab";
+import { CreditTrailsTab } from "./credit-facility-tab";
 
 interface Props {
-  activeTab: "trucks" | "orders" | "credit";
-  onTabChange: (tab: "trucks" | "orders" | "credit") => void;
+  activeTab: "trucks" | "orders" | "credit" | "credit-trails";
+  onTabChange: (tab: "trucks" | "orders" | "credit" | "credit-trails") => void;
   companyId: string;
   creditLimit: number;
 }
@@ -45,7 +46,7 @@ export function CompanyTabs({
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
       {/* TABS */}
       <div className="flex gap-6 border-b border-gray-200 mb-6">
-        {["trucks", "orders", "credit"].map((tab) => (
+        {["trucks", "orders", "credit", "credit-trails"].map((tab) => (
           <button
             key={tab}
             onClick={() => onTabChange(tab as any)}
@@ -58,6 +59,7 @@ export function CompanyTabs({
             {tab === "trucks" && "Trucks"}
             {tab === "orders" && "Orders"}
             {tab === "credit" && "Credit Facility"}
+            {tab === "credit-trails" && "Credit Trails"}
           </button>
         ))}
       </div>
@@ -104,7 +106,6 @@ export function CompanyTabs({
             )}
           </motion.div>
         )}
-
         {activeTab === "orders" && (
           <motion.div
             key="orders"
@@ -144,7 +145,6 @@ export function CompanyTabs({
             )}
           </motion.div>
         )}
-
         {activeTab === "credit" && (
           <motion.div
             key="credit"
@@ -152,7 +152,17 @@ export function CompanyTabs({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <CreditFacilityTab companyId={companyId} />
+            <CreditMineFacilityTab companyId={companyId} />
+          </motion.div>
+        )}{" "}
+        {activeTab === "credit-trails" && (
+          <motion.div
+            key="credit-trails"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <CreditTrailsTab companyId={companyId} creditLimit={creditLimit} />
           </motion.div>
         )}
       </AnimatePresence>

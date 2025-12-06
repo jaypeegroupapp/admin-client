@@ -10,9 +10,9 @@ import { CompanyTabs } from "./tabs";
 
 export function CompanyDetailsClient({ company }: { company: ICompany }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"trucks" | "orders" | "credit">(
-    "orders"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "trucks" | "orders" | "credit" | "credit-trails"
+  >("orders");
 
   return (
     <motion.div

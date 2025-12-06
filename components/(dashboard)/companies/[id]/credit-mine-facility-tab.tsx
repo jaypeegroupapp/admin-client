@@ -7,7 +7,7 @@ import { getCompanyCreditsByCompanyId } from "@/data/company-credit";
 import { getMines } from "@/data/mine";
 import { CreateCompanyCreditModal } from "./create-company-credit-modal";
 
-export function CreditFacilityTab({ companyId }: { companyId: string }) {
+export function CreditMineFacilityTab({ companyId }: { companyId: string }) {
   const [credits, setCredits] = useState<any[]>([]);
   const [mines, setMines] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);

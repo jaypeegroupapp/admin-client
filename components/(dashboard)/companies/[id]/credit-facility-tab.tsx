@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { getCompanyCreditTrailsByCompanyId } from "@/data/company-credit";
 import { UpdateCreditModal } from "./add-credit-modal";
 
-export function CreditFacilityTab({
+export function CreditTrailsTab({
   companyId,
   creditLimit,
 }: {
@@ -32,7 +32,7 @@ export function CreditFacilityTab({
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-medium text-gray-700 flex items-center gap-2">
           <Wallet size={16} className="text-gray-500" />
-          Credit Facility
+          Credit Trails
         </h3>
 
         <button
