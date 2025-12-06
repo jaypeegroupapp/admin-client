@@ -1,6 +1,6 @@
 "use client";
 
-import { updateCompanyCreditAction } from "@/actions/company-credit";
+import { updateCompanyCreditTrailAction } from "@/actions/company-credit";
 import { SubmitButton } from "@/components/ui/buttons";
 import InputValidated from "@/components/ui/input-validated";
 import { creditFormSchema } from "@/validations/company-credit";
@@ -23,13 +23,13 @@ export function UpdateCreditModal({
 }) {
   const initialState = { message: "", errors: {} };
 
-  const updateCompanyCreditActionWithCompanyId = updateCompanyCreditAction.bind(
+  const updateCompanyCreditTrailActionWithCompanyId = updateCompanyCreditTrailAction.bind(
     null,
     companyId
   );
 
   const [state, formAction, isPending] = useActionState(
-    updateCompanyCreditActionWithCompanyId,
+    updateCompanyCreditTrailActionWithCompanyId,
     initialState
   );
 

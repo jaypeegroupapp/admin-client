@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Edit, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
-import { getCompanyCreditsByCompanyId } from "@/data/company-credit";
+import { getCompanyCreditTrailsByCompanyId } from "@/data/company-credit";
 import { UpdateCreditModal } from "./add-credit-modal";
 
 export function CreditFacilityTab({
@@ -17,7 +17,7 @@ export function CreditFacilityTab({
   const [showModal, setShowModal] = useState(false);
 
   const loadCredit = async () => {
-    const res = await getCompanyCreditsByCompanyId(companyId);
+    const res = await getCompanyCreditTrailsByCompanyId(companyId);
     console.log(res);
     setCredit(res || { balance: 0, limit: 0, trail: [] });
   };
