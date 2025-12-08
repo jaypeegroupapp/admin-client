@@ -13,6 +13,8 @@ import { revalidatePath } from "next/cache";
 import { uploadFileGetFileId } from "./file";
 import { allowedTypes } from "@/constants/company-credit";
 import { z } from "zod";
+import { CompanyCreditState } from "@/definitions/company-credit";
+import { redirect } from "next/navigation";
 
 export async function updateCompanyCreditTrailAction(
   companyId: string,
@@ -52,7 +54,7 @@ export async function updateCompanyCreditTrailAction(
 
 export async function updateCompanyCreditAction(
   companyId: string,
-  prevState: any,
+  prevState: CompanyCreditState | undefined,
   formData: FormData
 ) {
   try {
@@ -72,34 +74,38 @@ export async function updateCompanyCreditAction(
     const validated = schema.safeParse(rawValues);
 
     if (!validated.success) {
-      return {
+      const state: CompanyCreditState = {
         message: "Validation failed",
         errors: validated.error.flatten().fieldErrors,
       };
+      return state;
     }
 
     // Handle file
     const file = formData.get("document") as File | null;
 
     if (!file || file.size === 0) {
-      return {
+      const state: CompanyCreditState = {
         message: "Validation failed",
         errors: { document: ["Document is required"] },
       };
+      return state;
     }
 
     if (!allowedTypes.includes(file.type)) {
-      return {
+      const state: CompanyCreditState = {
         message: "Validation failed",
         errors: { document: ["Invalid file type"] },
       };
+      return state;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      return {
+      const state: CompanyCreditState = {
         message: "Validation failed",
         errors: { document: ["File must be less than 5MB"] },
       };
+      return state;
     }
 
     // Upload file
@@ -126,7 +132,6 @@ export async function updateCompanyCreditAction(
         reason: validated.data.reason,
         document: fileId,
       });
-      return { message: "Credit record updated successfully", errors: {} };
     } else {
       await updateCompanyCreditService(companyId, {
         mineId: validated.data.mineId!,
@@ -135,7 +140,6 @@ export async function updateCompanyCreditAction(
         reason: validated.data.reason,
         document: fileId,
       });
-      return { message: "Credit record created successfully", errors: {} };
     }
   } catch (error: any) {
     console.error("❌ updateCompanyCreditAction error:", error);
@@ -144,4 +148,6 @@ export async function updateCompanyCreditAction(
       errors: { global: error.message },
     };
   }
+  revalidatePath(`companies/${companyId}`);
+  redirect(`/companies/${companyId}`);
 }

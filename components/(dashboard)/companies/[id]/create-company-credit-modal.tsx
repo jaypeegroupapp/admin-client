@@ -37,7 +37,6 @@ export function CreateCompanyCreditModal({
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(creditMineFormSchema),
@@ -49,19 +48,15 @@ export function CreateCompanyCreditModal({
     },
   });
 
-  const onSubmit = handleSubmit((data) => {
-    const formData = new FormData(formRef.current!);
-    formData.append("companyId", companyId);
-
-    if (editingCredit) {
-      formData.append("creditId", editingCredit.id);
-    }
-
-    startTransition(() => {
-      formAction(formData);
-      onClose();
-    });
-  });
+  const onSubmit = (evt: any) => {
+    evt.preventDefault();
+    handleSubmit(() => {
+      const formData = new FormData(formRef.current!);
+      startTransition(() => {
+        formAction(formData);
+      });
+    })(evt);
+  };
 
   return (
     <BaseModal open={open} onClose={onClose}>
@@ -124,6 +119,9 @@ export function CreateCompanyCreditModal({
             <p className="text-sm text-red-500">
               {errors.document.message as string}
             </p>
+          )}
+          {state?.errors && (
+            <p className="text-sm text-red-500">{state?.errors["document"]}</p>
           )}
         </div>
 

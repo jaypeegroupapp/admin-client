@@ -8,3 +8,14 @@ export interface ICompanyCredit {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export type CompanyCreditState = {
+  errors?: {
+    creditLimit?: string[];
+    mineId?: string[];
+    requester?: string[];
+    reason?: string[];
+    document?: string[];
+  };
+  message?: string | null;
+};

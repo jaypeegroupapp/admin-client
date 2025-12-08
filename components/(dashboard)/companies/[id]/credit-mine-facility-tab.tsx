@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Edit, Wallet } from "lucide-react";
+import { Edit, Mountain, Wallet } from "lucide-react";
 
 import { getCompanyCreditsByCompanyId } from "@/data/company-credit";
 import { getMines } from "@/data/mine";
@@ -64,25 +64,26 @@ export function CreditMineFacilityTab({ companyId }: { companyId: string }) {
               key={item.id}
               className="py-3 flex justify-between items-center"
             >
-              <div>
-                <p className="text-sm font-medium text-gray-800">
-                  {item.mineName}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Limit: R{item.creditLimit.toLocaleString()}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Used: R{item.usedCredit.toLocaleString()}
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+                  <Mountain />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-800">
+                    {item.mineName}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-gray-500">
+                      Limit: R{item.creditLimit.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Used: R{item.usedCredit.toLocaleString()}
+                    </p>{" "}
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="px-2 py-1 text-xs rounded-md bg-gray-100 text-gray-700">
-                  {item.usedCredit >= item.creditLimit
-                    ? "Fully Used"
-                    : "Active"}
-                </span>
-
                 <button
                   onClick={() => {
                     setEditingCredit(item);
