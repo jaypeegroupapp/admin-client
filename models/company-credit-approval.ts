@@ -23,7 +23,13 @@ const CompanyCreditApprovalSchema = new Schema<CompanyCreditApprovalDocument>(
       enum: ["Transporter", "Business", "Mine"],
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "declined"],
+      default: "pending",
+    },
     reason: { type: String, required: true, trim: true },
+    declinedReason: { type: String, trim: true },
     document: { type: String },
   },
   { timestamps: true }

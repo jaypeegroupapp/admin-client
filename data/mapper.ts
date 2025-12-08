@@ -38,3 +38,33 @@ export function mapCompanyCredit(doc: any) {
   };
 }
 
+/* ---------------------------------------------------------
+ * MAPPER
+ * ---------------------------------------------------------*/
+export function companyCreditApprovalMap(a: any) {
+  return {
+    id: a._id?.toString(),
+
+    companyCreditId: a.companyCreditId?.toString() || null,
+    creditLimit: a.creditLimit,
+    requester: a.requester,
+    reason: a.reason,
+    status: a.status,
+    document: a.document || null,
+
+    createdAt: a.createdAt,
+    updatedAt: a.updatedAt,
+
+    /** COMPANY CREDIT → BASE */
+    baseCreditLimit: a.credit?.creditLimit || null,
+    usedCredit: a.credit?.usedCredit || null,
+
+    /** COMPANY */
+    companyId: a.credit?.companyId?.toString() || null,
+    companyName: a.company?.companyName || null,
+
+    /** MINE */
+    mineId: a.credit?.mineId?.toString() || null,
+    mineName: a.mine?.name || null,
+  };
+}

@@ -9,6 +9,7 @@ import {
   Mountain,
   Menu,
   Truck,
+  FileCheck2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -27,6 +28,11 @@ const otherNavItems = [
   { name: "Products", href: "/products", icon: Package },
   { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
   { name: "Mines", href: "/mines", icon: Mountain },
+  {
+    name: "Credit Approval",
+    href: "/company-credit-approvals",
+    icon: FileCheck2,
+  },
 ];
 
 export default function DashboardLayout({
