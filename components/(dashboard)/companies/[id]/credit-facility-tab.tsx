@@ -32,7 +32,7 @@ export function CreditTrailsTab({
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-medium text-gray-700 flex items-center gap-2">
           <Wallet size={16} className="text-gray-500" />
-          Credit Trails
+          Statements
         </h3>
 
         <button

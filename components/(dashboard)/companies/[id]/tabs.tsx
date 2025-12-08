@@ -59,7 +59,7 @@ export function CompanyTabs({
             {tab === "trucks" && "Trucks"}
             {tab === "orders" && "Orders"}
             {tab === "credit" && "Credit Facility"}
-            {tab === "credit-trails" && "Credit Trails"}
+            {tab === "credit-trails" && "Statements"}
           </button>
         ))}
       </div>
