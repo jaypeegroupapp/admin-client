@@ -24,7 +24,7 @@ const CompanyCreditSchema = new Schema<CompanyCreditDocument>(
       ref: Mine.modelName,
       required: true,
     },
-    creditLimit: { type: Number, required: true },
+    creditLimit: { type: Number, required: true, default: 0 },
     usedCredit: { type: Number, required: true, default: 0 },
   },
   { timestamps: true }

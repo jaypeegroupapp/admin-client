@@ -103,8 +103,6 @@ export async function updateCompanyCreditService(companyId: string, data: any) {
     const companyCredit = await CompanyCredit.create({
       companyId,
       mineId,
-      creditLimit,
-      usedCredit: 0,
     });
 
     // Store approval record
