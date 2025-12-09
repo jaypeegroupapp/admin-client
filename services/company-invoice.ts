@@ -178,7 +178,7 @@ export async function publishInvoiceService(invoiceId: string) {
     // 4️⃣ Update invoice fields
     invoice.totalAmount = totalAmount;
     invoice.status = "published";
-    invoice.closingBalance = company.balance;
+    invoice.closingBalance = 0;
 
     await invoice.save({ session });
 
@@ -230,7 +230,7 @@ export async function confirmInvoicePaymentService(
       return { success: false, message: "Company not found." };
     }
 
-    const oldBalance = company.balance ?? 0;
+    const oldBalance = 0;
     const paymentAmount = data.amount;
     const newBalance = oldBalance + paymentAmount;
 
@@ -241,7 +241,6 @@ export async function confirmInvoicePaymentService(
     await invoice.save({ session });
 
     /* ------------------ UPDATE COMPANY BALANCE ------------------ */
-    company.balance = newBalance;
     await company.save({ session });
 
     /* ------------------ CREATE CREDIT TRAIL ENTRY ------------------ */

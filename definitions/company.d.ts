@@ -9,8 +9,8 @@ export interface ICompany {
   billingAddress: string;
   vatNumber?: string;
   invoiceFile?: string; // GridFS ObjectId or file URL
-  creditLimit?: number; // Total credit approved
-  balance?: number; // Remaining available credit
+  debitAmount: number;
+  usedDebit: number;
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }

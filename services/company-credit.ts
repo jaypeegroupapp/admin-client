@@ -36,12 +36,11 @@ export async function updateCompanyCreditTrailService(
   const company = await Company.findById(companyId);
   if (!company) throw new Error("Company not found");
 
-  const oldBalance = company.balance ?? 0;
+  const oldBalance = company.debitAmount ?? 0;
   const newBalance = oldBalance + data.amount;
 
   // Update company balances
-  company.balance = data.amount;
-  company.creditLimit = data.amount;
+  company.debitAmount = data.amount;
   await company.save();
 
   // Record credit trail
@@ -51,7 +50,7 @@ export async function updateCompanyCreditTrailService(
     amount: data.amount,
     oldBalance,
     newBalance,
-    description: data.reason || "Credit updated via admin",
+    description: data.reason || "Debit updated via admin",
   });
 
   return company;

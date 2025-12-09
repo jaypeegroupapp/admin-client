@@ -22,7 +22,7 @@ const AccountStatementTrailSchema = new Schema<AccountStatementTrailDocument>(
     mineId: {
       type: Schema.Types.ObjectId,
       ref: Mine.modelName,
-      required: true,
+      required: false,
     },
     type: {
       type: String,

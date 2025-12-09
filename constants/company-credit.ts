@@ -1,9 +1,9 @@
 export const creditInputFormData = [
   {
     name: "amount",
-    label: "Credit Amount",
+    label: "Debit Amount",
     type: "number",
-    placeholder: "Enter credit amount",
+    placeholder: "Enter debit amount",
   },
   { name: "issuedDate", label: "Issued Date", type: "date" },
 ];

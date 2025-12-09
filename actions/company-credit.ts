@@ -31,11 +31,11 @@ export async function updateCompanyCreditTrailAction(
     }
 
     const { amount, issuedDate } = validated.data;
-    const creditAmount = parseFloat(amount);
+    const debitAmount = parseFloat(amount);
 
     // Call the service
     await updateCompanyCreditTrailService(companyId, {
-      amount: creditAmount,
+      amount: debitAmount,
       reason: "Credit added via admin",
       issuedDate,
     });

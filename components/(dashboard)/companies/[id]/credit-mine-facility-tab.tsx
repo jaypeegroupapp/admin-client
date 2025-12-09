@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Edit, Mountain, Wallet } from "lucide-react";
+import { Edit, Mountain, Plus, Wallet } from "lucide-react";
 
 import { getCompanyCreditsByCompanyId } from "@/data/company-credit";
 import { getMines } from "@/data/mine";
@@ -48,7 +48,7 @@ export function CreditMineFacilityTab({ companyId }: { companyId: string }) {
           }}
           className="flex items-center gap-2 rounded-lg p-2 text-sm font-medium bg-gray-900 text-white hover:bg-gray-700 transition"
         >
-          <Edit size={16} />
+          <Plus size={16} />
           <span className="hidden md:block">Add Credit</span>
         </button>
       </div>

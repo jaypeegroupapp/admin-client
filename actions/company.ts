@@ -53,16 +53,6 @@ export async function registerCompanyAction(
 
     const userId = session?.userId as string;
 
-    await createCompanyService({
-      companyName,
-      registrationNumber,
-      contactEmail,
-      contactPhone,
-      billingAddress,
-      vatNumber,
-      invoiceFile: fileId,
-      userId,
-    });
     await setCookie("registrationStep", "1");
   } catch (error: any) {
     console.error("❌ registerCompanyAction error:", error);

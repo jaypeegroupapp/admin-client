@@ -13,14 +13,14 @@ interface Props {
   activeTab: "trucks" | "orders" | "credit" | "credit-trails";
   onTabChange: (tab: "trucks" | "orders" | "credit" | "credit-trails") => void;
   companyId: string;
-  creditLimit: number;
+  debitAmount: number;
 }
 
 export function CompanyTabs({
   activeTab,
   onTabChange,
   companyId,
-  creditLimit,
+  debitAmount,
 }: Props) {
   const [trucks, setTrucks] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
@@ -164,7 +164,7 @@ export function CompanyTabs({
           >
             <AccountStatementTab
               companyId={companyId}
-              creditLimit={creditLimit}
+              debitAmount={debitAmount}
             />
           </motion.div>
         )}
