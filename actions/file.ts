@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import mongoose, { Types } from "mongoose";
 import { Readable } from "stream";
 import { randomUUID } from "crypto";
+import { allowedTypes } from "@/constants/company-credit";
 
 // Allowed file types for invoices
 const ALLOWED_MIME_TYPES = ["application/pdf", "image/jpeg", "image/png"];
@@ -156,4 +157,33 @@ export async function deleteFileByNameAction(filename: string) {
     console.error("Delete error:", err);
     return { success: false, error: "Failed to delete file" };
   }
+}
+
+export async function uploadFileAction(file: File | null) {
+  if (!file || file.size === 0) {
+    return {
+      message: "Validation failed",
+      errors: { document: ["Document is required"] },
+    };
+  }
+
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      message: "Validation failed",
+      errors: { document: ["Invalid file type"] },
+    };
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    return {
+      message: "Validation failed",
+      errors: { document: ["File must be less than 5MB"] },
+    };
+  }
+
+  // Upload file
+  const uploadForm = new FormData();
+  uploadForm.append("document", file);
+
+  return await uploadFileGetFileId(uploadForm);
 }

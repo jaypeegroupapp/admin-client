@@ -52,6 +52,12 @@ export function CreateCompanyCreditModal({
     evt.preventDefault();
     handleSubmit(() => {
       const formData = new FormData(formRef.current!);
+      formData.append("companyId", companyId);
+
+      if (editingCredit) {
+        formData.append("creditId", editingCredit.id);
+      }
+
       startTransition(() => {
         formAction(formData);
       });

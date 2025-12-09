@@ -11,7 +11,9 @@ import { StatusBadge } from "./status-badge";
 export function CreditApprovalSummary({
   approval,
 }: {
-  approval: ICompanyCreditApproval;
+  approval: ICompanyCreditApproval & {
+    mineName: string;
+  };
 }) {
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [showApproveModal, setShowApproveModal] = useState(false);
@@ -76,19 +78,16 @@ export function CreditApprovalSummary({
             <p className="text-gray-500">Requester</p>
             <p className="font-medium">{approval.requester}</p>
           </div>
-
           <div>
             <p className="text-gray-500">Credit Limit Requested</p>
             <p className="font-semibold text-gray-900">
               R{approval.creditLimit?.toLocaleString()}
             </p>
           </div>
-
           <div>
-            <p className="text-gray-500">Reason</p>
-            <p className="font-medium">{approval.reason}</p>
+            <p className="text-gray-500">Mine</p>
+            <p className="font-semibold text-gray-900">{approval.mineName}</p>
           </div>
-
           <div>
             <p className="text-gray-500">Last Updated</p>
             <p className="font-medium">
@@ -96,6 +95,10 @@ export function CreditApprovalSummary({
                 ? new Date(approval.updatedAt).toLocaleDateString("en-ZA")
                 : "N/A"}
             </p>
+          </div>{" "}
+          <div className="col-span-2">
+            <p className="text-gray-500">Reason</p>
+            <p className="font-medium">{approval.reason}</p>
           </div>
         </div>
 

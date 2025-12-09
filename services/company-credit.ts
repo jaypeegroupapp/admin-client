@@ -73,6 +73,7 @@ export async function updateCompanyCreditService(companyId: string, data: any) {
   const { creditId, creditLimit, mineId, requester, reason, document } = data;
 
   if (creditId) {
+    console.log("Updating existing credit record");
     // 🔹 UPDATE existing credit record
     const existingCredit = await CompanyCredit.findOne({
       _id: new Types.ObjectId(creditId),
@@ -82,11 +83,6 @@ export async function updateCompanyCreditService(companyId: string, data: any) {
     if (!existingCredit) {
       throw new Error("Credit record not found");
     }
-
-    // Only allow updating creditLimit, requester, reason, document
-    existingCredit.creditLimit = creditLimit ?? existingCredit.creditLimit;
-
-    await existingCredit.save();
 
     // Store approval record
     await CompanyCreditApproval.create({

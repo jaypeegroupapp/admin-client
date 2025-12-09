@@ -10,8 +10,7 @@ import {
   updateCompanyCreditTrailService,
 } from "@/services/company-credit";
 import { revalidatePath } from "next/cache";
-import { uploadFileGetFileId } from "./file";
-import { allowedTypes } from "@/constants/company-credit";
+import { uploadFileAction } from "./file";
 import { z } from "zod";
 import { CompanyCreditState } from "@/definitions/company-credit";
 import { redirect } from "next/navigation";
@@ -84,35 +83,10 @@ export async function updateCompanyCreditAction(
     // Handle file
     const file = formData.get("document") as File | null;
 
-    if (!file || file.size === 0) {
-      const state: CompanyCreditState = {
-        message: "Validation failed",
-        errors: { document: ["Document is required"] },
-      };
-      return state;
+    const uploadRes = (await uploadFileAction(file)) as any;
+    if (uploadRes.errors) {
+      return { message: uploadRes.message, errors: uploadRes.errors };
     }
-
-    if (!allowedTypes.includes(file.type)) {
-      const state: CompanyCreditState = {
-        message: "Validation failed",
-        errors: { document: ["Invalid file type"] },
-      };
-      return state;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      const state: CompanyCreditState = {
-        message: "Validation failed",
-        errors: { document: ["File must be less than 5MB"] },
-      };
-      return state;
-    }
-
-    // Upload file
-    const uploadForm = new FormData();
-    uploadForm.append("document", file);
-
-    const uploadRes = (await uploadFileGetFileId(uploadForm)) as any;
 
     if (!uploadRes.success) {
       return {
