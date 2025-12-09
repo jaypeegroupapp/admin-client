@@ -12,21 +12,19 @@ import { creditInputFormData } from "@/constants/company-credit";
 
 export function UpdateCreditModal({
   companyId,
-  creditLimit,
+  debitAmount,
   open,
   onClose,
 }: {
   companyId: string;
-  creditLimit: number;
+  debitAmount: number;
   open: boolean;
   onClose: () => void;
 }) {
   const initialState = { message: "", errors: {} };
 
-  const updateCompanyCreditTrailActionWithCompanyId = updateCompanyCreditTrailAction.bind(
-    null,
-    companyId
-  );
+  const updateCompanyCreditTrailActionWithCompanyId =
+    updateCompanyCreditTrailAction.bind(null, companyId);
 
   const [state, formAction, isPending] = useActionState(
     updateCompanyCreditTrailActionWithCompanyId,
@@ -42,7 +40,7 @@ export function UpdateCreditModal({
   } = useForm({
     resolver: zodResolver(creditFormSchema),
     defaultValues: {
-      amount: creditLimit,
+      amount: debitAmount,
       issuedDate: "",
     },
   });
@@ -59,9 +57,7 @@ export function UpdateCreditModal({
 
   return (
     <BaseModal open={open} onClose={onClose}>
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        Update Credit Limit
-      </h2>
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">Add Debit</h2>
 
       <form ref={formRef} onSubmit={onSubmit} className="flex flex-col gap-4">
         {creditInputFormData.map((input) => (
@@ -75,7 +71,7 @@ export function UpdateCreditModal({
           />
         ))}
 
-        <SubmitButton name="Update Credit" isPending={isPending} />
+        <SubmitButton name="Submit" isPending={isPending} />
       </form>
     </BaseModal>
   );

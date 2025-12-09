@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Edit, Wallet } from "lucide-react";
+import { Edit, Plus, Wallet } from "lucide-react";
 import { getCompanyCreditTrailsByCompanyId } from "@/data/company-credit";
 import { UpdateCreditModal } from "./add-credit-modal";
 
 export function AccountStatementTab({
   companyId,
-  creditLimit,
+  debitAmount,
 }: {
   companyId: string;
-  creditLimit: number;
+  debitAmount: number;
 }) {
   const [credit, setCredit] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
@@ -38,8 +38,8 @@ export function AccountStatementTab({
           onClick={() => setShowModal(true)}
           className="flex items-center gap-2 rounded-lg p-2 text-sm font-medium bg-gray-900 text-white hover:bg-gray-700 transition"
         >
-          <Edit size={16} />
-          <span className="hidden md:block">Update Credit</span>
+          <Plus size={16} />
+          <span className="hidden md:block">Add Debit</span>
         </button>
       </div>
 
@@ -87,7 +87,7 @@ export function AccountStatementTab({
       {showModal && (
         <UpdateCreditModal
           companyId={companyId}
-          creditLimit={creditLimit}
+          debitAmount={debitAmount}
           open={showModal}
           onClose={() => {
             setShowModal(false);
