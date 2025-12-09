@@ -1,9 +1,9 @@
 // /services/company-credit-service.ts
 import { connectDB } from "@/lib/db";
-import CompanyCreditTrail from "@/models/company-credit-trail";
+import AccountStatementTrail from "@/models/account-statement-trail";
 import { Types } from "mongoose";
 import Company from "@/models/company";
-import { AddCreditData } from "@/definitions/company-credit-trail";
+import { AddCreditData } from "@/definitions/account-statement-trail";
 import CompanyCredit from "@/models/company-credit";
 import CompanyCreditApproval from "@/models/company-credit-approval";
 
@@ -14,7 +14,7 @@ export async function getCompanyCreditTrailByCompanyIdService(
   try {
     await connectDB();
 
-    const credits = await CompanyCreditTrail.find({
+    const credits = await AccountStatementTrail.find({
       companyId: new Types.ObjectId(companyId),
     })
       .sort({ createdAt: -1 }) // newest first
@@ -45,9 +45,9 @@ export async function updateCompanyCreditTrailService(
   await company.save();
 
   // Record credit trail
-  await CompanyCreditTrail.create({
+  await AccountStatementTrail.create({
     companyId: company._id,
-    type: "credit-updated",
+    type: "debit-added",
     amount: data.amount,
     oldBalance,
     newBalance,

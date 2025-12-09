@@ -2,7 +2,7 @@ import { connectDB } from "@/lib/db";
 import Company from "@/models/company";
 import CompanyCredit from "@/models/company-credit";
 import CompanyCreditApproval from "@/models/company-credit-approval";
-import CompanyCreditTrail from "@/models/company-credit-trail";
+import AccountStatementTrail from "@/models/account-statement-trail";
 import Mine from "@/models/mine";
 import mongoose from "mongoose";
 
@@ -228,7 +228,7 @@ export async function approveCompanyCreditApprovalService(approvalId: string) {
     const oldBalance = credit.creditLimit ?? 0;
     const newBalance = approval.creditLimit!;
 
-    await CompanyCreditTrail.create(
+    await AccountStatementTrail.create(
       {
         companyId: credit.companyId,
         type: "credit-updated",

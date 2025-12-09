@@ -3,7 +3,7 @@ import mongoose, { Types } from "mongoose";
 import Order from "@/models/order";
 import CompanyInvoice from "@/models/company-invoice";
 import { connectDB } from "@/lib/db";
-import CompanyCreditTrail from "@/models/company-credit-trail";
+import AccountStatementTrail from "@/models/account-statement-trail";
 import Company from "@/models/company";
 
 export async function completeOrderWithInvoice(
@@ -245,7 +245,7 @@ export async function confirmInvoicePaymentService(
     await company.save({ session });
 
     /* ------------------ CREATE CREDIT TRAIL ENTRY ------------------ */
-    await CompanyCreditTrail.create(
+    await AccountStatementTrail.create(
       [
         {
           companyId: company._id,

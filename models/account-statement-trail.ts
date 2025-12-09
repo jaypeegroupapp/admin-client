@@ -1,18 +1,18 @@
 // models/company-credit-trail.ts
-import { ICompanyCreditTrail } from "@/definitions/company-credit-trail";
 import mongoose, { Schema, Model } from "mongoose";
 import Company from "./company";
 import Mine from "./mine";
+import { IAccountStatementTrail } from "@/definitions/account-statement-trail";
 
-type CompanyCreditTrailDocument = Omit<
-  ICompanyCreditTrail,
+type AccountStatementTrailDocument = Omit<
+  IAccountStatementTrail,
   "id" | "companyId" | "mineId"
 > & {
   companyId: mongoose.Types.ObjectId;
   mineId: mongoose.Types.ObjectId;
 };
 
-const CompanyCreditTrailSchema = new Schema<CompanyCreditTrailDocument>(
+const AccountStatementTrailSchema = new Schema<AccountStatementTrailDocument>(
   {
     companyId: {
       type: Schema.Types.ObjectId,
@@ -27,6 +27,7 @@ const CompanyCreditTrailSchema = new Schema<CompanyCreditTrailDocument>(
     type: {
       type: String,
       enum: [
+        "debit-added",
         "credit-updated",
         "order-debit",
         "invoice-payment",
@@ -42,11 +43,11 @@ const CompanyCreditTrailSchema = new Schema<CompanyCreditTrailDocument>(
   { timestamps: { createdAt: true, updatedAt: false } }
 );
 
-const CompanyCreditTrail: Model<CompanyCreditTrailDocument> =
-  mongoose.models.CompanyCreditTrail ||
-  mongoose.model<CompanyCreditTrailDocument>(
-    "CompanyCreditTrail",
-    CompanyCreditTrailSchema
+const AccountStatementTrail: Model<AccountStatementTrailDocument> =
+  mongoose.models.AccountStatementTrail ||
+  mongoose.model<AccountStatementTrailDocument>(
+    "AccountStatementTrail",
+    AccountStatementTrailSchema
   );
 
-export default CompanyCreditTrail;
+export default AccountStatementTrail;
