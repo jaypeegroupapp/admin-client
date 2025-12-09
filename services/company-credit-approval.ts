@@ -228,18 +228,15 @@ export async function approveCompanyCreditApprovalService(approvalId: string) {
     const oldBalance = credit.creditLimit ?? 0;
     const newBalance = approval.creditLimit!;
 
-    await AccountStatementTrail.create(
-      {
-        companyId: credit.companyId,
-        type: "credit-updated",
-        amount: approval.creditLimit!,
-        oldBalance,
-        newBalance,
-        description: "Credit updated via admin",
-        mineId: credit.mineId,
-      },
-      { session }
-    );
+    await AccountStatementTrail.create({
+      companyId: credit.companyId,
+      type: "credit-updated",
+      amount: approval.creditLimit!,
+      oldBalance,
+      newBalance,
+      description: "Credit updated via admin",
+      mineId: credit.mineId,
+    });
 
     credit.creditLimit = approval.creditLimit!;
     await credit.save({ session });
