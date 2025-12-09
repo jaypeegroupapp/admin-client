@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/db";
 import Company from "@/models/company";
 import CompanyCredit from "@/models/company-credit";
 import CompanyCreditApproval from "@/models/company-credit-approval";
+import CompanyCreditTrail from "@/models/company-credit-trail";
 import Mine from "@/models/mine";
 import mongoose from "mongoose";
 
@@ -223,6 +224,22 @@ export async function approveCompanyCreditApprovalService(approvalId: string) {
         message: "This credit does not exist.",
       };
     }
+
+    const oldBalance = credit.creditLimit ?? 0;
+    const newBalance = approval.creditLimit!;
+
+    await CompanyCreditTrail.create(
+      {
+        companyId: credit.companyId,
+        type: "credit-updated",
+        amount: approval.creditLimit!,
+        oldBalance,
+        newBalance,
+        description: "Credit updated via admin",
+        mineId: credit.mineId,
+      },
+      { session }
+    );
 
     credit.creditLimit = approval.creditLimit!;
     await credit.save({ session });
