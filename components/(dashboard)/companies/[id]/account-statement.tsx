@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Edit, Wallet } from "lucide-react";
-import { motion } from "framer-motion";
 import { getCompanyCreditTrailsByCompanyId } from "@/data/company-credit";
 import { UpdateCreditModal } from "./add-credit-modal";
 
-export function CreditTrailsTab({
+export function AccountStatementTab({
   companyId,
   creditLimit,
 }: {

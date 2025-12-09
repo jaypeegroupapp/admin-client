@@ -7,6 +7,8 @@ export interface ICompanyCreditApproval {
   reason: string;
   declinedReason?: string;
   status?: "pending" | "approved" | "declined";
+  mineName?: string;
+  companyName?: string;
   document?: string; // url of uploaded document
   createdAt?: Date;
   updatedAt?: Date;

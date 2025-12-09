@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Truck, Package, Wallet, ChevronRight } from "lucide-react";
+import { Truck, Package, ChevronRight } from "lucide-react";
 import { getTrucksByCompanyId } from "@/data/truck";
 import { getOrdersByCompanyId } from "@/data/order";
 import Link from "next/link";
 import { CreditMineFacilityTab } from "./credit-mine-facility-tab";
-import { CreditTrailsTab } from "./credit-facility-tab";
+import { AccountStatementTab } from "./account-statement";
 
 interface Props {
   activeTab: "trucks" | "orders" | "credit" | "credit-trails";
@@ -162,7 +162,10 @@ export function CompanyTabs({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <CreditTrailsTab companyId={companyId} creditLimit={creditLimit} />
+            <AccountStatementTab
+              companyId={companyId}
+              creditLimit={creditLimit}
+            />
           </motion.div>
         )}
       </AnimatePresence>

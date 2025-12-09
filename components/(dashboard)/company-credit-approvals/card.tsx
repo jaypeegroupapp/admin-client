@@ -17,10 +17,7 @@ import Link from "next/link";
 export default function CreditApprovalCard({
   item,
 }: {
-  item: ICompanyCreditApproval & {
-    companyName?: string;
-    mineName?: string;
-  };
+  item: ICompanyCreditApproval;
 }) {
   const [open, setOpen] = useState(false);
 

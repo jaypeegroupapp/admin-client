@@ -11,9 +11,7 @@ import { StatusBadge } from "./status-badge";
 export function CreditApprovalSummary({
   approval,
 }: {
-  approval: ICompanyCreditApproval & {
-    mineName: string;
-  };
+  approval: ICompanyCreditApproval;
 }) {
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [showApproveModal, setShowApproveModal] = useState(false);
