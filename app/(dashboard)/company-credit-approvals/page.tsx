@@ -34,8 +34,6 @@ export default async function CompanyCreditApprovalsPage({
     toDate
   );
 
-  console.log({ stats });
-
   return (
     <CompanyCreditApprovalClientPage
       initialItems={data}
