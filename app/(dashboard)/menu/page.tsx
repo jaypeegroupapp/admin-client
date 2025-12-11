@@ -1,14 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, Mountain, FileText, Package } from "lucide-react";
+import {
+  ChevronLeft,
+  Mountain,
+  FileText,
+  Package,
+  FileCheck2,
+  Building2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const menuItems = [
+  { name: "Transporters", href: "/companies", icon: Building2 },
   { name: "Transporter Invoices", href: "/company-invoices", icon: FileText },
   { name: "Products", href: "/products", icon: Package },
   { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
   { name: "Mines", href: "/mines", icon: Mountain },
+  {
+    name: "Credit Approval",
+    href: "/company-credit-approvals",
+    icon: FileCheck2,
+  },
 
   /* {
     name: "Services",
