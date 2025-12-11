@@ -17,7 +17,8 @@ export async function getCompanyCreditTrailByCompanyIdService(
     const credits = await AccountStatementTrail.find({
       companyId: new Types.ObjectId(companyId),
     })
-      .sort({ createdAt: -1 }) // newest first
+      .sort({ createdAt: -1 })
+      .limit(10) // newest first
       .lean();
 
     return credits;
