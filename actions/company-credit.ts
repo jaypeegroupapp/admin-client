@@ -7,7 +7,7 @@ import {
 } from "@/validations/company-credit";
 import {
   updateCompanyCreditService,
-  updateCompanyCreditTrailService,
+  addDebitToCompanyService,
 } from "@/services/company-credit";
 import { revalidatePath } from "next/cache";
 import { uploadFileAction } from "./file";
@@ -34,7 +34,7 @@ export async function updateCompanyCreditTrailAction(
     const debitAmount = parseFloat(amount);
 
     // Call the service
-    await updateCompanyCreditTrailService(companyId, {
+    await addDebitToCompanyService(companyId, {
       amount: debitAmount,
       reason: "Credit added via admin",
       issuedDate,
