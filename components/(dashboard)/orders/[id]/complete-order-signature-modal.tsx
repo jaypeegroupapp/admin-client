@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { completeOrderAction } from "@/actions/order";
+import SignatureCanvas from "react-signature-canvas";
+import {
+  completeOrderWithSiignatureAction,
+} from "@/actions/order";
 import { BaseModal } from "@/components/ui/base-modal";
 import { Check } from "lucide-react";
 
@@ -15,13 +18,29 @@ interface Props {
 export function CompleteOrderModal({ orderId, open, onClose }: Props) {
   const router = useRouter();
   const [message, setMessage] = useState("");
+  const [signature, setSignature] = useState<string | null>(null);
+  const sigPadRef = useRef<any>(null);
+
   const [isPending, startTransition] = useTransition();
 
+  const handleClear = () => {
+    sigPadRef.current.clear();
+    setSignature(null);
+  };
+
   const handleSubmit = () => {
+    if (!signature) {
+      setMessage("❌ Please sign before completing.");
+      return;
+    }
+
     setMessage("");
 
     startTransition(async () => {
-      const result = await completeOrderAction(orderId);
+      const result = await completeOrderWithSiignatureAction(
+        orderId,
+        signature
+      );
 
       if (result.success) {
         setMessage("✅ Order completed successfully!");
@@ -39,10 +58,43 @@ export function CompleteOrderModal({ orderId, open, onClose }: Props) {
         Complete Order
       </h3>
 
-      <p className="text-sm text-gray-600">
-        Once completed, this order will be locked and added to the company’s
-        invoice.
+      <p className="text-sm text-gray-600 mb-4">
+        A signature is required to confirm the collection and complete the
+        order.
       </p>
+
+      {/* Signature Pad */}
+      <div>
+        <p className="text-sm font-medium text-gray-700 mb-2">
+          Collector Signature:
+        </p>
+
+        <div className="border border-gray-300 rounded-md shadow-sm bg-white">
+          <SignatureCanvas
+            ref={sigPadRef}
+            penColor="black"
+            canvasProps={{
+              width: 450,
+              height: 180,
+              className: "signatureCanvas",
+            }}
+            onEnd={() => {
+              const data = sigPadRef.current
+                ?.getTrimmedCanvas()
+                .toDataURL("image/png");
+
+              setSignature(data);
+            }}
+          />
+        </div>
+
+        <button
+          onClick={handleClear}
+          className="mt-2 text-xs text-red-600 underline"
+        >
+          Clear signature
+        </button>
+      </div>
 
       {message && (
         <p
@@ -64,9 +116,9 @@ export function CompleteOrderModal({ orderId, open, onClose }: Props) {
 
         <button
           onClick={handleSubmit}
-          disabled={isPending}
+          disabled={isPending || !signature}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-md ${
-            isPending
+            isPending || !signature
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-green-600 hover:bg-green-700"
           }`}
