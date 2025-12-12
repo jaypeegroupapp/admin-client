@@ -7,7 +7,13 @@ import { OrderHeader } from "./header";
 import { OrderSummary } from "./summary";
 import { OrderItemsList } from "./item-list";
 
-export function OrderDetailsClient({ order }: { order: IOrder }) {
+export function OrderDetailsClient({
+  order,
+  productStock,
+}: {
+  order: IOrder;
+  productStock: number;
+}) {
   const router = useRouter();
   const totalStockToDeduct = order.items
     ? order.items.reduce((acc, item) => acc + item.quantity, 0)
@@ -22,7 +28,11 @@ export function OrderDetailsClient({ order }: { order: IOrder }) {
     >
       <OrderHeader order={order} onBack={() => router.back()} />
 
-      <OrderSummary order={order} totalStockToDeduct={totalStockToDeduct} />
+      <OrderSummary
+        order={order}
+        productStock={productStock}
+        totalStockToDeduct={totalStockToDeduct}
+      />
 
       {/* 🧩 Order Items Section */}
       <OrderItemsList items={order.items || []} />

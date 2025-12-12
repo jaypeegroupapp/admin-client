@@ -11,13 +11,16 @@ import { CompleteOrderModal } from "./complete-order-modal";
 export function OrderSummary({
   order,
   totalStockToDeduct,
+  productStock,
 }: {
   order: IOrder;
   totalStockToDeduct: number;
+  productStock: number;
 }) {
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const isInsufficentStock = totalStockToDeduct > productStock;
 
   return (
     <>
@@ -42,7 +45,7 @@ export function OrderSummary({
             </div>
           </div>
 
-          {order.status === "pending" && (
+          {order.status === "pending" && !isInsufficentStock && (
             <div className="flex flex-row gap-2">
               {/* Accept */}
               <button
@@ -64,6 +67,16 @@ export function OrderSummary({
             </div>
           )}
 
+          {order.status === "pending" && isInsufficentStock && (
+            <button
+              onClick={() => setShowDeclineModal(true)}
+              className="flex items-center justify-between gap-1 rounded-lg h-8 px-3 text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition"
+            >
+              Decline
+              <X size={16} />
+            </button>
+          )}
+
           {order.status === "accepted" && (
             <button
               onClick={() => setShowCompleteModal(true)}
@@ -74,6 +87,14 @@ export function OrderSummary({
             </button>
           )}
         </div>
+
+        {/* ❗ Disclaimer */}
+        {order.status === "pending" && isInsufficentStock && (
+          <p className="text-xs text-red-700 text-center">
+            * Insufficent stock. Please notify transporter restocking date or
+            decline the order.
+          </p>
+        )}
 
         <div className="border-t border-gray-200 my-4" />
 
