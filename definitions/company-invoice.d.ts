@@ -7,6 +7,7 @@ export interface ICompanyInvoice {
   totalAmount: number;
   paymentAmount?: number;
   paymentDate?: string;
+  openingBalance?: number;
   closingBalance?: number;
   createdAt?: string;
   updatedAt?: string;

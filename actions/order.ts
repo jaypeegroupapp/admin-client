@@ -23,9 +23,28 @@ export async function acceptOrderAction(orderId: string, quantity: number) {
 }
 
 // /actions/order.ts
-export async function completeOrderAction(orderId: string, signature: string) {
+export async function completeOrderAction(orderId: string) {
   try {
-    const result = await completeOrderWithInvoice(orderId, signature);
+    const result = await completeOrderWithInvoice(orderId);
+
+    if (!result.success) {
+      return { success: false, message: result.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ completeOrderAction error:", error);
+    return { success: false, message: "Failed to complete order." };
+  }
+}
+
+// /actions/order.ts
+export async function completeOrderWithSiignatureAction(
+  orderId: string,
+  signature: string
+) {
+  try {
+    const result = await completeOrderWithInvoice(orderId);
 
     if (!result.success) {
       return { success: false, message: result.message };

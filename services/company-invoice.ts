@@ -7,8 +7,8 @@ import AccountStatementTrail from "@/models/account-statement-trail";
 import Company from "@/models/company";
 
 export async function completeOrderWithInvoice(
-  orderId: string,
-  signature: string
+  orderId: string
+  // signature: string
 ) {
   await connectDB();
   const session = await mongoose.startSession();
@@ -21,7 +21,7 @@ export async function completeOrderWithInvoice(
 
     // 2️⃣ Save signature + mark as accepted
     order.status = "accepted";
-    order.signature = signature; // <-- SAVE SIGNATURE IMAGE
+    // order.signature = signature; // <-- SAVE SIGNATURE IMAGE
     await order.save({ session });
 
     // 3️⃣ Look for an open invoice (pending + <= 31 days old)
@@ -136,62 +136,54 @@ export async function getCompanyInvoiceByIdService(id: string) {
 // ---------------- PUBLISH INVOICE ----------------
 export async function publishInvoiceService(invoiceId: string) {
   await connectDB();
+
   const session = await mongoose.startSession();
+  session.startTransaction();
 
   try {
-    session.startTransaction();
-
-    // 1️⃣ Fetch invoice
     const invoice = await CompanyInvoice.findById(invoiceId).session(session);
 
     if (!invoice) {
       await session.abortTransaction();
-      return { success: false, message: "Invoice not found." };
+      return { success: false, message: "Invoice not found" };
     }
 
     if (invoice.status !== "pending") {
       await session.abortTransaction();
-      return { success: false, message: "Invoice cannot be published." };
+      return { success: false, message: "Invoice cannot be published" };
     }
 
-    // 2️⃣ Fetch all orders linked to this invoice
     const orders = await Order.find({ invoiceId }).session(session);
-
-    if (!orders.length) {
+    if (orders.length === 0) {
       await session.abortTransaction();
-      return { success: false, message: "No orders linked to this invoice." };
+      return { success: false, message: "No orders found for invoice" };
     }
 
-    // 3️⃣ Calculate total invoice amount
+    // 1. Calculate total amount
     const totalAmount = orders.reduce(
-      (sum, order) => sum + Number(order.totalAmount || 0),
+      (sum, o) => sum + Number(o.totalAmount || 0),
       0
     );
 
-    const company = await Company.findById(invoice.companyId).session(session);
+    // 2. Calculate closing balance
+    const openingBalance = invoice.openingBalance || 0;
+    const closingBalance = openingBalance + totalAmount;
 
-    if (!company) {
-      await session.abortTransaction();
-      return { success: false, message: "Company not found" };
-    }
-
-    // 4️⃣ Update invoice fields
+    // 3. Update invoice
     invoice.totalAmount = totalAmount;
+    invoice.closingBalance = closingBalance;
     invoice.status = "published";
-    invoice.closingBalance = 0;
 
     await invoice.save({ session });
 
-    // 5️⃣ Commit transaction
     await session.commitTransaction();
     session.endSession();
 
-    return { success: true, totalAmount };
-  } catch (error) {
-    console.error("❌ publishInvoiceService error:", error);
+    return { success: true, totalAmount, closingBalance };
+  } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
-    return { success: false, message: "Failed to publish invoice." };
+    return { success: false, message: error.message };
   }
 }
 
