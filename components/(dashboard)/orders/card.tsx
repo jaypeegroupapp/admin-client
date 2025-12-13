@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Building2, PackageCheck } from "lucide-react";
+import { Building2, Mountain, PackageCheck } from "lucide-react";
 import { IOrder } from "@/definitions/order";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -50,15 +50,13 @@ export function OrderCard({ order }: { order: IOrder }) {
               <h3 className="font-semibold text-gray-800">
                 Order #{orderNumber}
               </h3>
-
-              <p className="text-sm text-gray-500 flex items-center gap-1">
-                <PackageCheck size={14} />
-                {order.productName || "No product"}
-              </p>
-
               <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
                 <Building2 size={14} />
                 {order.companyName || "No company"}
+              </p>{" "}
+              <p className="text-sm text-gray-500 flex items-center gap-1">
+                <Mountain size={14} />
+                {order.mineName || "No Mine"}
               </p>
             </div>
           </div>

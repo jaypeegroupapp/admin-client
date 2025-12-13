@@ -5,11 +5,11 @@ export interface IOrder {
   mineName?: string;
   companyId: string;
   companyName?: string;
-  productId: string;
+  productId?: string;
   purchasePrice?: number;
   sellingPrice?: number;
   invoiceId?: string;
-  productName: string;
+  productName?: string;
   totalAmount: number;
   collectionDate: string;
   status: string;
