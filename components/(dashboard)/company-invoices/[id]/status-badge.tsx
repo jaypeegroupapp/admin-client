@@ -10,11 +10,11 @@ export function InvoiceStatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`text-xs px-2 py-1 rounded-md font-medium ${
+      className={`text-xs px-2 py-1 rounded-md font-medium capitalize ${
         colors[status] || "bg-gray-200 text-gray-600"
       }`}
     >
-      {status.toUpperCase()}
+      {status}
     </span>
   );
 }

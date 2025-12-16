@@ -5,6 +5,7 @@ import CompanyInvoice from "@/models/company-invoice";
 import { connectDB } from "@/lib/db";
 import AccountStatementTrail from "@/models/account-statement-trail";
 import Company from "@/models/company";
+import CompanyCredit from "@/models/company-credit";
 
 export async function completeOrderWithInvoice(
   orderId: string
@@ -15,46 +16,60 @@ export async function completeOrderWithInvoice(
   session.startTransaction();
 
   try {
-    // 1️⃣ Find the order
+    // 1. Find order
     const order = await Order.findById(orderId).session(session);
     if (!order) throw new Error("Order not found.");
 
-    // 2️⃣ Save signature + mark as accepted
     order.status = "accepted";
     // order.signature = signature; // <-- SAVE SIGNATURE IMAGE
     await order.save({ session });
 
-    // 3️⃣ Look for an open invoice (pending + <= 31 days old)
-    const THIRTY_ONE_DAYS = 31 * 24 * 60 * 60 * 1000;
     const now = new Date();
+    const THIRTY_ONE_DAYS = 31 * 24 * 60 * 60 * 1000;
 
+    // 2. Look for existing pending invoice (<=31 days)
     let invoice = await CompanyInvoice.findOne({
       companyId: order.companyId,
       status: "pending",
       createdAt: { $gte: new Date(now.getTime() - THIRTY_ONE_DAYS) },
     }).session(session);
 
-    // 4️⃣ If none exists → create a new invoice
+    // 3. If no invoice → create a new one and set opening balance
     if (!invoice) {
+      const company = await Company.findById(order.companyId).session(session);
+      if (!company) throw new Error("Company not found");
+
+      // Sum usedCredit across mines
+      const creditAgg = await CompanyCredit.aggregate([
+        { $match: { companyId: company._id } },
+        { $group: { _id: null, usedCreditTotal: { $sum: "$usedCredit" } } },
+      ]).session(session);
+
+      const usedCredit =
+        creditAgg.length > 0 ? creditAgg[0].usedCreditTotal : 0;
+
+      const openingBalance = (company.usedDebit || 0) + usedCredit;
+
       const created = await CompanyInvoice.create(
         [
           {
-            companyId: new Types.ObjectId(order.companyId),
+            companyId: company._id,
             status: "pending",
             totalAmount: 0,
+            openingBalance,
           },
         ],
         { session }
       );
+
       invoice = created[0];
     }
 
-    // 5️⃣ Attach order → update to completed
+    // 4. Attach order to invoice
     order.invoiceId = invoice._id;
     order.status = "completed";
     await order.save({ session });
 
-    // 6️⃣ Commit transaction
     await session.commitTransaction();
     session.endSession();
 
@@ -62,7 +77,6 @@ export async function completeOrderWithInvoice(
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
-    console.error("❌ completeOrderWithInvoice error:", error);
     return { success: false, message: error.message };
   }
 }
@@ -198,18 +212,14 @@ export async function confirmInvoicePaymentService(
     session.startTransaction();
 
     /* ------------------ FETCH INVOICE ------------------ */
-    const invoice = (await CompanyInvoice.findById(invoiceId)
+    const invoice = await CompanyInvoice.findById(invoiceId)
       .session(session)
-      .exec()) as any;
+      .exec();
 
-    if (!invoice) {
-      await session.abortTransaction();
-      return { success: false, message: "Invoice not found." };
-    }
+    if (!invoice) throw new Error("Invoice not found.");
 
-    if (invoice.status !== "published") {
-      await session.abortTransaction();
-      return { success: false, message: "Invoice must be published first." };
+    if (!["published", "partially_paid"].includes(invoice.status)) {
+      throw new Error("Invoice cannot receive payments.");
     }
 
     /* ------------------ FETCH COMPANY ------------------ */
@@ -217,34 +227,118 @@ export async function confirmInvoicePaymentService(
       .session(session)
       .exec();
 
-    if (!company) {
-      await session.abortTransaction();
-      return { success: false, message: "Company not found." };
+    if (!company) throw new Error("Company not found.");
+
+    /* ------------------ FETCH COMPANY CREDITS ------------------ */
+    const credits = await CompanyCredit.find({
+      companyId: company._id,
+      usedCredit: { $gt: 0 },
+    })
+      .sort({ createdAt: 1 }) // FIFO
+      .session(session);
+
+    const cashPayment = Number(data.amount) || 0;
+
+    /* ------------------ OPENING BALANCE ------------------ */
+    const openingBalance = invoice.closingBalance ?? invoice.totalAmount;
+
+    if (openingBalance <= 0) {
+      throw new Error("Invoice is already settled.");
     }
 
-    const oldBalance = 0;
-    const paymentAmount = data.amount;
-    const newBalance = oldBalance + paymentAmount;
+    /* =====================================================
+       DETERMINE SETTLEMENT AMOUNT
+    ===================================================== */
+    let remainingToSettle =
+      cashPayment === 0
+        ? openingBalance // debit settlement
+        : Math.min(cashPayment, openingBalance);
+
+    let settledFromDebit = 0;
+
+    /* =====================================================
+       1️⃣ SETTLE USING COMPANY DEBIT FIRST
+    ===================================================== */
+    if (company.debitAmount > 0 && remainingToSettle > 0) {
+      settledFromDebit = Math.min(company.debitAmount, remainingToSettle);
+
+      company.debitAmount -= settledFromDebit;
+      remainingToSettle -= settledFromDebit;
+    }
+
+    /* =====================================================
+       2️⃣ SETTLE COMPANY CREDIT (FIFO)
+    ===================================================== */
+    for (const credit of credits) {
+      if (remainingToSettle <= 0) break;
+
+      const deduction = Math.min(credit.usedCredit, remainingToSettle);
+
+      credit.usedCredit -= deduction;
+      remainingToSettle -= deduction;
+
+      await credit.save({ session });
+    }
+
+    /* =====================================================
+       3️⃣ EXCESS CASH → COMPANY DEBIT
+    ===================================================== */
+    if (cashPayment > openingBalance) {
+      const excess = cashPayment - openingBalance;
+      company.debitAmount = (company.debitAmount || 0) + excess;
+    }
+
+    /* =====================================================
+       CALCULATE TOTAL SETTLED
+    ===================================================== */
+    const settledAmount = openingBalance - remainingToSettle;
+
+    if (settledAmount <= 0) {
+      throw new Error("No settlement was applied.");
+    }
 
     /* ------------------ UPDATE INVOICE ------------------ */
-    invoice.status = "paid";
-    invoice.paymentDate = new Date(data.paymentDate);
-    invoice.paymentAmount = paymentAmount;
-    await invoice.save({ session });
+    invoice.paymentAmount = (invoice.paymentAmount || 0) + settledAmount;
 
-    /* ------------------ UPDATE COMPANY BALANCE ------------------ */
+    invoice.paymentDate = data.paymentDate.toISOString();
+
+    invoice.closingBalance = Math.max(openingBalance - settledAmount, 0);
+
+    invoice.status = "paid";
+
+    await invoice.save({ session });
     await company.save({ session });
 
-    /* ------------------ CREATE CREDIT TRAIL ENTRY ------------------ */
+    /* =====================================================
+       4️⃣ MARK ORDERS AS PAID (ONLY IF FULLY SETTLED)
+    ===================================================== */
+    if (invoice.status === "paid") {
+      await Order.updateMany(
+        { invoiceId: invoice._id },
+        {
+          $set: {
+            paymentStatus: "paid",
+            paidAt: new Date(),
+          },
+        },
+        { session }
+      );
+    }
+
+    /* ------------------ STATEMENT TRAIL ------------------ */
     await AccountStatementTrail.create(
       [
         {
           companyId: company._id,
+          invoiceId: invoice._id,
           type: "invoice-payment",
-          amount: paymentAmount,
-          oldBalance,
-          newBalance,
-          description: `Payment for Invoice #${invoice._id}`,
+          amount: settledAmount,
+          oldBalance: openingBalance,
+          newBalance: invoice.closingBalance,
+          description:
+            cashPayment === 0
+              ? `Invoice settled using debit`
+              : `Payment for Invoice #${invoice._id}`,
           createdAt: new Date(),
         },
       ],
@@ -255,12 +349,18 @@ export async function confirmInvoicePaymentService(
     await session.commitTransaction();
     session.endSession();
 
-    return { success: true };
-  } catch (error) {
+    return {
+      success: true,
+      status: invoice.status,
+      openingBalance,
+      settledAmount,
+      closingBalance: invoice.closingBalance,
+    };
+  } catch (error: any) {
     console.error("❌ confirmInvoicePaymentService error:", error);
     await session.abortTransaction();
     session.endSession();
-    return { success: false, message: "Failed to confirm payment." };
+    return { success: false, message: error.message };
   }
 }
 

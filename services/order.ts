@@ -437,6 +437,8 @@ export async function getInvoiceOrdersService(invoiceId: string) {
   // Fetch orders linked to this invoice
   const orders = (await Order.find({ invoiceId })
     .populate("productId")
+    .populate("mineId")
+    .populate("companyId")
     .lean()) as any[];
 
   if (!orders.length) return [];

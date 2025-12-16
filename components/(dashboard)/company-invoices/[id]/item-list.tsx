@@ -2,12 +2,17 @@
 
 import { motion } from "framer-motion";
 import { Receipt, Truck } from "lucide-react";
+import { InvoiceStatusBadge } from "./status-badge";
 
 interface InvoiceOrderItem {
   id: string;
+  status: string;
   orderNumber: string;
   productName: string;
+  mineName: string;
   totalAmount: number;
+  createdAt: string;
+  updatedAt: string;
   items: {
     id: string;
     truckName: string;
@@ -47,17 +52,19 @@ export function InvoiceOrdersList({ orders }: { orders: InvoiceOrderItem[] }) {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-semibold text-gray-800">
-                      Order #{orderNumber}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Product: {order.productName}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-gray-800">
+                        Order #{orderNumber} - {order.mineName}
+                      </p>
+                      <InvoiceStatusBadge status={order.status} />
+                    </div>
                   </div>
 
-                  <p className="text-sm font-semibold text-gray-900">
-                    R {order.totalAmount.toFixed(2)}
-                  </p>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      R {order.totalAmount.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Items List */}

@@ -82,3 +82,30 @@ export async function confirmInvoicePaymentAction(
     };
   }
 }
+
+export async function confirmInvoiceDebitPaymentAction(invoiceId: string) {
+  try {
+    const result = await confirmInvoicePaymentService(invoiceId, {
+      amount: 0,
+      paymentDate: new Date(),
+    });
+
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message,
+        errors: { message: "Failed to confirm payment" },
+      };
+    }
+
+    revalidatePath(`/invoices/${invoiceId}`);
+
+    return { message: "Payment confirmed successfully", errors: {} };
+  } catch (error: any) {
+    console.error("❌ confirmInvoicePaymentAction error:", error);
+    return {
+      message: "Failed to confirm payment",
+      errors: { global: error.message },
+    };
+  }
+}

@@ -156,8 +156,12 @@ export async function getInvoiceOrders(invoiceId: string) {
       return {
         id: order._id.toString(),
         productName: order.productId?.name || "Unknown Product",
+        mineName: order.mineId?.name || "Unknown Mine",
         totalAmount: Number(order.totalAmount || 0),
+        status: order.status || "pending",
         items: mappedItems,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
       };
     });
   } catch (err) {
