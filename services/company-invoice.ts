@@ -317,8 +317,7 @@ export async function confirmInvoicePaymentService(
         { invoiceId: invoice._id },
         {
           $set: {
-            paymentStatus: "paid",
-            paidAt: new Date(),
+            status: "paid",
           },
         },
         { session }
