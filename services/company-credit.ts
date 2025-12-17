@@ -7,6 +7,83 @@ import { AddCreditData } from "@/definitions/account-statement-trail";
 import CompanyCredit from "@/models/company-credit";
 import CompanyCreditApproval from "@/models/company-credit-approval";
 
+export async function getCompanyCreditsService(
+  page = 0,
+  pageSize = 12,
+  search = "",
+  status = "all",
+  fromDate = "",
+  toDate = ""
+) {
+  await connectDB();
+
+  const term = search.trim();
+  const regex = term ? new RegExp(term, "i") : null;
+
+  const match: any = {};
+
+  if (status !== "all") match.status = status;
+
+  if (fromDate || toDate) {
+    match.createdAt = {};
+    if (fromDate) match.createdAt.$gte = new Date(fromDate);
+    if (toDate) match.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
+  }
+
+  if (term) {
+    match.$or = [
+      { "company.companyName": { $regex: regex } },
+      { "mine.name": { $regex: regex } },
+    ];
+  }
+
+  const data = await CompanyCredit.aggregate([
+    {
+      $lookup: {
+        from: "companies",
+        localField: "companyId",
+        foreignField: "_id",
+        as: "company",
+      },
+    },
+    { $unwind: { path: "$company", preserveNullAndEmptyArrays: true } },
+
+    {
+      $lookup: {
+        from: "mines",
+        localField: "mineId",
+        foreignField: "_id",
+        as: "mine",
+      },
+    },
+    { $unwind: { path: "$mine", preserveNullAndEmptyArrays: true } },
+
+    { $match: match },
+    { $sort: { createdAt: -1 } },
+    { $skip: page * pageSize },
+    { $limit: pageSize },
+  ]);
+
+  const totalCount = await CompanyCredit.countDocuments(match);
+
+  const statsAgg = await CompanyCredit.aggregate([
+    { $group: { _id: "$status", count: { $sum: 1 } } },
+  ]);
+
+  const stats = {
+    All: await CompanyCredit.countDocuments(),
+    Settled: 0,
+    Owing: 0,
+  };
+
+  statsAgg.forEach((s) => {
+    if (s._id === "settled") stats.Settled = s.count;
+    if (s._id === "owing") stats.Owing = s.count;
+  });
+
+  return { data, totalCount, stats };
+}
+
 /* ------------------  SERVICE FUNCTION  ------------------ */
 export async function getCompanyCreditTrailByCompanyIdService(
   companyId: string
@@ -175,5 +252,68 @@ export async function updateCompanyCreditService(companyId: string, data: any) {
     });
 
     return companyCredit;
+  }
+}
+
+interface ReceiveCreditPaymentData {
+  amount: number;
+  paymentDate: string;
+  reason?: string;
+}
+
+export async function receiveCompanyCreditPaymentService(
+  companyCreditId: string,
+  data: ReceiveCreditPaymentData
+) {
+  await connectDB();
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const credit = await CompanyCredit.findById(companyCreditId).session(
+      session
+    );
+
+    if (!credit) throw new Error("Company credit not found");
+
+    const oldUsedCredit = credit.usedCredit;
+
+    // Apply payment
+    credit.usedCredit = Math.max(0, credit.usedCredit - data.amount);
+
+    credit.status = credit.usedCredit > 0 ? "owing" : "settled";
+
+    await credit.save({ session });
+
+    // Credit trail
+    await AccountStatementTrail.create(
+      [
+        {
+          companyId: credit.companyId,
+          mineId: credit.mineId,
+          type: "invoice-payment",
+          amount: data.amount,
+          oldBalance: oldUsedCredit,
+          newBalance: credit.usedCredit,
+          description: data.reason || "Company credit payment",
+        },
+      ],
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      success: true,
+      oldUsedCredit,
+      newUsedCredit: credit.usedCredit,
+    };
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error("❌ receiveCompanyCreditPaymentService error:", error);
+    throw new Error(error.message || "Failed to process credit payment");
   }
 }

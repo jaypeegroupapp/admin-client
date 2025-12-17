@@ -28,6 +28,7 @@ const otherNavItems = [
   { name: "Products", href: "/products", icon: Package },
   { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
   { name: "Mines", href: "/mines", icon: Mountain },
+  { name: "Transporter Credits", href: "/company-credits", icon: Mountain },
   {
     name: "Credit Approval",
     href: "/company-credit-approvals",

@@ -4,10 +4,12 @@
 import {
   creditFormSchema,
   creditMineFormSchema,
+  receiveCreditPaymentSchema,
 } from "@/validations/company-credit";
 import {
   updateCompanyCreditService,
   addDebitToCompanyService,
+  receiveCompanyCreditPaymentService,
 } from "@/services/company-credit";
 import { revalidatePath } from "next/cache";
 import { uploadFileAction } from "./file";
@@ -124,4 +126,41 @@ export async function updateCompanyCreditAction(
   }
   revalidatePath(`companies/${companyId}`);
   redirect(`/companies/${companyId}`);
+}
+
+export async function receiveCompanyCreditPaymentAction(
+  companyCreditId: string,
+  prevState: any,
+  formData: FormData
+) {
+  try {
+    const validated = receiveCreditPaymentSchema.safeParse(
+      Object.fromEntries(formData)
+    );
+
+    if (!validated.success) {
+      return {
+        message: "Validation failed",
+        errors: validated.error.flatten().fieldErrors,
+      };
+    }
+
+    const { amount, paymentDate } = validated.data;
+
+    await receiveCompanyCreditPaymentService(companyCreditId, {
+      amount: Number(amount),
+      paymentDate,
+      reason: "Company credit payment received",
+    });
+
+    revalidatePath("/company-credits");
+
+    return { message: "Payment received successfully", errors: {} };
+  } catch (error: any) {
+    console.error("❌ receiveCompanyCreditPaymentAction error:", error);
+    return {
+      message: "Failed to receive payment",
+      errors: { global: error.message },
+    };
+  }
 }

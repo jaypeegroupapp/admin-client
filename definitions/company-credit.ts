@@ -5,6 +5,9 @@ export interface ICompanyCredit {
   mineId?: string;
   creditLimit: number;
   usedCredit: number; // recommended instead of spentSoFar
+  status: "settled" | "owing";
+  mineName?: string;
+  companyName?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

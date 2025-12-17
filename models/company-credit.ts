@@ -26,6 +26,11 @@ const CompanyCreditSchema = new Schema<CompanyCreditDocument>(
     },
     creditLimit: { type: Number, required: true, default: 0 },
     usedCredit: { type: Number, required: true, default: 0 },
+    status: {
+      type: String,
+      enum: ["settled", "owing"],
+      default: "settled",
+    },
   },
   { timestamps: true }
 );

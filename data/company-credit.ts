@@ -5,6 +5,8 @@ import {
   getCompanyCreditTrailByCompanyIdService,
 } from "@/services/company-credit";
 import { mapCompanyCredit } from "./mapper";
+import { getCompanyCreditsService } from "@/services/company-credit";
+import { ICompanyCredit } from "@/definitions/company-credit";
 
 /* -------------------------  MAPPER  ------------------------- */
 function companyCreditMap(credit: any) {
@@ -18,6 +20,53 @@ function companyCreditMap(credit: any) {
     note: credit.description, // UI uses "note"
     date: credit.createdAt, // UI uses "date"
   };
+}
+
+function companiesCreditMap(i: any): ICompanyCredit {
+  return {
+    id: i._id.toString(),
+    companyId: i.companyId?._id.toString(),
+    mineId: i.mineId?._id.toString(),
+
+    creditLimit: i.creditLimit,
+    usedCredit: i.usedCredit,
+    status: i.status || "settled",
+
+    companyName: i.company?.companyName,
+    mineName: i.mine?.name,
+
+    createdAt: i.createdAt,
+    updatedAt: i.updatedAt,
+  };
+}
+
+export async function getCompanyCredits(
+  page = 0,
+  pageSize = 12,
+  search = "",
+  status = "all",
+  fromDate = "",
+  toDate = ""
+) {
+  try {
+    const { data, totalCount, stats } = await getCompanyCreditsService(
+      page,
+      pageSize,
+      search,
+      status,
+      fromDate,
+      toDate
+    );
+
+    return {
+      data: data.map(companiesCreditMap),
+      totalCount,
+      stats,
+    };
+  } catch (err) {
+    console.error("❌ getCompanyCredits error:", err);
+    return { data: [], totalCount: 0, stats: {} };
+  }
 }
 
 /* ------------------  PUBLIC FETCH FUNCTION  ------------------ */
