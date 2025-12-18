@@ -6,20 +6,7 @@ import {
   getInvoiceOrdersService,
   getOrdersByMineService,
 } from "@/services/order";
-
-const orderMap = (order: any) => ({
-  id: order._id.toString(),
-  userId: order.userId?._id?.toString() || "",
-  companyId: order.companyId?._id?.toString() || "",
-  companyName: order.companyId?.companyName || "",
-  mineId: order.mineId?._id?.toString(),
-  mineName: order.mineId?.name || "",
-  totalAmount: order.totalAmount,
-  collectionDate: order.collectionDate,
-  status: order.status,
-  createdAt: order.createdAt,
-  updatedAt: order.updatedAt,
-});
+import { mapOrder } from "./mapper";
 
 /**
  * 🧾 Fetch all orders and map to UI-friendly format
@@ -43,7 +30,7 @@ export async function getOrders(
     );
 
     return {
-      data: Array.isArray(data) ? data.map(orderMap) : [],
+      data: Array.isArray(data) ? data.map(mapOrder) : [],
       totalCount,
       stats,
     };
@@ -60,7 +47,7 @@ export async function getOrdersByCompanyId(companyId: string) {
   try {
     const orders = await getOrdersByCompanyIdService(companyId);
 
-    return Array.isArray(orders) ? orders.map(orderMap) : [];
+    return Array.isArray(orders) ? orders.map(mapOrder) : [];
   } catch (err) {
     console.error("❌ getOrders error:", err);
     return [];
@@ -73,7 +60,7 @@ export async function getOrdersByCompanyId(companyId: string) {
 export async function getOrdersByMine(mineId: string) {
   try {
     const orders = await getOrdersByMineService(mineId);
-    return Array.isArray(orders) ? orders.map(orderMap) : [];
+    return Array.isArray(orders) ? orders.map(mapOrder) : [];
   } catch (err) {
     console.error("❌ getOrdersByMine error:", err);
     return [];
@@ -102,22 +89,7 @@ export async function getOrderById(id: string) {
 
     // 🧱 Return serializable structure
     return {
-      id: order._id.toString(),
-      userId: order.userId?._id?.toString() || "",
-      mineId: order.mineId?._id?.toString() || "",
-      mineName: order.mineId?.name || "",
-      userName: order.userId?.fullName || "",
-      companyId: order.companyId?._id?.toString() || "",
-      companyName: order.companyId?.name || "",
-      productId: order.productId?._id?.toString() || "",
-      productName: order.productId?.name || "N/A",
-      totalAmount: Number(order.totalAmount || 0),
-      collectionDate: order.collectionDate
-        ? new Date(order.collectionDate).toISOString()
-        : "",
-      status: order.status || "pending",
-      createdAt: order.createdAt ? new Date(order.createdAt).toISOString() : "",
-      updatedAt: order.updatedAt ? new Date(order.updatedAt).toISOString() : "",
+      ...mapOrder(order),
       items,
     };
   } catch (err) {
@@ -133,7 +105,7 @@ export async function getOrdersByProductId(productId: string) {
   try {
     const orders = await getOrdersByProductIdService(productId);
 
-    return Array.isArray(orders) ? orders.map(orderMap) : [];
+    return Array.isArray(orders) ? orders.map(mapOrder) : [];
   } catch (err) {
     console.error("❌ getOrdersByProductId error:", err);
     return [];
