@@ -4,7 +4,6 @@
 import {
   creditFormSchema,
   creditMineFormSchema,
-  receiveCreditPaymentSchema,
 } from "@/validations/company-credit";
 import {
   updateCompanyCreditService,
@@ -134,9 +133,7 @@ export async function receiveCompanyCreditPaymentAction(
   formData: FormData
 ) {
   try {
-    const validated = receiveCreditPaymentSchema.safeParse(
-      Object.fromEntries(formData)
-    );
+    const validated = creditFormSchema.safeParse(Object.fromEntries(formData));
 
     if (!validated.success) {
       return {
@@ -145,11 +142,11 @@ export async function receiveCompanyCreditPaymentAction(
       };
     }
 
-    const { amount, paymentDate } = validated.data;
+    const { amount, issuedDate } = validated.data;
 
     await receiveCompanyCreditPaymentService(companyCreditId, {
       amount: Number(amount),
-      paymentDate,
+      issuedDate,
       reason: "Company credit payment received",
     });
 

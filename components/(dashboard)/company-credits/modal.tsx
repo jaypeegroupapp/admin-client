@@ -9,7 +9,7 @@ import { BaseModal } from "@/components/ui/base-modal";
 import InputValidated from "@/components/ui/input-validated";
 import { SubmitButton } from "@/components/ui/buttons";
 import { receiveCompanyCreditPaymentAction } from "@/actions/company-credit";
-import { receiveCreditPaymentSchema } from "@/validations/company-credit";
+import { creditFormSchema } from "@/validations/company-credit";
 import { creditInputFormData } from "@/constants/company-credit";
 
 export function ReceivePaymentModal({
@@ -40,10 +40,10 @@ export function ReceivePaymentModal({
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(receiveCreditPaymentSchema),
+    resolver: zodResolver(creditFormSchema),
     defaultValues: {
       amount: "",
-      paymentDate: "",
+      issuedDate: "",
     },
   });
 
