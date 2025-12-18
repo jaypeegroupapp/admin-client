@@ -13,57 +13,62 @@ import { PayWithDebitModal } from "./debit-payment-modal";
 
 export function InvoiceSummary({
   invoice,
-  totalInvoiceAmount,
+  breakdown,
 }: {
   invoice: ICompanyInvoice;
-  totalInvoiceAmount: number;
+  breakdown: {
+    openingBalance: number;
+    newOrdersAmount: number;
+    totalActivity: number;
+    paidWithDebit: number;
+    paidWithCredit: number;
+    cashPayment: number;
+    outstandingBalance: number;
+  };
 }) {
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showCloseModal, setShowCloseModal] = useState(false);
   const [showDebitModal, setShowDebitModal] = useState(false);
   const [isDebitPayment, setIsDebitPayment] = useState(false);
+  const [companyDetails, setCompanyDetails] = useState<ICompany | null>(null);
 
   const formattedPaymentDate = invoice.paymentDate
     ? new Date(invoice.paymentDate).toLocaleDateString("en-ZA")
     : "-";
 
-  const [companyDetails, setCompanyDetails] = useState<ICompany | null>(null);
-
   useEffect(() => {
-    fectchCompany();
+    fetchCompany();
   }, []);
 
-  const fectchCompany = async () => {
+  const fetchCompany = async () => {
     const res = await getCompanyById(invoice.companyId);
     if (res.success && res.data) {
-      const company = res.data;
-
-      setCompanyDetails(company);
-      if (company.debitAmount > totalInvoiceAmount) setIsDebitPayment(true);
+      setCompanyDetails(res.data);
+      if (res.data.debitAmount >= breakdown.outstandingBalance) {
+        setIsDebitPayment(true);
+      }
     }
   };
 
   return (
     <>
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
-        <div className="flex md:flex-row flex-col space-y-4 md:space-y-0 justify-between">
-          {/* Left */}
+        <div className="flex justify-between flex-col md:flex-row gap-4">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+            <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
               <FileText size={24} />
             </div>
 
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold text-gray-800">
-                Invoice #{invoice.id?.slice(-6).toUpperCase()}
+            <div>
+              <h2 className="text-lg font-semibold">
+                Invoice #{invoice.id?.slice(-6).toUpperCase()} -{" "}
+                {invoice.companyName}
               </h2>
-
               <p className="text-sm text-gray-500">
                 Created on{" "}
                 {new Date(invoice.createdAt!).toLocaleDateString("en-ZA")}
               </p>
-
               <div className="mt-2">
                 <InvoiceStatusBadge status={invoice.status} />
               </div>
@@ -104,45 +109,40 @@ export function InvoiceSummary({
               onClick={() => setShowCloseModal(true)}
               className="flex items-center gap-2 h-8 px-3 text-sm font-medium bg-gray-700 text-white rounded-lg hover:bg-black transition"
             >
-              Close Invoice
-              <Lock size={16} />
+              Close Invoice <Lock size={16} />
             </button>
           )}
         </div>
 
-        <div className="border-t border-gray-200 my-4" />
+        <div className="border-t pt-4 text-sm space-y-2">
+          <div className="flex justify-between">
+            <span>Opening Balance</span>
+            <span>R {breakdown.openingBalance.toFixed(2)}</span>
+          </div>
 
-        {/* Invoice Summary Grid */}
-        <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
-          <div>
-            <p className="text-gray-500">Company</p>
-            <p className="font-medium">{invoice.companyName}</p>
+          <div className="flex justify-between">
+            <span>New Orders (this month)</span>
+            <span>R {breakdown.newOrdersAmount.toFixed(2)}</span>
           </div>
-          <div>
-            <p className="text-gray-500">Total Amount</p>
-            <p className="font-semibold text-gray-900">
-              R{totalInvoiceAmount.toFixed(2)}
-            </p>
+
+          <div className="flex justify-between font-semibold border-b pb-2">
+            <span>Total Activity</span>
+            <span>R {breakdown.totalActivity.toFixed(2)}</span>
           </div>
-          <div>
-            <p className="text-gray-500">Opening Balance</p>
-            <p className="font-medium">
-              R {invoice.openingBalance?.toFixed(2)}
-            </p>
+
+          <div className="flex justify-between text-purple-600">
+            <span>Paid with Debit</span>
+            <span>- R {breakdown.paidWithDebit.toFixed(2)}</span>
           </div>
-          <div>
-            <p className="text-gray-500">Closing Balance</p>
-            <p className="font-medium">
-              R {invoice.closingBalance?.toFixed(2)}
-            </p>
-          </div>{" "}
-          <div>
-            <p className="text-gray-500">Payment Date</p>
-            <p className="font-medium">{formattedPaymentDate}</p>
+
+          <div className="flex justify-between text-green-600">
+            <span>Paid with Cash</span>
+            <span>- R {breakdown.cashPayment.toFixed(2)}</span>
           </div>
-          <div>
-            <p className="text-gray-500">Payment Amount</p>
-            <p className="font-medium">R {invoice.paymentAmount?.toFixed(2)}</p>
+
+          <div className="flex justify-between text-red-600 font-semibold border-t pt-2">
+            <span>Outstanding Balance</span>
+            <span>R {breakdown.outstandingBalance.toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -175,7 +175,7 @@ export function InvoiceSummary({
       {companyDetails && showDebitModal && (
         <PayWithDebitModal
           invoiceId={invoice.id!}
-          invoiceBalance={invoice.closingBalance!}
+          invoiceBalance={breakdown.outstandingBalance}
           debitAmount={companyDetails.debitAmount}
           open={showDebitModal}
           onClose={() => setShowDebitModal(false)}
