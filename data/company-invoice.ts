@@ -9,7 +9,7 @@ import {
 const invoiceMap = (invoice: any) => ({
   id: invoice._id?.toString(),
   companyId: invoice.companyId?._id || "",
-  companyName: invoice.companyId?.companyName || "",
+  companyName: invoice.companyId?.name || "",
   totalAmount: Number(invoice.totalAmount || 0),
   paymentAmount: Number(invoice.paymentAmount || 0),
   openingBalance: Number(invoice.openingBalance || 0),

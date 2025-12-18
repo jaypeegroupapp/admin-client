@@ -22,7 +22,7 @@ export function orderItemMap(i: any): IOrderItemAggregated {
     year: i.truck?.year || null,
 
     /** COMPANY */
-    companyName: i.company?.companyName || null,
+    companyName: i.company?.name || null,
 
     /** PRODUCT */
     productName: i.product?.name || null,
@@ -61,7 +61,7 @@ export function companyCreditApprovalMap(a: any) {
 
     /** COMPANY */
     companyId: a.credit?.companyId?.toString() || null,
-    companyName: a.company?.companyName || null,
+    companyName: a.company?.name || null,
 
     /** MINE */
     mineId: a.credit?.mineId?.toString() || null,

@@ -12,7 +12,7 @@ export function CompanySummary({ company }: { company: ICompany }) {
         </div>
         <div className="flex-1">
           <h2 className="text-lg font-semibold text-gray-800">
-            {company.companyName}
+            {company.name}
           </h2>
           <p className="text-sm text-gray-500">
             Reg No: {company.registrationNumber}

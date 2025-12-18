@@ -32,7 +32,7 @@ function companiesCreditMap(i: any): ICompanyCredit {
     usedCredit: i.usedCredit,
     status: i.status || "settled",
 
-    companyName: i.company?.companyName,
+    companyName: i.company?.name,
     mineName: i.mine?.name,
 
     createdAt: i.createdAt,

@@ -32,7 +32,7 @@ export async function getCompanyCreditsService(
 
   if (term) {
     match.$or = [
-      { "company.companyName": { $regex: regex } },
+      { "company.name": { $regex: regex } },
       { "mine.name": { $regex: regex } },
     ];
   }

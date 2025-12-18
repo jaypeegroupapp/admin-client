@@ -23,7 +23,7 @@ export async function registerCompanyAction(
       };
     }
     const {
-      companyName,
+      name,
       registrationNumber,
       contactEmail,
       contactPhone,

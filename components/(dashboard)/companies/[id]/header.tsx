@@ -3,10 +3,10 @@
 import { ArrowLeft } from "lucide-react";
 
 export function CompanyHeader({
-  companyName,
+  name,
   onBack,
 }: {
-  companyName: string;
+  name: string;
   onBack: () => void;
 }) {
   return (
@@ -19,7 +19,7 @@ export function CompanyHeader({
         Back
       </button>
 
-      <h1 className="text-xl font-semibold text-gray-800">{companyName}</h1>
+      <h1 className="text-xl font-semibold text-gray-800">{name}</h1>
     </div>
   );
 }

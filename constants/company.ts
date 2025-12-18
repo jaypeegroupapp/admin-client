@@ -1,6 +1,6 @@
 export const companyInputFormData = [
   {
-    name: "companyName",
+    name: "name",
     label: "Company Name",
     placeholder: "Enter company name",
   },

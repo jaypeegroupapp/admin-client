@@ -150,7 +150,7 @@ export async function getOrdersByCompanyIdService(companyId: string) {
       companyId: new Types.ObjectId(companyId),
     })
       .populate("userId", "fullName email")
-      .populate("companyId", "companyName")
+      .populate("companyId", "name")
       .populate("productId", "name price")
       .sort({ createdAt: -1 })
       .lean();
@@ -176,7 +176,7 @@ export async function getOrdersByMineService(mineId: string) {
     })
       .populate("userId", "fullName email")
       .populate("mineId", "name")
-      .populate("companyId", "companyName")
+      .populate("companyId", "name")
       .populate("productId", "name price")
       .sort({ createdAt: -1 })
       .lean();
@@ -225,7 +225,7 @@ export async function getOrdersByProductIdService(productId: string) {
     const orders = await Order.find({ productId })
       .populate("userId", "fullName email")
       .populate("mineId", "name")
-      .populate("companyId", "companyName")
+      .populate("companyId", "name")
       .populate("productId", "name price")
       .sort({ createdAt: -1 })
       .lean();

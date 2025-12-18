@@ -30,7 +30,7 @@ export function CompanyCard({ company }: { company: ICompany }) {
         <div className="flex flex-col flex-1">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-gray-800">
-              {company.companyName}
+              {company.name}
             </h3>
             <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md font-mono">
               {company.registrationNumber}

@@ -8,7 +8,7 @@ interface CompanyDocument extends Document, Omit<ICompany, "id" | "userId"> {
 
 const CompanySchema = new Schema<CompanyDocument>(
   {
-    companyName: { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true },
     registrationNumber: { type: String, required: true, trim: true },
     contactEmail: { type: String, required: true, trim: true },
     contactPhone: { type: String, required: true, trim: true },
@@ -25,8 +25,8 @@ const CompanySchema = new Schema<CompanyDocument>(
   { timestamps: true }
 );
 
-// ✅ Index to enable fast searching by companyName or registrationNumber
-CompanySchema.index({ companyName: "text", registrationNumber: "text" });
+// ✅ Index to enable fast searching by name or registrationNumber
+CompanySchema.index({ name: "text", registrationNumber: "text" });
 
 const Company: Model<CompanyDocument> =
   mongoose.models.Company ||

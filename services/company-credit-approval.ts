@@ -41,7 +41,7 @@ export async function getCompanyCreditApprovalsService(
       { reason: { $regex: termRegex } },
       { status: { $regex: termRegex } },
 
-      { "company.companyName": { $regex: termRegex } },
+      { "company.name": { $regex: termRegex } },
       { "mine.name": { $regex: termRegex } },
 
       // full ObjectId search
@@ -143,7 +143,7 @@ export async function getCompanyCreditApprovalByIdService(id: string) {
           {
             path: "companyId",
             model: Company.modelName,
-            select: "companyName",
+            select: "name",
           },
           {
             path: "mineId",
@@ -170,7 +170,7 @@ export async function getCompanyCreditApprovalByIdService(id: string) {
 
       company: approval.companyCreditId?.companyId
         ? {
-            companyName: approval.companyCreditId.companyId.companyName,
+            name: approval.companyCreditId.companyId.name,
           }
         : null,
 

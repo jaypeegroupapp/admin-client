@@ -12,7 +12,7 @@ import { ICompany } from "@/definitions/company";
 const mapCompany = (company: any): ICompany => ({
   id: company._id?.toString?.() ?? company.id ?? "",
   userId: company.userId?.toString?.() ?? company.userId ?? "",
-  companyName: company.companyName,
+  name: company.name,
   registrationNumber: company.registrationNumber,
   contactEmail: company.contactEmail,
   contactPhone: company.contactPhone,

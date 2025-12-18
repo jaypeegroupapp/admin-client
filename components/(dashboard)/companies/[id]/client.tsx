@@ -23,7 +23,7 @@ export function CompanyDetailsClient({ company }: { company: ICompany }) {
     >
       <CompanyHeader
         onBack={() => router.back()}
-        companyName={company.companyName}
+        name={company.name}
       />
       <CompanySummary company={company} />
       <CompanyTabs

@@ -2,7 +2,7 @@
 export interface ICompany {
   id?: string;
   userId?: string;
-  companyName: string;
+  name: string;
   registrationNumber: string;
   contactEmail: string;
   contactPhone: string;

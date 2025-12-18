@@ -182,7 +182,7 @@ export async function getTopCompaniesStatsService() {
     { $unwind: "$company" },
     {
       $group: {
-        _id: "$company.companyName",
+        _id: "$company.name",
         orders: { $sum: 1 },
       },
     },

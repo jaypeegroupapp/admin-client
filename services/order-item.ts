@@ -33,7 +33,7 @@ export async function getOrderItemsService(
     match.$or = [
       { status: { $regex: termRegex } },
       { "truck.plateNumber": { $regex: termRegex } },
-      { "company.companyName": { $regex: termRegex } },
+      { "company.name": { $regex: termRegex } },
       { "product.name": { $regex: termRegex } },
 
       // full ObjectId
@@ -242,7 +242,7 @@ export async function getAllOrderItemsService() {
         model: "$truck.model",
         year: "$truck.year",
 
-        companyName: "$company.companyName",
+        companyName: "$company.name",
         productName: "$product.name",
       },
     },

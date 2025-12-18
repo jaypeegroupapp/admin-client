@@ -21,7 +21,7 @@ export function CompanyClientPage({ initialCompanies }: Props) {
   const router = useRouter();
 
   const filtered = companies.filter((c) =>
-    `${c.companyName} ${c.registrationNumber} ${c.contactEmail}`
+    `${c.name} ${c.registrationNumber} ${c.contactEmail}`
       .toLowerCase()
       .includes(filterText.toLowerCase())
   );
