@@ -21,7 +21,6 @@ const CompanySchema = new Schema<CompanyDocument>(
       required: true,
     },
     debitAmount: { type: Number, required: false, default: 0 },
-    usedDebit: { type: Number, required: false, default: 0 },
   },
   { timestamps: true }
 );

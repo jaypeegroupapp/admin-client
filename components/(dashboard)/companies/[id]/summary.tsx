@@ -4,8 +4,6 @@ import { Building2, Mail, Phone, MapPin, Wallet } from "lucide-react";
 import { ICompany } from "@/definitions/company";
 
 export function CompanySummary({ company }: { company: ICompany }) {
-  const balance = company.debitAmount - company.usedDebit;
-
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
       <div className="flex items-start gap-4">
@@ -46,11 +44,7 @@ export function CompanySummary({ company }: { company: ICompany }) {
         </div>{" "}
         <div className="flex items-center gap-2">
           <Wallet size={16} className="text-gray-500" />
-          <span>Available Debit: R{balance}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Wallet size={16} className="text-gray-500" />
-          <span>Used Debit: R{company.usedDebit}</span>
+          <span>Available Debit: R{company.debitAmount}</span>
         </div>
       </div>
     </div>

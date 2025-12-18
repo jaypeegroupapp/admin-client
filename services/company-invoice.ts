@@ -48,7 +48,7 @@ export async function completeOrderWithInvoice(
       const usedCredit =
         creditAgg.length > 0 ? creditAgg[0].usedCreditTotal : 0;
 
-      const openingBalance = (company.usedDebit || 0) + usedCredit;
+      const openingBalance = usedCredit;
 
       const created = await CompanyInvoice.create(
         [

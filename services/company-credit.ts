@@ -126,7 +126,7 @@ export async function addDebitToCompanyService(
     let payment = data.amount;
     let excess = 0;
 
-    const oldDebitFinal = company.debitAmount - company.usedDebit;
+    const oldDebitFinal = company.debitAmount;
 
     // -----------------------------------------
     // 1️⃣ PAY DOWN USED CREDIT FIRST
@@ -148,13 +148,11 @@ export async function addDebitToCompanyService(
     // -----------------------------------------
     if (payment > 0) {
       excess = payment;
-      // reset usedDebit and add excess
+      // add excess
       company.debitAmount = oldDebitFinal + excess;
-      company.usedDebit = 0;
     } else {
-      // No excess, just reset usedDebit
+      // No excess
       company.debitAmount = oldDebitFinal;
-      company.usedDebit = 0;
     }
 
     const newDebitFinal = company.debitAmount;
@@ -257,7 +255,7 @@ export async function updateCompanyCreditService(companyId: string, data: any) {
 
 interface ReceiveCreditPaymentData {
   amount: number;
-  paymentDate: string;
+  issuedDate: string;
   reason?: string;
 }
 
