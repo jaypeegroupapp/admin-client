@@ -27,7 +27,7 @@ export function InvoiceOrdersList({ orders }: { orders: IOrder[] }) {
             return (
               <div key={order.id} className="border rounded-xl p-4">
                 <div className="flex justify-between">
-                  <div>
+                  <div className="flex gap-2 items-center">
                     <p className="font-semibold">
                       Order #{order.id?.slice(-6).toUpperCase()} –{" "}
                       {order.mineName}
@@ -39,7 +39,7 @@ export function InvoiceOrdersList({ orders }: { orders: IOrder[] }) {
                   </p>
                 </div>
 
-                <div className="mt-3 grid grid-cols-3 gap-4 text-sm">
+                <div className="mt-2 grid grid-cols-3 gap-4 text-sm">
                   <div>
                     <p className="text-gray-500">Debit</p>
                     <p className="text-purple-600 font-medium">
@@ -57,7 +57,7 @@ export function InvoiceOrdersList({ orders }: { orders: IOrder[] }) {
                   <div>
                     <p className="text-gray-500">Outstanding</p>
                     <p className="text-red-600 font-medium">
-                      R {outstanding.toFixed(2)}
+                      R {order.credit.toFixed(2)}
                     </p>
                   </div>
                 </div>

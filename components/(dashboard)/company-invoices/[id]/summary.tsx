@@ -86,23 +86,24 @@ export function InvoiceSummary({
             </button>
           )}
 
-          {invoice.status === "published" && companyDetails && (
-            <button
-              onClick={() =>
-                isDebitPayment
-                  ? setShowDebitModal(true)
-                  : setShowPaymentModal(true)
-              }
-              className={`flex items-center gap-2 h-8 px-3 text-sm font-medium text-white rounded-lg transition ${
-                isDebitPayment
-                  ? "bg-purple-600 hover:bg-purple-700"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              {isDebitPayment ? "Pay with Debit" : "Confirm Payment"}
-              <DollarSign size={16} />
-            </button>
-          )}
+          {invoice.status === "published" &&
+            companyDetails &&
+            (isDebitPayment ? (
+              <button
+                onClick={() => setShowCloseModal(true)}
+                className="flex items-center gap-2 h-8 px-3 text-sm font-medium bg-gray-700 text-white rounded-lg hover:bg-black transition"
+              >
+                Close Invoice <Lock size={16} />
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowPaymentModal(true)}
+                className={`flex items-center gap-2 h-8 px-3 text-sm font-medium text-white rounded-lg transition bg-green-600 hover:bg-green-700`}
+              >
+                Confirm Payment
+                <DollarSign size={16} />
+              </button>
+            ))}
 
           {invoice.status === "paid" && (
             <button
