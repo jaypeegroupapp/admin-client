@@ -11,6 +11,8 @@ export interface IOrder {
   invoiceId?: string;
   productName?: string;
   totalAmount: number;
+  debit: number;
+  credit: number;
   collectionDate: string;
   status: string;
   reason?: string;

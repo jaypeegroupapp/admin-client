@@ -122,8 +122,24 @@ export function OrderSummary({
             </p>
           </div>
           <div>
+            <p className="text-gray-500">Debit</p>
+            <p className="font-semibold text-gray-900">
+              R{order.debit.toFixed(2)}
+            </p>
+          </div>{" "}
+          <div>
+            <p className="text-gray-500">Credit</p>
+            <p className="font-semibold text-gray-900">
+              R{order.credit.toFixed(2)}
+            </p>
+          </div>
+          <div>
             <p className="text-gray-500">Mine</p>
             <p className="font-semibold text-gray-900">{order.mineName}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Transporter</p>
+            <p className="font-semibold text-gray-900">{order.companyName}</p>
           </div>
         </div>
 
