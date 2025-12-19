@@ -10,6 +10,7 @@ import {
   Menu,
   Truck,
   FileCheck2,
+  CreditCard,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,7 +29,7 @@ const otherNavItems = [
   { name: "Products", href: "/products", icon: Package },
   { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
   { name: "Mines", href: "/mines", icon: Mountain },
-  { name: "Transporter Credits", href: "/company-credits", icon: Mountain },
+  { name: "Transporter Credits", href: "/company-credits", icon: CreditCard },
   {
     name: "Credit Approval",
     href: "/company-credit-approvals",
