@@ -12,10 +12,12 @@ import { confirmPaymentFormData } from "@/constants/company-invoice";
 
 export function ConfirmPaymentModal({
   invoiceId,
+  outstanding,
   open,
   onClose,
 }: {
   invoiceId: string;
+  outstanding: number;
   open: boolean;
   onClose: () => void;
 }) {
@@ -40,13 +42,15 @@ export function ConfirmPaymentModal({
   } = useForm({
     resolver: zodResolver(confirmPaymentSchema),
     defaultValues: {
-      amount: "",
+      amount: outstanding.toFixed(2),
       paymentDate: "",
+      outstanding: outstanding.toFixed(2),
     },
   });
 
   const onSubmit = handleSubmit(() => {
     const formData = new FormData(formRef.current!);
+    formData.append("outstanding", outstanding.toString());
 
     startTransition(() => {
       formAction(formData);
@@ -59,7 +63,6 @@ export function ConfirmPaymentModal({
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
         Confirm Payment
       </h2>
-
       <form ref={formRef} onSubmit={onSubmit} className="flex flex-col gap-4">
         {confirmPaymentFormData.map((input) => (
           <InputValidated
@@ -71,9 +74,11 @@ export function ConfirmPaymentModal({
             stateError={state?.errors}
           />
         ))}
-
         <SubmitButton name="Confirm Payment" isPending={isPending} />
-      </form>
+      </form>{" "}
+      <p className="text-xs text-red-700 text-center mt-2">
+        * Please enter <b>Full Amount or More</b> to confirm payment.
+      </p>
     </BaseModal>
   );
 }

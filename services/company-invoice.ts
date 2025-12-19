@@ -13,50 +13,57 @@ export async function completeOrderWithInvoice(
 ) {
   await connectDB();
   const session = await mongoose.startSession();
-  session.startTransaction();
 
   try {
-    // 1. Find order
+    session.startTransaction();
+
+    /* =========================================
+       1️⃣ FIND ORDER
+    ========================================= */
     const order = await Order.findById(orderId).session(session);
     if (!order) throw new Error("Order not found.");
 
     order.status = "accepted";
-    // order.signature = signature; // <-- SAVE SIGNATURE IMAGE
     await order.save({ session });
 
+    /* =========================================
+       2️⃣ FIND EXISTING PENDING INVOICE (≤ 31 DAYS)
+    ========================================= */
     const now = new Date();
     const THIRTY_ONE_DAYS = 31 * 24 * 60 * 60 * 1000;
 
-    // 2. Look for existing pending invoice (<=31 days)
     let invoice = await CompanyInvoice.findOne({
       companyId: order.companyId,
       status: "pending",
       createdAt: { $gte: new Date(now.getTime() - THIRTY_ONE_DAYS) },
     }).session(session);
 
-    // 3. If no invoice → create a new one and set opening balance
+    /* =========================================
+       3️⃣ IF NO INVOICE → CREATE NEW ONE
+       OPENING BALANCE = LAST INVOICE CLOSING BALANCE
+    ========================================= */
     if (!invoice) {
       const company = await Company.findById(order.companyId).session(session);
       if (!company) throw new Error("Company not found");
 
-      // Sum usedCredit across mines
-      const creditAgg = await CompanyCredit.aggregate([
-        { $match: { companyId: company._id } },
-        { $group: { _id: null, usedCreditTotal: { $sum: "$usedCredit" } } },
-      ]).session(session);
+      // 🔑 Get last invoice (excluding pending)
+      const lastInvoice = await CompanyInvoice.findOne({
+        companyId: company._id,
+        status: { $in: ["published", "paid", "closed"] },
+      })
+        .sort({ createdAt: -1 })
+        .session(session);
 
-      const usedCredit =
-        creditAgg.length > 0 ? creditAgg[0].usedCreditTotal : 0;
-
-      const openingBalance = usedCredit;
+      const openingBalance = lastInvoice?.closingBalance || 0;
 
       const created = await CompanyInvoice.create(
         [
           {
             companyId: company._id,
             status: "pending",
-            totalAmount: 0,
             openingBalance,
+            totalAmount: 0,
+            closingBalance: openingBalance,
           },
         ],
         { session }
@@ -65,7 +72,9 @@ export async function completeOrderWithInvoice(
       invoice = created[0];
     }
 
-    // 4. Attach order to invoice
+    /* =========================================
+       4️⃣ ATTACH ORDER TO INVOICE
+    ========================================= */
     order.invoiceId = invoice._id;
     order.status = "completed";
     await order.save({ session });
@@ -73,10 +82,15 @@ export async function completeOrderWithInvoice(
     await session.commitTransaction();
     session.endSession();
 
-    return { success: true, invoiceId: invoice._id };
+    return {
+      success: true,
+      invoiceId: invoice._id,
+    };
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
+
+    console.error("❌ completeOrderWithInvoice error:", error);
     return { success: false, message: error.message };
   }
 }
@@ -211,155 +225,117 @@ export async function confirmInvoicePaymentService(
   try {
     session.startTransaction();
 
-    /* ------------------ FETCH INVOICE ------------------ */
+    /* =====================================================
+       1️⃣ FETCH INVOICE
+    ===================================================== */
     const invoice = await CompanyInvoice.findById(invoiceId)
       .session(session)
       .exec();
 
     if (!invoice) throw new Error("Invoice not found.");
 
-    if (!["published", "partially_paid"].includes(invoice.status)) {
-      throw new Error("Invoice cannot receive payments.");
+    if (invoice.status !== "published") {
+      throw new Error("Only published invoices can be paid.");
     }
 
-    /* ------------------ FETCH COMPANY ------------------ */
-    const company = await Company.findById(invoice.companyId)
-      .session(session)
-      .exec();
-
-    if (!company) throw new Error("Company not found.");
-
-    /* ------------------ FETCH COMPANY CREDITS ------------------ */
-    const credits = await CompanyCredit.find({
-      companyId: company._id,
-      usedCredit: { $gt: 0 },
-    })
-      .sort({ createdAt: 1 }) // FIFO
-      .session(session);
-
-    const cashPayment = Number(data.amount) || 0;
-
-    /* ------------------ OPENING BALANCE ------------------ */
-    const openingBalance = invoice.closingBalance ?? invoice.totalAmount;
+    const openingBalance = invoice.closingBalance ?? 0;
 
     if (openingBalance <= 0) {
       throw new Error("Invoice is already settled.");
     }
 
     /* =====================================================
-       DETERMINE SETTLEMENT AMOUNT
+       2️⃣ FETCH COMPANY
     ===================================================== */
-    let remainingToSettle =
-      cashPayment === 0
-        ? openingBalance // debit settlement
-        : Math.min(cashPayment, openingBalance);
+    const company = await Company.findById(invoice.companyId)
+      .session(session)
+      .exec();
 
-    let settledFromDebit = 0;
+    if (!company) throw new Error("Company not found.");
+
+    const paymentAmount = Number(data.amount || 0);
 
     /* =====================================================
-       1️⃣ SETTLE USING COMPANY DEBIT FIRST
+       3️⃣ RESET ALL COMPANY CREDIT (CLEAR USED CREDIT)
     ===================================================== */
-    if (company.debitAmount > 0 && remainingToSettle > 0) {
-      settledFromDebit = Math.min(company.debitAmount, remainingToSettle);
+    await CompanyCredit.updateMany(
+      {
+        companyId: company._id,
+        usedCredit: { $gt: 0 },
+      },
+      {
+        $set: {
+          usedCredit: 0,
+          status: "settled",
+        },
+      },
+      { session }
+    );
 
-      company.debitAmount -= settledFromDebit;
-      remainingToSettle -= settledFromDebit;
+    /* =====================================================
+       4️⃣ CALCULATE EXCESS PAYMENT → DEBIT BALANCE
+    ===================================================== */
+    const excessPayment = Math.max(paymentAmount - openingBalance, 0);
+
+    const oldDebitBalance = company.debitAmount || 0;
+
+    if (excessPayment > 0) {
+      company.debitAmount = oldDebitBalance + excessPayment;
+      await company.save({ session });
     }
 
     /* =====================================================
-       2️⃣ SETTLE COMPANY CREDIT (FIFO)
+       5️⃣ UPDATE INVOICE
     ===================================================== */
-    for (const credit of credits) {
-      if (remainingToSettle <= 0) break;
-
-      const deduction = Math.min(credit.usedCredit, remainingToSettle);
-
-      credit.usedCredit -= deduction;
-      remainingToSettle -= deduction;
-
-      await credit.save({ session });
-    }
-
-    /* =====================================================
-       3️⃣ EXCESS CASH → COMPANY DEBIT
-    ===================================================== */
-    if (cashPayment > openingBalance) {
-      const excess = cashPayment - openingBalance;
-      company.debitAmount = (company.debitAmount || 0) + excess;
-    }
-
-    /* =====================================================
-       CALCULATE TOTAL SETTLED
-    ===================================================== */
-    const settledAmount = openingBalance - remainingToSettle;
-
-    if (settledAmount <= 0) {
-      throw new Error("No settlement was applied.");
-    }
-
-    /* ------------------ UPDATE INVOICE ------------------ */
-    invoice.paymentAmount = (invoice.paymentAmount || 0) + settledAmount;
-
+    invoice.paymentAmount = paymentAmount;
     invoice.paymentDate = data.paymentDate.toISOString();
-
-    invoice.closingBalance = Math.max(openingBalance - settledAmount, 0);
-
+    invoice.closingBalance = 0;
     invoice.status = "paid";
 
     await invoice.save({ session });
-    await company.save({ session });
 
     /* =====================================================
-       4️⃣ MARK ORDERS AS PAID (ONLY IF FULLY SETTLED)
+       6️⃣ ACCOUNT STATEMENT TRAIL
     ===================================================== */
-    if (invoice.status === "paid") {
-      await Order.updateMany(
-        { invoiceId: invoice._id },
-        {
-          $set: {
-            status: "paid",
-          },
-        },
-        { session }
-      );
-    }
-
-    /* ------------------ STATEMENT TRAIL ------------------ */
     await AccountStatementTrail.create(
       [
         {
           companyId: company._id,
-          invoiceId: invoice._id,
           type: "invoice-payment",
-          amount: settledAmount,
+          amount: paymentAmount,
           oldBalance: openingBalance,
-          newBalance: invoice.closingBalance,
-          description:
-            cashPayment === 0
-              ? `Invoice settled using debit`
-              : `Payment for Invoice #${invoice._id}`,
-          createdAt: new Date(),
+          newBalance: 0,
+          description: `Invoice ${invoice._id.toString()} fully settled`,
         },
       ],
       { session }
     );
 
-    /* ------------------ COMMIT ------------------ */
+    /* =====================================================
+       7️⃣ COMMIT
+    ===================================================== */
     await session.commitTransaction();
     session.endSession();
 
     return {
       success: true,
+      invoiceId: invoice._id,
       status: invoice.status,
       openingBalance,
-      settledAmount,
-      closingBalance: invoice.closingBalance,
+      paymentAmount,
+      excessAddedToDebit: excessPayment,
+      newDebitBalance: company.debitAmount,
     };
   } catch (error: any) {
-    console.error("❌ confirmInvoicePaymentService error:", error);
     await session.abortTransaction();
     session.endSession();
-    return { success: false, message: error.message };
+
+    console.error("❌ confirmInvoicePaymentService error:", error);
+
+    return {
+      success: false,
+      message: error.message || "Failed to confirm invoice payment.",
+    };
   }
 }
 

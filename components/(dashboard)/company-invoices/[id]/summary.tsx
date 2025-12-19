@@ -160,6 +160,7 @@ export function InvoiceSummary({
       {companyDetails && showPaymentModal && (
         <ConfirmPaymentModal
           invoiceId={invoice.id!}
+          outstanding={breakdown.outstandingBalance}
           open={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
         />
