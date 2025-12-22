@@ -11,6 +11,7 @@ import {
   Truck,
   FileCheck2,
   CreditCard,
+  WalletMinimal,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,6 +27,7 @@ const navItems = [
 const otherNavItems = [
   { name: "Transporters", href: "/companies", icon: Building2 },
   { name: "Transporter Invoices", href: "/company-invoices", icon: FileText },
+  { name: "Mine Invoices", href: "/mine-invoices", icon: WalletMinimal },
   { name: "Products", href: "/products", icon: Package },
   { name: "Supplier Invoice", href: "/supplier-invoices", icon: FileText },
   { name: "Mines", href: "/mines", icon: Mountain },
