@@ -166,7 +166,7 @@ export async function getMineInvoiceByIdService(id: string) {
  */
 
 // ---------------- PUBLISH INVOICE ----------------
-export async function publishInvoiceService(invoiceId: string) {
+export async function publishMineInvoiceService(invoiceId: string) {
   await connectDB();
 
   const session = await mongoose.startSession();
@@ -262,19 +262,30 @@ export async function confirmInvoicePaymentService(
     /* =====================================================
        3️⃣ RESET ALL COMPANY CREDIT (CLEAR USED CREDIT)
     ===================================================== */
-    await CompanyCredit.updateMany(
-      {
-        companyId: company._id,
-        usedCredit: { $gt: 0 },
-      },
-      {
-        $set: {
-          usedCredit: 0,
-          status: "settled",
-        },
-      },
-      { session }
-    );
+    const credit = await CompanyCredit.findOne({
+      companyId: company._id,
+      mineId: invoice.mineId,
+    })
+      .session(session)
+      .exec();
+
+    if (!credit) throw new Error("Company credit not found.");
+
+    if (credit.usedCredit > 0) {
+      const balance = credit.usedCredit - paymentAmount;
+
+      if (balance <= 0) {
+        credit.usedCredit = 0;
+        credit.status = "settled";
+      } else {
+        credit.usedCredit = balance;
+        credit.status = "owing";
+      }
+
+      await credit.save({ session });
+    } else {
+      throw new Error("Company credit is already settled.");
+    }
 
     /* =====================================================
        4️⃣ CALCULATE EXCESS PAYMENT → DEBIT BALANCE
@@ -293,7 +304,8 @@ export async function confirmInvoicePaymentService(
     ===================================================== */
     invoice.paymentAmount = paymentAmount;
     invoice.paymentDate = new Date(data.paymentDate);
-    invoice.closingBalance = 0;
+    invoice.closingBalance =
+      invoice.totalAmount + invoice.openingBalance - paymentAmount;
     invoice.status = "paid";
 
     await invoice.save({ session });

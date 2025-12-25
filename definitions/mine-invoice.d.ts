@@ -6,9 +6,9 @@ export interface IMineInvoice {
   companyName?: string;
   status: "pending" | "published" | "paid" | "closed";
   totalAmount: number;
-  paymentAmount?: number;
-  openingBalance?: number;
-  closingBalance?: number;
+  paymentAmount: number;
+  openingBalance: number;
+  closingBalance: number;
   paymentDate?: Date;
   createdAt?: string;
   updatedAt?: string;
