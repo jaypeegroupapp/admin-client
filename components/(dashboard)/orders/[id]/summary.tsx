@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Package, Calendar, X, Ticket, Check } from "lucide-react";
+import { Package, X, Check, Plus } from "lucide-react";
 import { IOrder } from "@/definitions/order";
 import { OrderStatusBadge } from "./status-badge";
 import { AcceptOrderModal } from "./accept-order-modal";
 import { DeclineOrderModal } from "./decline-order-modal";
 import { CompleteOrderModal } from "./complete-order-modal";
+import { CompleteMineOrderModal } from "./complete-mine-order-modal";
 
 export function OrderSummary({
   order,
@@ -20,6 +21,7 @@ export function OrderSummary({
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [showCompleteMineModal, setShowCompleteMineModal] = useState(false);
   const isInsufficentStock = totalStockToDeduct > productStock;
 
   return (
@@ -78,13 +80,22 @@ export function OrderSummary({
           )}
 
           {order.status === "accepted" && (
-            <button
-              onClick={() => setShowCompleteModal(true)}
-              className="flex items-center gap-1 rounded-lg h-8 px-3 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
-            >
-              Complete Order
-              <Check size={16} />
-            </button>
+            <div className="flex flex-row gap-2">
+              <button
+                onClick={() => setShowCompleteModal(true)}
+                className="flex items-center gap-1 rounded-lg h-8 px-3 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+              >
+                Invoice
+                <Plus size={16} />
+              </button>
+              <button
+                onClick={() => setShowCompleteMineModal(true)}
+                className="flex items-center gap-1 rounded-lg h-8 px-3 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+              >
+                Mine Invoice
+                <Plus size={16} />
+              </button>
+            </div>
           )}
         </div>
 
@@ -175,6 +186,15 @@ export function OrderSummary({
           orderId={order.id!}
           open={showCompleteModal}
           onClose={() => setShowCompleteModal(false)}
+        />
+      )}
+
+      {/* Complete Order Modal */}
+      {showCompleteMineModal && (
+        <CompleteMineOrderModal
+          orderId={order.id!}
+          open={showCompleteMineModal}
+          onClose={() => setShowCompleteMineModal(false)}
         />
       )}
 

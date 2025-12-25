@@ -1,5 +1,6 @@
 "use server";
 
+import { completeMineOrderWithInvoice } from "@/services/mine-invoice";
 import { completeOrderWithInvoice } from "@/services/company-invoice";
 import {
   acceptOrderWithTransaction,
@@ -26,6 +27,21 @@ export async function acceptOrderAction(orderId: string, quantity: number) {
 export async function completeOrderAction(orderId: string) {
   try {
     const result = await completeOrderWithInvoice(orderId);
+
+    if (!result.success) {
+      return { success: false, message: result.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ completeOrderAction error:", error);
+    return { success: false, message: "Failed to complete order." };
+  }
+}
+
+export async function completeMineOrderAction(orderId: string) {
+  try {
+    const result = await completeMineOrderWithInvoice(orderId);
 
     if (!result.success) {
       return { success: false, message: result.message };
