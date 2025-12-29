@@ -12,6 +12,7 @@ import {
   FileCheck2,
   CreditCard,
   WalletMinimal,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -37,6 +38,7 @@ const otherNavItems = [
     href: "/company-credit-approvals",
     icon: FileCheck2,
   },
+  { name: "Staff", href: "/staffs", icon: Users },
 ];
 
 export default function DashboardLayout({

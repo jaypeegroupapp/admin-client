@@ -32,3 +32,20 @@ export const updateExistingUser = async (
 
   return user;
 };
+
+export const createUserService = async (email: string, role: string) => {
+  await connectDB();
+
+  const existing = await User.findOne({ email });
+  if (existing) {
+    throw new Error("User with this email already exists");
+  }
+
+  const user = await User.create({
+    email,
+    role,
+    password: "temporary", // replace later with invite/reset flow
+  });
+
+  return user;
+};

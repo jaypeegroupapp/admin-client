@@ -1,6 +1,8 @@
 // data/mapper.ts
 
 import { IOrderItemAggregated } from "@/definitions/order-item";
+import { IStaff } from "@/definitions/staff";
+import { IAction } from "@/definitions/action";
 
 export function orderItemMap(i: any): IOrderItemAggregated {
   return {
@@ -90,5 +92,27 @@ export function mapOrder(order: any) {
     status: order.status || "pending",
     createdAt: order.createdAt ? new Date(order.createdAt).toISOString() : "",
     updatedAt: order.updatedAt ? new Date(order.updatedAt).toISOString() : "",
+  };
+}
+
+/** Mapper (same idea as mapMine) */
+export function mapStaff(doc: any): IStaff {
+  return {
+    id: doc._id.toString(),
+    name: doc.name,
+    status: doc.status,
+    userId: doc.userId?.toString(),
+    mines: doc.mines?.map((m: any) => m.toString()) || [],
+  };
+}
+
+export function mapAction(doc: any): IAction {
+  return {
+    id: doc._id.toString(),
+    name: doc.name,
+    resource: doc.resource,
+    description: doc.description,
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
   };
 }
