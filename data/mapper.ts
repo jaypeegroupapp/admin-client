@@ -3,6 +3,7 @@
 import { IOrderItemAggregated } from "@/definitions/order-item";
 import { IStaff } from "@/definitions/staff";
 import { IAction } from "@/definitions/action";
+import { IRole } from "@/definitions/role";
 
 export function orderItemMap(i: any): IOrderItemAggregated {
   return {
@@ -114,5 +115,13 @@ export function mapAction(doc: any): IAction {
     description: doc.description,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
+  };
+}
+
+export function mapRole(doc: any): IRole {
+  return {
+    id: doc._id.toString(),
+    name: doc.name,
+    description: doc.description,
   };
 }
