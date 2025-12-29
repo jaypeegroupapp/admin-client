@@ -31,7 +31,6 @@ export default function ActionAddForm({
     resolver: zodResolver(actionFormSchema),
     defaultValues: {
       name: action?.name || "",
-      resource: action?.resource || "",
       description: action?.description || "",
     },
   });
@@ -55,15 +54,6 @@ export default function ActionAddForm({
           label="Action Name"
           name="name"
           placeholder="<resource>:<action> E.g order:create"
-          register={register}
-          errors={formState.errors}
-          stateError={state.errors}
-        />
-
-        <InputValidated
-          label="Resource"
-          name="resource"
-          placeholder="E.g invoice, order, product, etc..."
           register={register}
           errors={formState.errors}
           stateError={state.errors}

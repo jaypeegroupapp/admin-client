@@ -17,28 +17,39 @@ export async function createActionAction(
   formData: FormData
 ) {
   try {
-    const validated = actionFormSchema.safeParse(Object.fromEntries(formData));
+    const parsed = actionFormSchema.safeParse(Object.fromEntries(formData));
 
-    if (!validated.success) {
+    if (!parsed.success) {
       return {
         message: "Validation failed",
-        errors: validated.error.flatten().fieldErrors,
+        errors: parsed.error.flatten().fieldErrors,
       };
     }
 
-    const data = validated.data as IAction;
+    const { name, description } = parsed.data;
+
+    // 🔥 Derive resource from action name
+    const [resource] = name.split(":");
+
+    const payload: IAction = {
+      name,
+      resource,
+      description,
+    };
 
     if (actionId) {
       const existing = await getActionByIdService(actionId);
+
       if (!existing) {
         return {
           message: "Action not found",
           errors: { global: "Invalid action ID" },
         };
       }
-      await updateActionService(actionId, data);
+
+      await updateActionService(actionId, payload);
     } else {
-      await createActionService(data);
+      await createActionService(payload);
     }
   } catch (error: any) {
     console.error("❌ createActionAction error:", error);
@@ -53,11 +64,6 @@ export async function createActionAction(
 }
 
 export async function deleteActionAction(id: string) {
-  try {
-    await deleteActionService(id);
-    revalidatePath("/actions");
-    return { success: true };
-  } catch (error: any) {
-    return { success: false, message: error.message };
-  }
+  await deleteActionService(id);
+  revalidatePath("/actions");
 }
