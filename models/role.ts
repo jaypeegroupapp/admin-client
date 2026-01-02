@@ -1,7 +1,10 @@
-import mongoose, { Schema, Model } from "mongoose";
+import mongoose, { Schema, Model, Types } from "mongoose";
 import { IRole } from "@/definitions/role";
+import Action from "./action";
 
-type IRoleDoc = Omit<IRole, "id">;
+type IRoleDoc = Omit<IRole, "id"> & {
+  actions: Types.ObjectId[];
+};
 
 const RoleSchema = new Schema<IRoleDoc>(
   {
@@ -11,7 +14,18 @@ const RoleSchema = new Schema<IRoleDoc>(
       unique: true,
       trim: true,
     },
-    description: String,
+
+    description: {
+      type: String,
+      default: "",
+    },
+
+    actions: [
+      {
+        type: Schema.Types.Mixed, // allows ObjectId OR "*"
+        ref: Action.modelName,
+      },
+    ],
   },
   { timestamps: true }
 );

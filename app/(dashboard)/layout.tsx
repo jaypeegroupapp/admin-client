@@ -13,6 +13,7 @@ import {
   CreditCard,
   WalletMinimal,
   Users,
+  Shield,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -39,6 +40,7 @@ const otherNavItems = [
     icon: FileCheck2,
   },
   { name: "Staff", href: "/staffs", icon: Users },
+  { name: "Roles", href: "/roles", icon: Shield },
 ];
 
 export default function DashboardLayout({

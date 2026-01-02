@@ -8,6 +8,8 @@ import {
   createRoleService,
   updateRoleService,
   deleteRoleService,
+  assignActionToRoleService,
+  removeActionFromRoleService,
 } from "@/services/role";
 import { IRole } from "@/definitions/role";
 
@@ -55,4 +57,44 @@ export async function createRoleAction(
 export async function deleteRoleAction(id: string) {
   await deleteRoleService(id);
   revalidatePath("/roles");
+}
+
+export async function assignActionToRoleAction(
+  roleId: string,
+  actionId: string
+) {
+  try {
+    const role = await assignActionToRoleService(roleId, actionId);
+
+    if (!role) {
+      return { success: false, message: "Role not found" };
+    }
+
+    revalidatePath(`/roles/${roleId}`);
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("❌ assignActionToRoleAction error:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function removeActionFromRoleAction(
+  roleId: string,
+  actionId: string
+) {
+  try {
+    const role = await removeActionFromRoleService(roleId, actionId);
+
+    if (!role) {
+      return { success: false, message: "Role not found" };
+    }
+
+    revalidatePath(`/roles/${roleId}`);
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("❌ removeActionFromRoleAction error:", error);
+    return { success: false, message: error.message };
+  }
 }
