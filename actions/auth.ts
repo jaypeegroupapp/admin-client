@@ -7,9 +7,9 @@ import {
 } from "@/validations/auth";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
-import { createSession, deleteSession, setCookie } from "@/lib/session";
-import { createUser, updateExistingUser } from "@/services/auth";
-import { getUser, isUserExists } from "@/data/user";
+import { createSession, setCookie } from "@/lib/session";
+import { createUser } from "@/services/auth";
+import { getSessionUser, getUser, isUserExists } from "@/data/user";
 
 export async function regsiterUser(
   prevState: RegisterUserState | undefined,
@@ -52,4 +52,53 @@ export async function regsiterUser(
   }
 
   redirect("/register/company");
+}
+
+export async function loginUser(
+  prevState: LoginUserState | undefined,
+  formData: FormData
+) {
+  const validatedFields = loginUserformSchema.safeParse(
+    Object.fromEntries(formData)
+  );
+
+  if (!validatedFields.success) {
+    const state: LoginUserState = {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Oops, I think there's a mistake with your inputs.",
+    };
+    return state;
+  }
+
+  const { email, password } = validatedFields.data;
+
+  try {
+    const user = await getUser({ email });
+    if (!user) {
+      const state: LoginUserState = {
+        errors: { email: ["User does not exists"] },
+      };
+      return state;
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      const state: LoginUserState = {
+        errors: { password: ["Incorrect password"] },
+      };
+      return state;
+    }
+
+    // ⬇️ Resolve user + permissions ONCE (Node runtime)
+    const sessionUser = await getSessionUser({ _id: user.id });
+    if (!sessionUser) {
+      throw new Error("Unable to create session user");
+    }
+
+    await createSession(sessionUser);
+  } catch (error) {
+    console.error("Error: fetching Something went Wrong:", error);
+  }
+
+  redirect("/");
 }

@@ -9,9 +9,6 @@ type Props = {
   name: string;
   type?: string;
   placeholder?: string;
-  step?: string;
-  min?: string | number;
-  max?: string | number;
   isPending?: boolean;
   stateError?: any;
   register: UseFormRegister<any>;
@@ -23,9 +20,6 @@ const InputValidated = ({
   name,
   type = "text",
   placeholder,
-  step,
-  min,
-  max,
   isPending,
   stateError,
   register,
@@ -33,26 +27,23 @@ const InputValidated = ({
 }: Props) => {
   const [show, setShow] = useState(false);
 
-  const computedType =
-    type === "password" && !show ? "password" : type !== "" ? type : "text";
-
   return (
     <div className={`flex flex-col mb-4 ${isPending ? "bg-gray-100" : ""}`}>
       <label className="text-black text-sm mb-1">{label}</label>
-
       <div className="relative">
         <input
           {...register(name, { required: `${label} is required` })}
           placeholder={placeholder}
-          type={computedType}
-          step={step}
-          min={min}
-          max={max}
-          inputMode={type === "number" ? "decimal" : undefined}
+          type={
+            type === "password" && !show
+              ? "password"
+              : type === "number"
+              ? "number"
+              : "text"
+          }
           disabled={isPending}
           className="w-full px-4 py-2 rounded-full bg-white text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
         />
-
         {type === "password" && (
           <button
             type="button"
@@ -63,7 +54,6 @@ const InputValidated = ({
           </button>
         )}
       </div>
-
       {errors[name] && (
         <span className="text-red-400 text-xs mt-1">
           {errors[name]?.message}

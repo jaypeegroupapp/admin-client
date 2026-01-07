@@ -42,3 +42,19 @@ export const registerFormData = [
     isRequired: true,
   },
 ];
+
+export const loginFormData = [
+  {
+    name: "email",
+    label: "Email",
+    placeholder: "E.g johnDoe, johndoe@gmail.com, 061 234 5678, etc...",
+    isRequired: true,
+  },
+  {
+    name: "password",
+    label: "Password",
+    type: "password",
+    placeholder: "Password",
+    isRequired: true,
+  },
+];

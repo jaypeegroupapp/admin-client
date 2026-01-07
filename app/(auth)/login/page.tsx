@@ -1,5 +1,5 @@
-import Register from "@/components/(auth)/register/register";
+import Login from "@/components/(auth)/login/login";
 
-export default async function Page() {
-  return <Register />;
+export default function Page() {
+  return <Login />;
 }

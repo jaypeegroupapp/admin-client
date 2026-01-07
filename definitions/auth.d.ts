@@ -20,3 +20,10 @@ export type SessionPayload = {
   userId: string;
   expiresAt: Date;
 };
+
+export interface SessionUser {
+  id: string;
+  email: string;
+  roleId: string;
+  permissions: string[]; // 👈 cached actions
+}
