@@ -1,69 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
-import { decrypt } from "@/lib/session";
 import { cookies } from "next/headers";
+import { decrypt } from "@/lib/session";
+import { PAGE_PERMISSIONS } from "./constants";
+import { can } from "@/lib/rbac";
 
-// 1. Specify protected and public routes
-const protectedRoutes = [
-  "/appointments",
-  "/home",
-  "/book-appointment",
-  "/payment-history",
-  "/profile",
-  "/schedules",
-  "/welcome",
-  "/register/details",
-  "/first-appointment",
-];
-
-const publicRoutes = ["/login", "/register", "/"];
+const PUBLIC_PATHS = ["/login", "/unauthorized"];
 
 export default async function middleware(req: NextRequest) {
-  // 2. Check if the current route is protected or public
   const path = req.nextUrl.pathname;
-  const isProtectedRoute =
-    protectedRoutes.includes(path) ||
-    protectedRoutes.some(
-      (str) => path.startsWith(str) || path.startsWith("/" + str)
-    );
-  const isRegistration =
-    path.includes("/register/company") || path.includes("welcome");
-  const isPublicRoute = publicRoutes.includes(path);
 
-  // 3. Decrypt the session from the cookie
-  const cookie = (await cookies()).get("session")?.value;
-  const registrationStep = (await cookies()).get("registrationStep")?.value;
-  const session = await decrypt(cookie);
-
-  // 4. Redirect to /login if the user is not authenticated
-  /* if (isProtectedRoute && !session?.userId) {
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
-  } */
-
-  if (!isRegistration && registrationStep && registrationStep === "0") {
-    return NextResponse.redirect(new URL("/register/company", req.nextUrl));
+  // Ignore static / api
+  if (
+    path.startsWith("/api") ||
+    path.startsWith("/_next") ||
+    path.endsWith(".png")
+  ) {
+    return NextResponse.next();
   }
 
-  /*   if (isRegistration && registrationStep) {
-    if (registrationStep === "1") {
-      return NextResponse.redirect(new URL("/new-intake", req.nextUrl));
-    } else if (registrationStep === "2") {
-      return NextResponse.redirect(new URL("/home", req.nextUrl));
-    }
-  } */
+  const cookie = (await cookies()).get("session")?.value;
+  const session = await decrypt(cookie);
 
-  // 5. Redirect to /dashboard if the user is authenticated
-  /* if (
-    isPublicRoute &&
-    session?.userId &&
-    !req.nextUrl.pathname.startsWith("/home")
-  ) {
-    return NextResponse.redirect(new URL("/home", req.nextUrl));
-  } */
+  // ✅ Allow public pages
+  if (PUBLIC_PATHS.includes(path)) {
+    return NextResponse.next();
+  }
+
+  // 🚪 Not authenticated → login
+  if (!session?.user) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
+
+  // Find protected page definition
+  const page = PAGE_PERMISSIONS.find(
+    (p) => path === p.href || path.startsWith(`${p.href}/`)
+  );
+
+  // Page does not require permissions
+  if (!page) return NextResponse.next();
+
+  // 🔐 RBAC check (cached permissions, NO DB)
+  const allowed = await can(session?.user ?? [], page.action, page.resource);
+
+  if (!allowed) {
+    return NextResponse.redirect(new URL("/unauthorized", req.nextUrl));
+  }
 
   return NextResponse.next();
 }
 
-// Routes Middleware should not run on
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+  matcher: ["/((?!_next/static|_next/image|.*\\.png$).*)"],
 };

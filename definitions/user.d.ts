@@ -2,6 +2,7 @@ export interface IUser {
   id?: string;
   name: string;
   email: string;
+  roleId: string;
   contactNumber: string;
   role: "customer" | "admin";
   authType?: string;
