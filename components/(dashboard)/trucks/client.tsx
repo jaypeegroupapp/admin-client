@@ -5,8 +5,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ITruck } from "@/definitions/truck";
 import { TruckHeader } from "./header";
-import TruckModal from "@/components/ui/modal";
-import TruckAddForm from "./add-form";
 import { TruckList } from "./list";
 import TruckFilter from "./filter";
 import { deleteTruckAction } from "@/actions/truck";
@@ -80,14 +78,6 @@ export function TruckClientPage({ initialTrucks }: Props) {
         onEdit={handleEdit}
         onDelete={handleDeleteClick}
       />
-      <TruckModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <TruckAddForm
-          truck={editingTruck}
-          onClose={() => {
-            fetchTrucks();
-          }}
-        />
-      </TruckModal>
 
       <DeleteModal
         isOpen={isDeleteOpen}
