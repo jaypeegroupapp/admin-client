@@ -1,6 +1,7 @@
 import { IStaff } from "@/definitions/staff";
 import { connectDB } from "@/lib/db";
 import Staff from "@/models/staff";
+import { Types } from "mongoose";
 
 export async function getAllStaffService() {
   await connectDB();
@@ -10,6 +11,11 @@ export async function getAllStaffService() {
 export async function getStaffByIdService(id: string) {
   await connectDB();
   return await Staff.findById(id).lean();
+}
+
+export async function getStaffService(id: string) {
+  await connectDB();
+  return await Staff.findOne({ userId: new Types.ObjectId(id) }).lean();
 }
 
 export async function createStaffService(data: IStaff) {

@@ -2,7 +2,6 @@ import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { SessionPayload } from "@/definitions/auth";
-import { getSessionUser } from "@/data/user";
 
 const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -48,13 +47,21 @@ export async function createSession(sessionUser: any) {
 export async function deleteSession() {
   const cookieStore = await cookies();
 
-  if (cookieStore.has("registrationStep"))
-    cookieStore.delete("registrationStep");
-
   cookieStore.delete("session");
 }
 
 export async function setCookie(name: string, value: string) {
   const cookieStore = await cookies();
   cookieStore.set(name, value);
+}
+
+export async function getSession() {
+  const cookie = (await cookies()).get("session")?.value;
+  const session = await decrypt(cookie);
+  return session;
+}
+
+export async function getCookie(name: string) {
+  const cookieStore = await cookies();
+  return cookieStore.get(name);
 }

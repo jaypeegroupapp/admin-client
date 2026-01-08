@@ -8,11 +8,6 @@ import Action from "@/models/action";
 
 export const getUser = cache(async (userData: any) => {
   await connectDB();
-  return await User.findOne(userData);
-});
-
-export const getSessionUser = cache(async (userData: any) => {
-  await connectDB();
 
   const user = (await User.findOne(userData).lean()) as any;
   if (!user) return null;
@@ -25,6 +20,7 @@ export const getSessionUser = cache(async (userData: any) => {
     return {
       id: user._id.toString(),
       email: user.email,
+      password: user.password,
       roleId: user.roleId.toString(),
       permissions: ["*"],
     };
@@ -42,6 +38,7 @@ export const getSessionUser = cache(async (userData: any) => {
   return {
     id: user._id.toString(),
     email: user.email,
+    password: user.password,
     roleId: user.roleId.toString(),
     permissions,
   };

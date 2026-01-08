@@ -7,9 +7,9 @@ import {
 } from "@/validations/auth";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
-import { createSession, setCookie } from "@/lib/session";
+import { createSession, deleteSession, setCookie } from "@/lib/session";
 import { createUser } from "@/services/auth";
-import { getSessionUser, getUser, isUserExists } from "@/data/user";
+import { getUser, isUserExists } from "@/data/user";
 
 export async function regsiterUser(
   prevState: RegisterUserState | undefined,
@@ -73,7 +73,7 @@ export async function loginUser(
   const { email, password } = validatedFields.data;
 
   try {
-    const user = await getUser({ email });
+    const user = (await getUser({ email })) as any;
     if (!user) {
       const state: LoginUserState = {
         errors: { email: ["User does not exists"] },
@@ -90,15 +90,20 @@ export async function loginUser(
     }
 
     // ⬇️ Resolve user + permissions ONCE (Node runtime)
-    const sessionUser = await getSessionUser({ _id: user.id });
-    if (!sessionUser) {
-      throw new Error("Unable to create session user");
-    }
 
-    await createSession(sessionUser);
+    await createSession({
+      id: user.id,
+      email: user.email,
+      permissions: user.permissions,
+    });
   } catch (error) {
     console.error("Error: fetching Something went Wrong:", error);
   }
 
   redirect("/");
+}
+
+export async function logout() {
+  await deleteSession();
+  redirect("/login");
 }

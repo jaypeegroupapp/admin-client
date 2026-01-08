@@ -1,4 +1,4 @@
-import { LucideIcon } from "lucide-react";
+import { LucideIcon, User } from "lucide-react";
 import {
   Home,
   PackageCheck,
@@ -120,6 +120,14 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     action: "read",
     resource: "role",
     icon: Shield,
+    section: "other",
+  },
+  {
+    name: "Profile",
+    href: "/profile",
+    action: "read",
+    resource: "user",
+    icon: User,
     section: "other",
   },
 ];
