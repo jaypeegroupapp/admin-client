@@ -9,6 +9,9 @@ type Props = {
   name: string;
   type?: string;
   placeholder?: string;
+  step?: string;
+  min?: string | number;
+  max?: string | number;
   isPending?: boolean;
   stateError?: any;
   register: UseFormRegister<any>;
@@ -20,6 +23,9 @@ const InputValidated = ({
   name,
   type = "text",
   placeholder,
+  step,
+  min,
+  max,
   isPending,
   stateError,
   register,
@@ -41,6 +47,9 @@ const InputValidated = ({
               ? "number"
               : "text"
           }
+          step={step}
+          min={min}
+          max={max}
           disabled={isPending}
           className="w-full px-4 py-2 rounded-full bg-white text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
         />
