@@ -5,15 +5,14 @@ import { getSession } from "@/lib/session";
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
-  const user = await getSession();
+  const session = (await getSession()) as any;
   const staff = await getSessionStaff();
-  console.log(staff);
 
   if (!staff.success) return null;
 
   return (
     <ProfileClient
-      user={{ email: user?.email as string }}
+      user={{ email: session?.user?.email as string }}
       staff={{ name: staff?.data?.name as string }!}
     />
   );

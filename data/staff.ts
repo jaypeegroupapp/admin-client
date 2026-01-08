@@ -39,7 +39,7 @@ export async function getSessionStaff() {
     const session = (await getSession()) as any;
     if (!session || !session?.user?.id)
       return { success: false, message: "No session found" };
-console.log({session})
+
     const staff = await getStaffService(session?.user?.id);
     if (!staff) return { success: false, message: "Staff not found" };
     return { success: true, data: staff };
