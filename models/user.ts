@@ -4,6 +4,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: string;
+  roleId: Schema.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -12,7 +13,8 @@ const UserSchema = new Schema<IUser>(
   {
     email: { type: String, required: true, unique: true },
     password: { type: String, required: false },
-    role: { type: String, required: true },
+    roleId: { type: Schema.Types.ObjectId, ref: "Role", required: true },
+    role: { type: String },
   },
   { timestamps: true }
 );

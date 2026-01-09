@@ -13,8 +13,10 @@ import { getStaffs } from "@/data/staff";
 
 export function StaffClientPage({
   initialStaffs,
+  roles,
 }: {
   initialStaffs: IStaff[];
+  roles: { id: string; name: string }[];
 }) {
   const [staffs, setStaffs] = useState<IStaff[]>(initialStaffs || []);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,6 +72,7 @@ export function StaffClientPage({
       <StaffModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <StaffAddForm
           staff={editingStaff}
+          roles={roles}
           onClose={() => {
             fetchStaffs();
             setIsModalOpen(false);

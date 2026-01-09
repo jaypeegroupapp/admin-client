@@ -9,11 +9,12 @@ export const STAFF_ROLES = [
   "Super Admin",
 ] as const;
 
+
 export const staffFormSchema = z.object({
-  name: z.string().min(2, "Staff name is required"),
-  email: z.string().email("Valid email is required"),
-  role: z.enum(STAFF_ROLES),
-  status: z.enum(["active", "inactive"]).default("active"),
+  name: z.string().min(2),
+  email: z.string().email().optional(),
+  role: z.string().min(1, "Role is required"),
+  status: z.enum(["active", "inactive"]),
 });
 
 export type StaffForm = z.infer<typeof staffFormSchema>;

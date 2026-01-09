@@ -1,55 +1,50 @@
 "use client";
 
-import { createStaffAction } from "@/actions/staff";
-import { SubmitButton } from "@/components/ui/buttons";
-import InputValidated from "@/components/ui/input-validated";
-import { staffFormSchema, STAFF_ROLES } from "@/validations/staff";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useActionState, startTransition, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import InputValidated from "@/components/ui/input-validated";
+import { SubmitButton } from "@/components/ui/buttons";
+import { staffFormSchema, StaffForm } from "@/validations/staff";
+import { createStaffAction } from "@/actions/staff";
+import { startTransition, useActionState, useRef } from "react";
 import { motion } from "framer-motion";
-import Select from "@/components/ui/select-validated";
+
+type RoleOption = {
+  id: string;
+  name: string;
+};
 
 export default function StaffAddForm({
   staff,
+  roles,
   onClose,
 }: {
-  staff: any;
+  staff: any | null;
+  roles: RoleOption[];
   onClose: () => void;
 }) {
   const initialState = { message: "", errors: {} };
-  const staffId = staff?.id || "";
-
-  const createStaffActionWithId = createStaffAction.bind(null, staffId);
 
   const [state, formAction, isPending] = useActionState(
-    createStaffActionWithId,
+    createStaffAction.bind(null, staff?.id ?? ""),
     initialState
   );
-
-  const formRef = useRef<HTMLFormElement>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<StaffForm>({
     resolver: zodResolver(staffFormSchema),
     defaultValues: {
-      name: staff?.name || "",
-      email: staff?.email || "",
-      role: staff?.role || "Admin",
-      status: staff?.status || "active",
+      name: staff?.name ?? "",
+      email: staff?.email ?? "",
+      role: staff?.roleId ?? "",
+      status: staff?.status ?? "active",
     },
   });
 
-  const onSubmit = handleSubmit(async () => {
-    const formData = new FormData(formRef.current!);
-    startTransition(() => {
-      formAction(formData);
-      onClose();
-    });
-  });
+  const formRef = useRef<HTMLFormElement>(null);
 
   return (
     <motion.div
@@ -59,61 +54,77 @@ export default function StaffAddForm({
       transition={{ duration: 0.3 }}
       className="bg-white rounded-2xl w-full sm:w-[420px] p-6 shadow-lg"
     >
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        {staffId ? "Edit Staff" : "Add Staff"}
-      </h2>
-
-      <form ref={formRef} onSubmit={onSubmit} className="flex flex-col gap-4">
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">Add Staff</h2>
+      <form
+        ref={formRef}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(() => {
+            startTransition(() => {
+              formAction(new FormData(formRef.current!));
+            });
+          })(e);
+        }}
+        className="space-y-4"
+      >
         <InputValidated
-          label="Staff Name"
+          label="Full Name"
           name="name"
-          placeholder="Enter staff name"
           register={register}
           errors={errors}
+          stateError={state.errors}
           isPending={isPending}
-          stateError={state?.errors}
         />
 
-        <InputValidated
-          label="Email Address"
-          name="email"
-          type="email"
-          placeholder="staff@email.com"
-          register={register}
-          errors={errors}
-          isPending={isPending}
-          stateError={state?.errors}
-        />
-
-        {/* ROLE DROPDOWN */}
-        {/* <Select
-            label="Role"
-            name="mineId"
+        {!staff && (
+          <InputValidated
+            label="Email Address"
+            name="email"
+            type="email"
             register={register}
             errors={errors}
-            options={STAFF_ROLES}
-          /> */}
+            stateError={state.errors}
+            isPending={isPending}
+          />
+        )}
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700"></label>
+        {/* 🔽 ROLE DROPDOWN */}
+        {!staff && (
+          <div>
+            <label className="text-sm font-medium">Role</label>
+            <select
+              {...register("role")}
+              disabled={isPending}
+              className="w-full px-4 py-2 rounded-full bg-white text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              >
+              <option value="">Select role</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.name}
+                </option>
+              ))}
+            </select>
+
+            {errors.role && (
+              <p className="text-xs text-red-500 mt-1">{errors.role.message}</p>
+            )}
+          </div>
+        )}
+
+        {/* STATUS */}
+        <div>
+          <label className="text-sm font-medium">Status</label>
           <select
-            {...register("role")}
-            disabled={isPending}
-            className="rounded-md border px-3 py-2 text-sm"
-          >
-            {STAFF_ROLES.map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
+            {...register("status")}
+            className="w-full px-4 py-2 rounded-full bg-white text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            >
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
           </select>
-          {errors.role && (
-            <p className="text-xs text-red-600">{errors.role.message}</p>
-          )}
         </div>
 
         <SubmitButton
-          name={staffId ? "Update Staff" : "Add Staff"}
+          name={staff ? "Update Staff" : "Create Staff"}
           isPending={isPending}
         />
       </form>

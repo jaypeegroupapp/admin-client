@@ -48,7 +48,7 @@ export async function createStaffAction(
       });
     } else {
       // 1️⃣ CREATE USER FIRST
-      const user = (await createUserService(email, role)) as any;
+      const user = (await createUserService(email || "", role)) as any;
 
       // 2️⃣ CREATE STAFF WITH USER ID
       await createStaffService({
