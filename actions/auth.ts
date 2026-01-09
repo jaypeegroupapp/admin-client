@@ -4,11 +4,12 @@ import {
   LoginUserState,
   registerUserformSchema,
   RegisterUserState,
+  setPasswordFormSchema,
 } from "@/validations/auth";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
 import { createSession, deleteSession, setCookie } from "@/lib/session";
-import { createUser } from "@/services/auth";
+import { createUser, updateExistingUser } from "@/services/auth";
 import { getUser, isUserExists } from "@/data/user";
 
 export async function regsiterUser(
@@ -98,6 +99,36 @@ export async function loginUser(
     });
   } catch (error) {
     console.error("Error: fetching Something went Wrong:", error);
+  }
+
+  redirect("/");
+}
+
+export async function registerExistingUser(
+  id: string,
+  prevState: any,
+  formData: FormData
+) {
+  const validatedFields = setPasswordFormSchema.safeParse(
+    Object.fromEntries(formData)
+  );
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Please fix the errors below",
+    };
+  }
+
+  const { password } = validatedFields.data;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  try {
+    await updateExistingUser(id, hashedPassword);
+
+    await createSession(id);
+  } catch (error) {
+    throw new Error("Failed to set password");
   }
 
   redirect("/");

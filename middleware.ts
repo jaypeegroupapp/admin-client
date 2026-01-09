@@ -4,7 +4,7 @@ import { decrypt } from "@/lib/session";
 import { PAGE_PERMISSIONS } from "./constants";
 import { can } from "@/lib/rbac";
 
-const PUBLIC_PATHS = ["/login", "/unauthorized"];
+const PUBLIC_PATHS = ["/login", "/unauthorized", "/staff-set-password"];
 
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
