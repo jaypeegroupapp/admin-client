@@ -1,3 +1,4 @@
+"use server";
 import { mapAction } from "./mapper";
 import { getAllActionsService } from "@/services/action";
 
