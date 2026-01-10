@@ -28,7 +28,7 @@ const StaffSchema: Schema<IStaffDoc> = new Schema(
 
     mines: [
       {
-        type: Schema.Types.ObjectId,
+        type: Schema.Types.Mixed, // ⬅ allow "*" OR ObjectId
         ref: Mine.modelName,
       },
     ],

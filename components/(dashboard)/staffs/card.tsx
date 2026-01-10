@@ -7,7 +7,7 @@ import { IStaff } from "@/definitions/staff";
 
 export function StaffCard({ staff }: { staff: IStaff }) {
   return (
-    <Link href={`/staff/${staff.id}`} className="block">
+    <Link href={`/staffs/${staff.id}`} className="block">
       <motion.div
         layout
         initial={{ opacity: 0, y: 20 }}

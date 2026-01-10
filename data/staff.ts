@@ -5,6 +5,7 @@ import {
   getAllStaffService,
   getStaffByIdService,
   getStaffService,
+  getStaffMinesService,
 } from "@/services/staff";
 import { mapStaff } from "./mapper";
 import { getSession } from "@/lib/session";
@@ -27,7 +28,11 @@ export async function getStaffById(id: string) {
   try {
     const staff = await getStaffByIdService(id);
     if (!staff) return { success: false, message: "Staff not found" };
-    return { success: true, data: staff };
+
+    return {
+      success: true,
+      data: staff,
+    };
   } catch (error: any) {
     console.error("❌ getStaffById error:", error);
     return { success: false, message: error.message };
@@ -45,6 +50,24 @@ export async function getSessionStaff() {
     return { success: true, data: staff };
   } catch (error: any) {
     console.error("❌ getStaffById error:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getStaffMines(staffId: string) {
+  try {
+    const mines = await getStaffMinesService(staffId);
+
+    if (!mines) {
+      return { success: false, message: "Staff not found" };
+    }
+
+    return {
+      success: true,
+      data: mines.map((m: any) => (m === "*" ? "*" : m.toString())),
+    };
+  } catch (error: any) {
+    console.error("❌ getStaffMines error:", error);
     return { success: false, message: error.message };
   }
 }

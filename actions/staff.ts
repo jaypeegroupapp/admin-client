@@ -6,6 +6,8 @@ import {
   createStaffService,
   updateStaffService,
   getStaffByIdService,
+  assignMineToStaffService,
+  removeMineFromStaffService,
 } from "@/services/staff";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -31,7 +33,7 @@ export async function createStaffAction(
     let userId: string | undefined;
 
     if (staffId) {
-      const existing = await getStaffByIdService(staffId);
+      const existing = (await getStaffByIdService(staffId)) as any;
 
       if (!existing) {
         return {
@@ -40,7 +42,7 @@ export async function createStaffAction(
         };
       }
 
-      userId = existing.userId.toString();
+      userId = existing.userId;
 
       await updateStaffService(staffId, {
         name,
@@ -69,4 +71,39 @@ export async function createStaffAction(
   const url = staffId ? `/staffs/${staffId}` : "/staffs";
   revalidatePath(url);
   redirect(url);
+}
+
+export async function assignMineToStaffAction(staffId: string, mineId: string) {
+  try {
+    const staff = await assignMineToStaffService(staffId, mineId);
+
+    if (!staff) {
+      return { success: false, message: "Staff not found" };
+    }
+
+    revalidatePath(`/staffs/${staffId}`);
+    return { success: true };
+  } catch (error: any) {
+    console.error("❌ assignMineToStaffAction error:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function removeMineFromStaffAction(
+  staffId: string,
+  mineId: string
+) {
+  try {
+    const staff = await removeMineFromStaffService(staffId, mineId);
+
+    if (!staff) {
+      return { success: false, message: "Staff not found" };
+    }
+
+    revalidatePath(`/staffs/${staffId}`);
+    return { success: true };
+  } catch (error: any) {
+    console.error("❌ removeMineFromStaffAction error:", error);
+    return { success: false, message: error.message };
+  }
 }

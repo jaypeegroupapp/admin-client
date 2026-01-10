@@ -35,3 +35,24 @@ export async function getMineById(id: string) {
     return { success: false, message: error.message };
   }
 }
+
+import { connectDB } from "@/lib/db";
+import Staff from "@/models/staff";
+import Mine from "@/models/mine";
+
+export async function getMinesByStaff(staffId: string) {
+  await connectDB();
+
+  const staff = await Staff.findById(staffId).select("mines").lean();
+  if (!staff) return [];
+
+  const mines = await Mine.find({
+    _id: { $in: staff.mines },
+  }).lean();
+
+  return mines.map((m: any) => ({
+    id: m._id.toString(),
+    name: m.name,
+    createdAt: m.createdAt,
+  }));
+}
