@@ -3,6 +3,7 @@ import { COMPANY } from "@/constants/auth";
 import { connectDB } from "@/lib/db";
 import User from "@/models/user";
 import { Types } from "mongoose";
+import { getRoleActionsNameService } from "./role";
 
 export const createUser = async (email: string, password: string) => {
   await connectDB();
@@ -19,12 +20,22 @@ export const createUser = async (email: string, password: string) => {
 export const updateExistingUser = async (id: string, password: string) => {
   await connectDB();
 
-  const userId = new Types.ObjectId(id);
-  const user = User.findByIdAndUpdate(userId, {
-    password,
-  });
+  const user = (await User.findById(id)) as any;
 
-  return user;
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.password = password;
+  await user.save();
+
+  const permissions = await getRoleActionsNameService(user.roleId.toString());
+
+  return {
+    id: user._id.toString(),
+    email: user.email,
+    permissions,
+  };
 };
 
 export const createUserService = async (email: string, role: string) => {

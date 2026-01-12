@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/db";
 import Role from "@/models/role";
 import { IRole } from "@/definitions/role";
 import { Types } from "mongoose";
+import Action from "@/models/action";
 
 export async function getAllRolesService() {
   await connectDB();
@@ -69,4 +70,22 @@ export async function getRoleActionsService(roleId: string) {
   if (!role) return null;
 
   return role.actions.map((a: any) => (a === "*" ? "*" : a.toString()));
+}
+
+export async function getRoleActionsNameService(roleId: string) {
+  const roleActions = await getRoleActionsService(roleId);
+
+  if (!roleActions) return null;
+
+  // 🟢 Wildcard role → instant allow all
+  if (roleActions.includes("*")) return ["*"];
+
+  // Resolve action IDs → "resource:action"
+  const actions = await Action.find({
+    _id: { $in: roleActions },
+  })
+    .select("name resource")
+    .lean();
+
+  return actions.map((a) => a.name);
 }

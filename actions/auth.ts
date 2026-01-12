@@ -124,9 +124,9 @@ export async function registerExistingUser(
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    await updateExistingUser(id, hashedPassword);
+    const user = await updateExistingUser(id, hashedPassword);
 
-    await createSession(id);
+    await createSession(user);
   } catch (error) {
     throw new Error("Failed to set password");
   }
