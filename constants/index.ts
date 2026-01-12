@@ -101,7 +101,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     name: "Credit Approval",
     href: "/company-credit-approvals",
     action: "approve",
-    resource: "company-credit",
+    resource: "company-credit-approval",
     icon: "creditApproval",
     section: "other",
   },
