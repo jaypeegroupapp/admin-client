@@ -1,3 +1,19 @@
+import {
+  Home,
+  PackageCheck,
+  Truck,
+  Building2,
+  FileText,
+  WalletMinimal,
+  Package,
+  Mountain,
+  CreditCard,
+  FileCheck2,
+  Users,
+  Shield,
+  User,
+} from "lucide-react";
+
 export const months = [
   "Jan",
   "Feb",
@@ -12,3 +28,19 @@ export const months = [
   "Nov",
   "Dec",
 ];
+
+export const ICONS = {
+  dashboard: Home,
+  orders: PackageCheck,
+  truckOrders: Truck,
+  companies: Building2,
+  companyInvoices: FileText,
+  mineInvoices: WalletMinimal,
+  products: Package,
+  mines: Mountain,
+  companyCredits: CreditCard,
+  creditApproval: FileCheck2,
+  staff: Users,
+  roles: Shield,
+  profile: User,
+} as const;

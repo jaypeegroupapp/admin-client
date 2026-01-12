@@ -1,25 +1,24 @@
-import { LucideIcon, User } from "lucide-react";
-import {
-  Home,
-  PackageCheck,
-  Truck,
-  Building2,
-  FileText,
-  WalletMinimal,
-  Package,
-  Mountain,
-  CreditCard,
-  FileCheck2,
-  Users,
-  Shield,
-} from "lucide-react";
+export type IconKey =
+  | "dashboard"
+  | "orders"
+  | "truckOrders"
+  | "companies"
+  | "companyInvoices"
+  | "mineInvoices"
+  | "products"
+  | "mines"
+  | "companyCredits"
+  | "creditApproval"
+  | "staff"
+  | "roles"
+  | "profile";
 
 export type PagePermission = {
   name: string;
   href: string;
   action: string;
   resource: string;
-  icon: LucideIcon;
+  icon: IconKey; // ✅ string, not LucideIcon
   section: "main" | "other";
 };
 
@@ -29,7 +28,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/",
     action: "read",
     resource: "dashboard",
-    icon: Home,
+    icon: "dashboard",
     section: "main",
   },
   {
@@ -37,7 +36,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/orders",
     action: "read",
     resource: "order",
-    icon: PackageCheck,
+    icon: "orders",
     section: "main",
   },
   {
@@ -45,7 +44,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/truck-orders",
     action: "read",
     resource: "truck-order",
-    icon: Truck,
+    icon: "truckOrders",
     section: "main",
   },
 
@@ -55,7 +54,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/companies",
     action: "read",
     resource: "company",
-    icon: Building2,
+    icon: "companies",
     section: "other",
   },
   {
@@ -63,7 +62,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/company-invoices",
     action: "read",
     resource: "company-invoice",
-    icon: FileText,
+    icon: "companyInvoices",
     section: "other",
   },
   {
@@ -71,7 +70,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/mine-invoices",
     action: "read",
     resource: "mine-invoice",
-    icon: WalletMinimal,
+    icon: "mineInvoices",
     section: "other",
   },
   {
@@ -79,7 +78,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/products",
     action: "read",
     resource: "product",
-    icon: Package,
+    icon: "products",
     section: "other",
   },
   {
@@ -87,7 +86,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/mines",
     action: "read",
     resource: "mine",
-    icon: Mountain,
+    icon: "mines",
     section: "other",
   },
   {
@@ -95,7 +94,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/company-credits",
     action: "read",
     resource: "company-credit",
-    icon: CreditCard,
+    icon: "companyCredits",
     section: "other",
   },
   {
@@ -103,7 +102,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/company-credit-approvals",
     action: "approve",
     resource: "company-credit",
-    icon: FileCheck2,
+    icon: "creditApproval",
     section: "other",
   },
   {
@@ -111,7 +110,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/staffs",
     action: "read",
     resource: "staff",
-    icon: Users,
+    icon: "staff",
     section: "other",
   },
   {
@@ -119,7 +118,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/roles",
     action: "read",
     resource: "role",
-    icon: Shield,
+    icon: "roles",
     section: "other",
   },
   {
@@ -127,7 +126,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     href: "/profile",
     action: "read",
     resource: "user",
-    icon: User,
+    icon: "profile",
     section: "other",
   },
 ];
