@@ -7,7 +7,7 @@ import { cache } from "react";
 export const getUser = cache(async (userData: any) => {
   await connectDB();
 
-  const user = (await User.findOne(userData).lean()) as any;
+  const user = (await User.findOne(userData).populate("roleId").lean()) as any;
   if (!user) return null;
 
   const permissions = await getRoleActionsNameService(user.roleId);
@@ -17,6 +17,7 @@ export const getUser = cache(async (userData: any) => {
     email: user.email,
     password: user.password,
     roleId: user.roleId.toString(),
+    roleName: user.roleId.name,
     permissions,
   };
 });

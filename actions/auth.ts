@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 import { createSession, deleteSession, setCookie } from "@/lib/session";
 import { createUser, updateExistingUser } from "@/services/auth";
 import { getUser, isUserExists } from "@/data/user";
+import { CREDITMANAGER, STATIONATTENDANT } from "@/constants/auth";
 
 export async function regsiterUser(
   prevState: RegisterUserState | undefined,
@@ -72,6 +73,7 @@ export async function loginUser(
   }
 
   const { email, password } = validatedFields.data;
+  let role = "";
 
   try {
     const user = (await getUser({ email })) as any;
@@ -80,6 +82,8 @@ export async function loginUser(
         errors: { email: ["User does not exists"] },
       };
       return state;
+    } else {
+      role = user.roleName;
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -101,6 +105,8 @@ export async function loginUser(
     console.error("Error: fetching Something went Wrong:", error);
   }
 
+  if (role !== "" && role === STATIONATTENDANT) redirect("/truck-orders");
+  else if (role !== "" && role === CREDITMANAGER) redirect("/truck-orders");
   redirect("/");
 }
 
@@ -122,15 +128,28 @@ export async function registerExistingUser(
 
   const { password } = validatedFields.data;
   const hashedPassword = await bcrypt.hash(password, 10);
+  let role = "";
 
   try {
     const user = await updateExistingUser(id, hashedPassword);
+    if (!user) {
+      throw new Error("User not found");
+    } else {
+      role = user.roleName;
+    }
 
-    await createSession(user);
+    await createSession({
+      id: user.id,
+      email: user.email,
+      permissions: user.permissions,
+    });
   } catch (error) {
+    console.error("Error: fetching Something went Wrong:", error);
     throw new Error("Failed to set password");
   }
 
+  if (role !== "" && role === STATIONATTENDANT) redirect("/truck-orders");
+  else if (role !== "" && role === CREDITMANAGER) redirect("/truck-orders");
   redirect("/");
 }
 

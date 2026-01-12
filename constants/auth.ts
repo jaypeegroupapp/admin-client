@@ -1,4 +1,7 @@
 export const COMPANY = "company";
+export const STATIONATTENDANT = "station-attendant";
+export const CREDITMANAGER = "credit-manager";
+
 const adminUser = {
   username: "blissfuladmin.com",
   password: "$2b$10$EC7lxhH3mfHotHgMs9x5aOtmUSsHj9BYGDNuCIDs7ICCPLJlnfUPa",

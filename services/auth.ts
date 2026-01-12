@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/user";
 import { Types } from "mongoose";
 import { getRoleActionsNameService } from "./role";
+import Role from "@/models/role";
 
 export const createUser = async (email: string, password: string) => {
   await connectDB();
@@ -21,6 +22,7 @@ export const updateExistingUser = async (id: string, password: string) => {
   await connectDB();
 
   const user = (await User.findById(id)) as any;
+  const role = (await Role.findById(user.roleId)) as any;
 
   if (!user) {
     throw new Error("User not found");
@@ -34,6 +36,8 @@ export const updateExistingUser = async (id: string, password: string) => {
   return {
     id: user._id.toString(),
     email: user.email,
+    roleId: user.roleId.toString(),
+    roleName: role.name,
     permissions,
   };
 };
