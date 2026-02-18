@@ -44,7 +44,7 @@ export function CompanySummary({ company }: { company: ICompany }) {
         </div>
         <div className="flex items-center gap-2">
           <DollarSign size={16} className="text-gray-500" />
-          <span>R {company.discountAmount}</span>
+          <span>Discount: R {company.discountAmount}</span>
         </div>
         <div className="flex items-center gap-2">
           <Wallet size={16} className="text-gray-500" />
