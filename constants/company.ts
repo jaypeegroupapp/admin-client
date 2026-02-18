@@ -30,3 +30,12 @@ export const companyInputFormData = [
     placeholder: "Enter VAT number",
   },
 ];
+
+export const discountInputFormData = [
+  {
+    name: "discount",
+    label: "Discount (R)",
+    type: "number",
+    placeholder: "Enter discount amount",
+  },
+];

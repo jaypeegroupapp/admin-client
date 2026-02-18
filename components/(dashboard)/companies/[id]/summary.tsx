@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Mail, Phone, MapPin, Wallet } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, Wallet, DollarSign } from "lucide-react";
 import { ICompany } from "@/definitions/company";
 
 export function CompanySummary({ company }: { company: ICompany }) {
@@ -38,10 +38,14 @@ export function CompanySummary({ company }: { company: ICompany }) {
           <Phone size={16} className="text-gray-500" />
           <span>{company.contactPhone}</span>
         </div>
-        <div className="flex items-start gap-2 sm:col-span-2">
+        <div className="flex items-center gap-2">
           <MapPin size={16} className="text-gray-500 mt-1" />
           <span>{company.billingAddress}</span>
-        </div>{" "}
+        </div>
+        <div className="flex items-center gap-2">
+          <DollarSign size={16} className="text-gray-500" />
+          <span>R {company.discountAmount}</span>
+        </div>
         <div className="flex items-center gap-2">
           <Wallet size={16} className="text-gray-500" />
           <span>Available Debit: R{company.debitAmount}</span>

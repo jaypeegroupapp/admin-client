@@ -34,3 +34,7 @@ export const companyFormSchema = z.object({
 });
 
 export type CompanyFormData = z.infer<typeof companyFormSchema>;
+
+export const discountFormSchema = z.object({
+  discount: z.coerce.string().min(1, "Discount is required"),
+});

@@ -17,7 +17,10 @@ export async function createCompanyService(data: ICompany) {
   return await Company.create(data);
 }
 
-export async function updateCompanyService(id: string, data: Partial<ICompany>) {
+export async function updateCompanyService(
+  id: string,
+  data: Partial<ICompany>
+) {
   await connectDB();
   return await Company.findByIdAndUpdate(id, data, { new: true }).lean();
 }
@@ -26,3 +29,21 @@ export async function deleteCompanyService(id: string) {
   await connectDB();
   return await Company.findByIdAndDelete(id).lean();
 }
+
+export const updateCompanyDiscountAmountService = async (
+  companyId: string,
+  discountAmount: string
+) => {
+  await connectDB();
+
+  const company = (await Company.findById(companyId)) as any;
+
+  if (!company) {
+    throw new Error("Company not found");
+  }
+
+  company.discountAmount = Number(discountAmount);
+  await company.save();
+
+  return company;
+};

@@ -31,6 +31,7 @@ export function CompanyDetailsClient({ company }: { company: ICompany }) {
         onTabChange={setActiveTab}
         companyId={company.id!}
         debitAmount={company.debitAmount ?? 0}
+        discountAmount={company.discountAmount ?? 0}
       />
     </motion.div>
   );
