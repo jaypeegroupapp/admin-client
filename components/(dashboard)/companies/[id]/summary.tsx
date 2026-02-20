@@ -37,8 +37,7 @@ export function CompanySummary({ company }: { company: ICompany }) {
         <div className="flex items-center gap-2">
           <Phone size={16} className="text-gray-500" />
           <span>{company.contactPhone}</span>
-        </div>
-        <div className="flex items-center gap-2">
+        </div><div className="flex items-center gap-2">
           <MapPin size={16} className="text-gray-500 mt-1" />
           <span>{company.billingAddress}</span>
         </div>
