@@ -58,14 +58,6 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     section: "other",
   },
   {
-    name: "Transporter Invoices",
-    href: "/company-invoices",
-    action: "read",
-    resource: "company-invoice",
-    icon: "companyInvoices",
-    section: "other",
-  },
-  {
     name: "Mine Invoices",
     href: "/mine-invoices",
     action: "read",
