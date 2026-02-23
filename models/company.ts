@@ -18,12 +18,12 @@ const CompanySchema = new Schema<CompanyDocument>(
     userId: {
       type: Schema.Types.ObjectId,
       ref: User.modelName,
-      required: true,
+      required: false,
     },
     debitAmount: { type: Number, required: false, default: 0 },
     discountAmount: { type: Number, required: false, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // ✅ Index to enable fast searching by name or registrationNumber

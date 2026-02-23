@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { ICompany } from "@/definitions/company";
 import { CompanyHeader } from "./header";
 import CompanyFilter from "./filter";
 import { CompanyList } from "./list";
+import CompanyModal from "@/components/ui/modal";
+import CompanyForm from "./form";
 import { getCompanies } from "@/data/company";
 
 interface Props {
@@ -15,28 +16,38 @@ interface Props {
 
 export function CompanyClientPage({ initialCompanies }: Props) {
   const [companies, setCompanies] = useState<ICompany[]>(
-    initialCompanies || []
+    initialCompanies || [],
   );
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterText, setFilterText] = useState("");
-  const router = useRouter();
 
-  const filtered = companies.filter((c) =>
-    `${c.name} ${c.registrationNumber} ${c.contactEmail}`
-      .toLowerCase()
-      .includes(filterText.toLowerCase())
-  );
-
+  /** ----------------------------------------
+   * FETCH COMPANIES
+   ----------------------------------------*/
   const fetchCompanies = async () => {
     const res = await getCompanies();
-    if (res?.data?.length) setCompanies(res.data);
+    if (res?.success) setCompanies(res.data || []);
   };
 
   useEffect(() => {
     fetchCompanies();
   }, []);
 
+  /** ----------------------------------------
+   * SEARCH FILTER
+   ----------------------------------------*/
+  const filtered = companies.filter((c) =>
+    `${c.name} ${c.registrationNumber} ${c.contactEmail}`
+      .toLowerCase()
+      .includes(filterText.toLowerCase()),
+  );
+
+  /** ----------------------------------------
+   * OPEN MODAL
+   ----------------------------------------*/
   const handleAdd = () => {
-    router.push("/companies/add");
+    setIsModalOpen(true);
   };
 
   return (
@@ -46,9 +57,16 @@ export function CompanyClientPage({ initialCompanies }: Props) {
       transition={{ duration: 0.4 }}
       className="space-y-6"
     >
-      <CompanyHeader />
+      <CompanyHeader onAdd={handleAdd} />
+
       <CompanyFilter onFilterChange={(text: string) => setFilterText(text)} />
+
       <CompanyList initialCompanies={filtered} />
+
+      {/* MODAL */}
+      <CompanyModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <CompanyForm />
+      </CompanyModal>
     </motion.div>
   );
 }

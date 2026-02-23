@@ -12,14 +12,14 @@ export async function getCompanyByIdService(id: string) {
   return await Company.findById(id).lean();
 }
 
-export async function createCompanyService(data: ICompany) {
+export async function createCompanyService(data: Partial<ICompany>) {
   await connectDB();
   return await Company.create(data);
 }
 
 export async function updateCompanyService(
   id: string,
-  data: Partial<ICompany>
+  data: Partial<ICompany>,
 ) {
   await connectDB();
   return await Company.findByIdAndUpdate(id, data, { new: true }).lean();
@@ -32,7 +32,7 @@ export async function deleteCompanyService(id: string) {
 
 export const updateCompanyDiscountAmountService = async (
   companyId: string,
-  discountAmount: string
+  discountAmount: string,
 ) => {
   await connectDB();
 
