@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileText } from "lucide-react";
+import { Building2, FileText, Mountain } from "lucide-react";
 import { IMineInvoice } from "@/definitions/mine-invoice";
 import Link from "next/link";
 
@@ -23,12 +23,18 @@ export function MineInvoiceCard({ invoice }: { invoice: IMineInvoice }) {
             <FileText />
           </div>
 
-          <div className="flex-1">
-            <h3 className="font-semibold">Invoice #{invoiceNumber}</h3>
-            <p className="text-sm text-gray-500">Mine: {invoice.mineName}</p>
-            <span className="text-xs uppercase font-mono">
-              {invoice.status}
-            </span>
+          <div className="flex flex-col flex-1">
+            <h3 className="font-semibold text-gray-800">
+              Invoice #{invoiceNumber}
+            </h3>
+            <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+              <Building2 size={14} />
+              {invoice.companyName || "No company"}
+            </p>{" "}
+            <p className="text-sm text-gray-500 flex items-center gap-1">
+              <Mountain size={14} />
+              {invoice.mineName || "No Mine"}
+            </p>
           </div>
         </div>
       </motion.div>
