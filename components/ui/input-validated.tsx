@@ -43,9 +43,9 @@ const InputValidated = ({
           type={
             type === "password" && !show
               ? "password"
-              : type === "number"
-              ? "number"
-              : "text"
+              : show && type === "password"
+                ? "text"
+                : type
           }
           step={step}
           min={min}
