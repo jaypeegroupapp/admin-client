@@ -1,9 +1,37 @@
 "use client";
 
-import { Building2, Mail, Phone, MapPin, Wallet, DollarSign } from "lucide-react";
+import { useState } from "react";
+import {
+  Building2,
+  Mail,
+  Phone,
+  MapPin,
+  Wallet,
+  DollarSign,
+  Link,
+  Copy,
+  Check,
+} from "lucide-react";
 import { ICompany } from "@/definitions/company";
 
 export function CompanySummary({ company }: { company: ICompany }) {
+  const [copied, setCopied] = useState(false);
+
+  const registerLink = `${process.env.NEXT_PUBLIC_BASE_URL}/register?companyId=${company.id}`;
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(registerLink);
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Copy failed", error);
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
       <div className="flex items-start gap-4">
@@ -34,20 +62,51 @@ export function CompanySummary({ company }: { company: ICompany }) {
           <Mail size={16} className="text-gray-500" />
           <span>{company.contactEmail}</span>
         </div>
+
         <div className="flex items-center gap-2">
           <Phone size={16} className="text-gray-500" />
           <span>{company.contactPhone}</span>
-        </div><div className="flex items-center gap-2">
+        </div>
+
+        <div className="flex items-center gap-2">
           <MapPin size={16} className="text-gray-500 mt-1" />
           <span>{company.billingAddress}</span>
         </div>
+
         <div className="flex items-center gap-2">
           <DollarSign size={16} className="text-gray-500" />
           <span>Discount: R {company.discountAmount}</span>
         </div>
+
         <div className="flex items-center gap-2">
           <Wallet size={16} className="text-gray-500" />
           <span>Available Debit: R{company.debitAmount}</span>
+        </div>
+
+        {/* 🔥 Register Link with Copy */}
+        <div className="flex items-center gap-2 col-span-full">
+          <Link size={16} className="text-gray-500" />
+
+          <div className="flex items-center gap-2 w-full">
+            <span className="truncate text-gray-700">Register Link</span>
+
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+            >
+              {copied ? (
+                <>
+                  <Check size={14} className="text-green-600" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy size={14} />
+                  Copy
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
