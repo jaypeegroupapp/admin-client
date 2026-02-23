@@ -5,6 +5,7 @@ import {
   getOrdersByProductIdService,
   getInvoiceOrdersService,
   getOrdersByMineService,
+  getMineInvoiceOrdersService,
 } from "@/services/order";
 import { mapOrder } from "./mapper";
 
@@ -135,3 +136,18 @@ export async function getInvoiceOrders(invoiceId: string) {
     return [];
   }
 }
+
+export async function getMineInvoiceOrders(invoiceId: string) {
+  try {
+    const orders = await getInvoiceOrdersService(invoiceId);
+    const mineOrders = await getMineInvoiceOrdersService(invoiceId);
+
+    if (!orders.length) return [];
+
+    return mineOrders;
+  } catch (err) {
+    console.error("❌ getInvoiceOrders error:", err);
+    return [];
+  }
+}
+

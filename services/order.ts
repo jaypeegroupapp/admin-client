@@ -19,7 +19,7 @@ export async function getOrdersService(
   search = "",
   status = "all",
   fromDate = "",
-  toDate = ""
+  toDate = "",
 ) {
   await connectDB();
 
@@ -259,7 +259,7 @@ export async function createOrderService(data: CreateOrderInput) {
           status: data.status || "pending",
         },
       ],
-      { session }
+      { session },
     );
 
     // 2️⃣ Create related order items
@@ -318,7 +318,7 @@ export async function deleteOrderService(orderId: string) {
  */
 export async function updateCollectionDateService(
   orderId: string,
-  collectionDate: string
+  collectionDate: string,
 ) {
   await connectDB();
 
@@ -342,7 +342,7 @@ export async function updateCollectionDateService(
 
 export async function acceptOrderWithTransaction(
   orderId: string,
-  quantity: number
+  quantity: number,
 ) {
   await connectDB();
 
@@ -380,7 +380,7 @@ export async function acceptOrderWithTransaction(
     await OrderItem.updateMany(
       { orderId }, // find all linked to the order
       { $set: { status: "accepted" } },
-      { session }
+      { session },
     );
 
     // 3️⃣ Update Order → accepted
@@ -403,7 +403,7 @@ export async function acceptOrderWithTransaction(
           reason: `Order accepted: ${order._id}`,
         },
       ],
-      { session }
+      { session },
     );
 
     // 6️⃣ Commit transaction
@@ -426,7 +426,7 @@ export async function declineOrderService(orderId: string, reason: string) {
   return await Order.findByIdAndUpdate(
     orderId,
     { status: "declined", declineReason: reason },
-    { new: true }
+    { new: true },
   ).lean();
 }
 
@@ -455,8 +455,78 @@ export async function getInvoiceOrdersService(invoiceId: string) {
         id: order._id.toString(),
         items,
       };
-    })
+    }),
   );
 
   return finalOrders;
+}
+
+export async function getMineInvoiceOrdersService(invoiceId: string) {
+  await connectDB();
+
+  const results = await OrderItem.aggregate([
+    // 1️⃣ Join Orders
+    {
+      $lookup: {
+        from: "orders",
+        localField: "orderId",
+        foreignField: "_id",
+        as: "order",
+      },
+    },
+    { $unwind: "$order" },
+
+    // 2️⃣ Filter by invoiceId
+    {
+      $match: {
+        "order.invoiceId": new Types.ObjectId(invoiceId),
+      },
+    },
+
+    // 3️⃣ Join Trucks
+    {
+      $lookup: {
+        from: "trucks",
+        localField: "truckId",
+        foreignField: "_id",
+        as: "truck",
+      },
+    },
+    { $unwind: "$truck" },
+
+    // 4️⃣ Final Shape
+    {
+      $project: {
+        _id: 0,
+        id: { $toString: "$_id" },
+        orderId: { $toString: "$orderId" },
+        updateDate: "$updatedAt",
+        quantity: "$quantity",
+        sellingPrice: "$order.sellingPrice",
+        truckId: {
+          name: {
+            $cond: [
+              {
+                $and: [
+                  { $ifNull: ["$truck.make", false] },
+                  { $ifNull: ["$truck.model", false] },
+                ],
+              },
+              { $concat: ["$truck.make", " ", "$truck.model"] },
+              "$truck.plateNumber",
+            ],
+          },
+          plateNumber: "$truck.plateNumber",
+          registrationNumber: "$truck.registrationNumber",
+        },
+      },
+    },
+
+    // 5️⃣ Sort newest first
+    {
+      $sort: { updateDate: -1 },
+    },
+  ]);
+
+  return results;
 }
