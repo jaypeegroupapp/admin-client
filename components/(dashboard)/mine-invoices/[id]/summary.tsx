@@ -127,7 +127,7 @@ export function InvoiceSummary({
           </div>
 
           <div className="flex justify-between font-semibold border-b pb-2">
-            <span>Total Activity</span>
+            <span>Total</span>
             <span>R {breakdown.totalActivity.toFixed(2)}</span>
           </div>
 
