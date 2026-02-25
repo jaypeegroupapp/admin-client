@@ -27,7 +27,7 @@ export const editProductFormSchema = z.object({
   grid: z.coerce
     .number()
     .min(0)
-    .nonnegative("Selling price cannot be negative"),
+    .nonnegative("Grid cannot be negative"),
   purchasePrice: z.coerce
     .number()
     .min(0)

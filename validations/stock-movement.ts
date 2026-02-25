@@ -12,7 +12,7 @@ export const stockFormSchema = z.object({
 
   gridAtPurchase: z.coerce
     .string()
-    .min(1, "Selling price required")
+    .min(1, "Grid required")
     .refine((v) => Number(v) >= 0, "Must be a positive number"),
   supplierName: z.string().min(1, "Supplier name is required"),
   invoiceNumber: z.string().min(1, "Supplier name is required"),

@@ -73,7 +73,7 @@ export default function ProductAddForm({
           />
         ))}
 
-        {/* Show selling price ONLY when editing an existing product */}
+        {/* Show grid ONLY when editing an existing product */}
         {productId && (
           <InputValidated
             name="grid"
@@ -81,7 +81,7 @@ export default function ProductAddForm({
             type="number"
             step="0.01"
             min="0"
-            placeholder="Enter selling price"
+            placeholder="Enter grid"
             register={register}
             errors={errors}
             isPending={isPending}
