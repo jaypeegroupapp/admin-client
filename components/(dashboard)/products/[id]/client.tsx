@@ -20,7 +20,7 @@ export function ProductDetailsClient({
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"info" | "inventory" | "orders">(
-    "inventory"
+    "inventory",
   );
 
   const [isEditOpen, setIsEditOpen] = useState(false);
