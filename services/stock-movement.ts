@@ -40,19 +40,19 @@ export async function createStockMovementService(productId: string, data: any) {
 
 export async function updateProductSellingPriceService(
   productId: string,
-  sellingPrice: number
+  grid: number
 ) {
   await connectDB();
   return await Product.findByIdAndUpdate(
     productId,
-    { sellingPrice },
+    { grid },
     { new: true }
   );
 }
 
 export async function addStockService(
   productId: string,
-  data: { quantity: number; purchasePrice: number; sellingPrice: number }
+  data: { quantity: number; purchasePrice: number; grid: number }
 ) {
   await connectDB();
 
@@ -61,7 +61,7 @@ export async function addStockService(
 
   product.stock += data.quantity;
   product.purchasePrice = data.purchasePrice;
-  product.sellingPrice = data.sellingPrice;
+  product.grid = data.grid;
   await product.save();
 
   return product;

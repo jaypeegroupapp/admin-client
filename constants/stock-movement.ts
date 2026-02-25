@@ -16,7 +16,7 @@ export const stockInputFormData = [
   },
   {
     name: "sellingPriceAtPurchase",
-    label: "Selling Price at Purchase",
+    label: "Grid at Purchase",
     type: "number",
     step: "0.01",
     placeholder: "Enter current selling price",

@@ -37,7 +37,7 @@ export default function ProductAddForm({
     defaultValues: {
       name: product?.name || "",
       description: product?.description || "",
-      sellingPrice: product?.sellingPrice || "",
+      grid: product?.grid || "",
     },
   });
 
@@ -76,8 +76,8 @@ export default function ProductAddForm({
         {/* Show selling price ONLY when editing an existing product */}
         {productId && (
           <InputValidated
-            name="sellingPrice"
-            label="Selling Price"
+            name="grid"
+            label="Grid"
             type="number"
             step="0.01"
             min="0"

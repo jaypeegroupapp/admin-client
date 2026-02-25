@@ -11,7 +11,7 @@ const mapProduct = (product: any): IProduct => ({
   id: product._id?.toString?.() ?? product.id ?? "",
   name: product.name,
   description: product.description,
-  sellingPrice: product.sellingPrice,
+  grid: product.grid,
   purchasePrice: product.purchasePrice,
   stock: product.stock,
   isPublished: product.isPublished ?? false,

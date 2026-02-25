@@ -74,7 +74,7 @@ export function ProductSummary({
       <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
         <div className="flex items-center gap-2">
           <Tag size={16} className="text-gray-500" />
-          <span>Selling Price: R{(product.sellingPrice ?? 0).toFixed(2)}</span>
+          <span>Grid: R{(product.grid ?? 0).toFixed(2)}</span>
         </div>
         <div className="flex items-center gap-2">
           <Tag size={16} className="text-gray-500" />
@@ -82,11 +82,11 @@ export function ProductSummary({
         </div>
         <div className="flex items-center gap-2">
           <Layers size={16} className="text-gray-500" />
-          <span>Stock vs Pending Order: {product.stock}</span>
+          <span>Stock: {product.stock} litres</span>
         </div>{" "}
         <div className="flex items-center gap-2">
           <Package size={16} className="text-gray-500" />
-          <span>Pending Order: {totalOrderQuantity}</span>
+          <span>Pending Order: {totalOrderQuantity} litres</span>
           <span
             className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${
               totalOrderQuantity > product.stock!

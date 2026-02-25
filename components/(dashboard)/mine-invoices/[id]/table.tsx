@@ -7,7 +7,7 @@ type InvoiceOrderItem = {
   orderId: string;
   updateDate: string;
   quantity: number;
-  sellingPrice: number;
+  grid: number;
   truckId: {
     name: string;
     plateNumber: string;
@@ -49,7 +49,7 @@ export function InvoiceOrdersTable({ data }: { data: InvoiceOrderItem[] }) {
               </thead>
               <tbody>
                 {data.map((item) => {
-                  const lineTotal = item.quantity * item.sellingPrice;
+                  const lineTotal = item.quantity * item.grid;
 
                   return (
                     <tr
@@ -86,7 +86,7 @@ export function InvoiceOrdersTable({ data }: { data: InvoiceOrderItem[] }) {
           {/* ====================== */}
           <div className="md:hidden space-y-4">
             {data.map((item) => {
-              const lineTotal = item.quantity * item.sellingPrice;
+              const lineTotal = item.quantity * item.grid;
 
               return (
                 <div key={item.id} className="border rounded-xl p-4 space-y-3">
@@ -116,7 +116,7 @@ export function InvoiceOrdersTable({ data }: { data: InvoiceOrderItem[] }) {
                     <div>
                       <p className="text-gray-500">Price</p>
                       <p className="font-medium">
-                        {formatCurrency(item.sellingPrice)}
+                        {formatCurrency(item.grid)}
                       </p>
                     </div>
 

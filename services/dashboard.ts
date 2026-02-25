@@ -331,7 +331,7 @@ export async function getProductProfitMarginService() {
     {
       $project: {
         name: 1,
-        margin: { $subtract: ["$sellingPrice", "$purchasePrice"] },
+        margin: { $subtract: ["$grid", "$purchasePrice"] },
       },
     },
   ]);

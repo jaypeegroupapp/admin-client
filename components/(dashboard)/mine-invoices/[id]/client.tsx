@@ -10,7 +10,7 @@ type InvoiceOrderItem = {
   orderId: string;
   updateDate: string;
   quantity: number;
-  sellingPrice: number;
+  grid: number;
   truckId: {
     name: string;
     plateNumber: string;
@@ -28,7 +28,7 @@ export function MineInvoiceDetailsClient({ invoice, linkedOrders }: Props) {
 
   // 🔹 New orders total (quantity × price)
   const newOrdersAmount = linkedOrders.reduce(
-    (sum, item) => sum + item.quantity * item.sellingPrice,
+    (sum, item) => sum + item.quantity * item.grid,
     0,
   );
 

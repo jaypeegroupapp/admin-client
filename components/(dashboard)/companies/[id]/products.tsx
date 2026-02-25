@@ -75,7 +75,7 @@ export function CompanyProductsTab({
 
                 <div className="text-right">
                   <p className="text-sm font-semibold text-gray-700">
-                    R {(product.sellingPrice + priceAdjustment).toFixed(2)}
+                    R {(product.grid + priceAdjustment).toFixed(2)}
                   </p>
                 </div>
               </div>

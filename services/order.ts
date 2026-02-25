@@ -399,7 +399,7 @@ export async function acceptOrderWithTransaction(
           type: "OUT",
           quantity: quantity,
           purchasePrice: product.purchasePrice,
-          sellingPriceAtPurchase: product.sellingPrice,
+          sellingPriceAtPurchase: product.grid,
           reason: `Order accepted: ${order._id}`,
         },
       ],
@@ -502,7 +502,7 @@ export async function getMineInvoiceOrdersService(invoiceId: string) {
         orderId: { $toString: "$orderId" },
         updateDate: "$updatedAt",
         quantity: "$quantity",
-        sellingPrice: "$order.sellingPrice",
+        grid: "$order.grid",
         truckId: {
           name: {
             $cond: [

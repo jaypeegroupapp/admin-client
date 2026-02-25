@@ -53,7 +53,7 @@ export async function createStockMovementAction(
       await addStockService(productId, {
         quantity: parseFloat(quantity),
         purchasePrice: parseFloat(purchasePrice),
-        sellingPrice: parseFloat(sellingPriceAtPurchase),
+        grid: parseFloat(sellingPriceAtPurchase),
       });
     }
 

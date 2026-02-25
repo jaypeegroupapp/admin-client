@@ -51,7 +51,7 @@ const OrderSchema = new Schema<IOrderDoc>(
       required: true,
     },
     purchasePrice: { type: Number, required: true, default: 0 },
-    sellingPrice: { type: Number, required: true, default: 0 },
+    grid: { type: Number, required: true, default: 0 },
     invoiceId: {
       type: Schema.Types.ObjectId,
       ref: CompanyInvoice.modelName,

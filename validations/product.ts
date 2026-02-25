@@ -10,7 +10,7 @@ export const productFormSchema = z.object({
     .string()
     .min(5, "Description must be at least 5 characters")
     .max(500, "Description too long"),
-  sellingPrice: z.coerce.string().optional(),
+  grid: z.coerce.string().optional(),
 });
 
 export type ProductForm = z.infer<typeof productFormSchema>;
@@ -24,7 +24,7 @@ export const editProductFormSchema = z.object({
     .string()
     .min(5, "Description must be at least 5 characters")
     .max(500, "Description too long"),
-  sellingPrice: z.coerce
+  grid: z.coerce
     .number()
     .min(0)
     .nonnegative("Selling price cannot be negative"),

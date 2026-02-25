@@ -7,7 +7,7 @@ export interface IOrder {
   companyName?: string;
   productId?: string;
   purchasePrice?: number;
-  sellingPrice?: number;
+  grid?: number;
   invoiceId?: string;
   productName?: string;
   totalAmount: number;
