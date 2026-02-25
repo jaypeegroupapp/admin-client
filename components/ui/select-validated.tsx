@@ -25,7 +25,7 @@ export default function Select({
       <select
         id={name}
         {...register(name)}
-        className="rounded-md border px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 bg-white"
+        className="rounded-full border px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 bg-white"
       >
         <option value="">Select {label}</option>
         {options.map((opt) => (

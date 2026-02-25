@@ -14,7 +14,6 @@ export async function updateOrderDiscountAction(
 ) {
   try {
     const rawValues = Object.fromEntries(formData);
-
     const validated = discountFormSchema.safeParse(rawValues);
 
     if (!validated.success) {
@@ -27,6 +26,7 @@ export async function updateOrderDiscountAction(
     await updateCompanyDiscountAmountService(
       companyId,
       validated.data.discount,
+      validated.data.isGridPlus == "true",
     );
   } catch (error: any) {
     console.error("❌ updateOrderDiscountAction error:", error);

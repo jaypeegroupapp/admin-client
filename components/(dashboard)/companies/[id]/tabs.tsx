@@ -4,17 +4,21 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Truck } from "lucide-react";
 import { getTrucksByCompanyId } from "@/data/truck";
-import { getOrdersByCompanyId } from "@/data/order";
+import { getProducts } from "@/data/product";
 import { CreditMineFacilityTab } from "./credit-mine-facility-tab";
 import { AccountStatementTab } from "./account-statement";
 import { CompanyOrdersTab } from "./orders";
+import { CompanyProductsTab } from "./products";
 
 interface Props {
-  activeTab: "trucks" | "orders" | "credit" | "credit-trails";
-  onTabChange: (tab: "trucks" | "orders" | "credit" | "credit-trails") => void;
+  activeTab: "trucks" | "orders" | "credit" | "credit-trails" | "products";
+  onTabChange: (
+    tab: "trucks" | "orders" | "credit" | "credit-trails" | "products",
+  ) => void;
   companyId: string;
   debitAmount: number;
-  discountAmount: number
+  discountAmount: number;
+  isGridPlus: boolean;
 }
 
 export function CompanyTabs({
@@ -22,22 +26,28 @@ export function CompanyTabs({
   onTabChange,
   companyId,
   debitAmount,
-  discountAmount
+  discountAmount,
+  isGridPlus,
 }: Props) {
   const [trucks, setTrucks] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [trucksData, ordersData] = await Promise.all([
-          getTrucksByCompanyId(companyId),
-          getOrdersByCompanyId(companyId),
-        ]);
+        const trucksData = await getTrucksByCompanyId(companyId);
         setTrucks(trucksData || []);
-        setOrders(ordersData || []);
+
+        const productsRes = await getProducts();
+        if (productsRes.success) {
+          const products =
+            productsRes && productsRes.data
+              ? productsRes.data.filter((p) => p.isPublished)
+              : [];
+          setProducts(products);
+        }
       } catch (e) {
-        console.error("Failed to fetch company related data", e);
+        console.error("Failed to fetch data", e);
       }
     };
 
@@ -48,22 +58,25 @@ export function CompanyTabs({
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
       {/* TABS */}
       <div className="flex gap-6 border-b border-gray-200 mb-6">
-        {["trucks", "orders", "credit", "credit-trails"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => onTabChange(tab as any)}
-            className={`pb-2 font-medium text-sm ${
-              activeTab === tab
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            {tab === "trucks" && "Trucks"}
-            {tab === "orders" && "Orders"}
-            {tab === "credit" && "Credit Facility"}
-            {tab === "credit-trails" && "Statements"}
-          </button>
-        ))}
+        {["trucks", "orders", "products", "credit", "credit-trails"].map(
+          (tab) => (
+            <button
+              key={tab}
+              onClick={() => onTabChange(tab as any)}
+              className={`pb-2 font-medium text-sm ${
+                activeTab === tab
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {tab === "trucks" && "Trucks"}
+              {tab === "orders" && "Orders"}
+              {tab === "products" && "Product Prices"}
+              {tab === "credit" && "Credit Facility"}
+              {tab === "credit-trails" && "Statements"}
+            </button>
+          ),
+        )}
       </div>
 
       {/* CONTENT */}
@@ -91,12 +104,7 @@ export function CompanyTabs({
                         <Truck size={18} />
                       </div>
                       <span className="text-gray-800 text-sm font-medium">
-                        {truck.make +
-                          " " +
-                          truck.model +
-                          " (" +
-                          truck.year +
-                          ")"}
+                        {truck.make} {truck.model} ({truck.year})
                       </span>
                     </div>
                     <span className="text-gray-600 text-sm">
@@ -108,9 +116,18 @@ export function CompanyTabs({
             )}
           </motion.div>
         )}
-        {activeTab === "orders" && (
-          <CompanyOrdersTab companyId={companyId} discountAmount={discountAmount} />
+
+        {activeTab === "orders" && <CompanyOrdersTab companyId={companyId} />}
+
+        {activeTab === "products" && (
+          <CompanyProductsTab
+            discountAmount={discountAmount}
+            isGridPlus={isGridPlus}
+            products={products}
+            companyId={companyId}
+          />
         )}
+
         {activeTab === "credit" && (
           <motion.div
             key="credit"
@@ -120,7 +137,8 @@ export function CompanyTabs({
           >
             <CreditMineFacilityTab companyId={companyId} />
           </motion.div>
-        )}{" "}
+        )}
+
         {activeTab === "credit-trails" && (
           <motion.div
             key="credit-trails"

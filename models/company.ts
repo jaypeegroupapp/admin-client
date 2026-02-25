@@ -22,6 +22,7 @@ const CompanySchema = new Schema<CompanyDocument>(
     },
     debitAmount: { type: Number, required: false, default: 0 },
     discountAmount: { type: Number, required: false, default: 0 },
+    isGridPlus: { type: Boolean, required: false, default: false },
   },
   { timestamps: true },
 );

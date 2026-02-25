@@ -75,7 +75,10 @@ export function CompanySummary({ company }: { company: ICompany }) {
 
         <div className="flex items-center gap-2">
           <DollarSign size={16} className="text-gray-500" />
-          <span>Discount: R {company.discountAmount}</span>
+          <span>
+            Discount: R {company.discountAmount}{" "}
+            {company.isGridPlus ? "(Plus)" : "(Minus)"}
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -84,7 +87,7 @@ export function CompanySummary({ company }: { company: ICompany }) {
         </div>
 
         {/* 🔥 Register Link with Copy */}
-        <div className="flex items-center gap-2 col-span-full">
+        <div className="flex items-center gap-2">
           <Link size={16} className="text-gray-500" />
 
           <div className="flex items-center gap-2 w-full">

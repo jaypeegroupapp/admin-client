@@ -11,6 +11,7 @@ export interface ICompany {
   invoiceFile?: string; // GridFS ObjectId or file URL
   debitAmount: number;
   discountAmount?: number;
+  isGridPlus?: boolean;
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }

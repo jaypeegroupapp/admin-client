@@ -33,6 +33,7 @@ export async function deleteCompanyService(id: string) {
 export const updateCompanyDiscountAmountService = async (
   companyId: string,
   discountAmount: string,
+  isGridPlus: boolean,
 ) => {
   await connectDB();
 
@@ -43,6 +44,7 @@ export const updateCompanyDiscountAmountService = async (
   }
 
   company.discountAmount = Number(discountAmount);
+  company.isGridPlus = isGridPlus;
   await company.save();
 
   return company;

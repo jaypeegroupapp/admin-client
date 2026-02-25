@@ -11,7 +11,7 @@ import { CompanyTabs } from "./tabs";
 export function CompanyDetailsClient({ company }: { company: ICompany }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    "trucks" | "orders" | "credit" | "credit-trails"
+    "trucks" | "orders" | "credit" | "credit-trails" | "products"
   >("orders");
 
   return (
@@ -21,10 +21,7 @@ export function CompanyDetailsClient({ company }: { company: ICompany }) {
       transition={{ duration: 0.3 }}
       className="space-y-8"
     >
-      <CompanyHeader
-        onBack={() => router.back()}
-        name={company.name}
-      />
+      <CompanyHeader onBack={() => router.back()} name={company.name} />
       <CompanySummary company={company} />
       <CompanyTabs
         activeTab={activeTab}
@@ -32,6 +29,7 @@ export function CompanyDetailsClient({ company }: { company: ICompany }) {
         companyId={company.id!}
         debitAmount={company.debitAmount ?? 0}
         discountAmount={company.discountAmount ?? 0}
+        isGridPlus={company.isGridPlus ?? false}
       />
     </motion.div>
   );

@@ -18,17 +18,17 @@ export const companyFormSchema = z.object({
           "size" in file &&
           "type" in file &&
           typeof file.name === "string"),
-      "Invalid file format"
+      "Invalid file format",
     )
     .refine(
       (file) => !file || file.size <= 5 * 1024 * 1024,
-      "File size must be under 5MB"
+      "File size must be under 5MB",
     )
     .refine(
       (file) =>
         !file ||
         ["application/pdf", "image/png", "image/jpeg"].includes(file.type),
-      "Only PDF, PNG, or JPEG files are allowed"
+      "Only PDF, PNG, or JPEG files are allowed",
     )
     .optional(),
 });
@@ -37,4 +37,11 @@ export type CompanyFormData = z.infer<typeof companyFormSchema>;
 
 export const discountFormSchema = z.object({
   discount: z.coerce.string().min(1, "Discount is required"),
+  isGridPlus: z.coerce
+    .string()
+    .min(1, "Grid type is required")
+    .refine(
+      (val) => val === "true" || val === "false",
+      "Invalid value for grid type",
+    ),
 });

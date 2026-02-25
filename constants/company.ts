@@ -34,8 +34,9 @@ export const companyInputFormData = [
 export const discountInputFormData = [
   {
     name: "discount",
-    label: "Discount (R)",
+    label: "Amount (R)",
     type: "number",
-    placeholder: "Enter discount amount",
+    placeholder: "Enter amount",
+    step: "0.01",
   },
 ];

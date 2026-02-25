@@ -9,23 +9,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useActionState, startTransition, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { BaseModal } from "@/components/ui/base-modal";
+import Select from "@/components/ui/select-validated";
 
 export function UpdateDiscountModal({
   companyId,
   discountAmount,
   open,
   onClose,
+  isGridPlus,
 }: {
   companyId: string;
-  discountAmount: number
+  discountAmount: number;
   open: boolean;
   onClose: () => void;
+  isGridPlus: boolean;
 }) {
   const initialState = { message: "", errors: {} };
 
   const [state, formAction, isPending] = useActionState(
     updateOrderDiscountAction.bind(null, companyId),
-    initialState
+    initialState,
   );
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -38,6 +41,7 @@ export function UpdateDiscountModal({
     resolver: zodResolver(discountFormSchema),
     defaultValues: {
       discount: discountAmount || 10,
+      isGridPlus: isGridPlus ? "true" : "false",
     },
   });
 
@@ -55,7 +59,7 @@ export function UpdateDiscountModal({
   return (
     <BaseModal open={open} onClose={onClose}>
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        Update Discount
+        Update Product Price
       </h2>
 
       <form ref={formRef} onSubmit={onSubmit} className="flex flex-col gap-4">
@@ -69,6 +73,17 @@ export function UpdateDiscountModal({
             stateError={state?.errors}
           />
         ))}
+
+        <Select
+          label="Grid Type"
+          name="isGridPlus"
+          register={register}
+          errors={errors}
+          options={[
+            { _id: "true", name: "Plus" },
+            { _id: "false", name: "Minus" },
+          ]}
+        />
 
         <SubmitButton name="Submit" isPending={isPending} />
       </form>

@@ -21,6 +21,7 @@ const mapCompany = (company: any): ICompany => ({
   invoiceFile: company.invoiceFile ?? "",
   debitAmount: company.debitAmount ?? 0,
   discountAmount: company.discountAmount ?? 0,
+  isGridPlus: company.isGridPlus ?? false,
   createdAt: company.createdAt ?? "",
   updatedAt: company.updatedAt ?? "",
 });
