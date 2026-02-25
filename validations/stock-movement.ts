@@ -10,7 +10,7 @@ export const stockFormSchema = z.object({
     .min(1, "Purchased price is required")
     .refine((v) => Number(v) >= 0, "Must be a positive number"),
 
-  sellingPriceAtPurchase: z.coerce
+  gridAtPurchase: z.coerce
     .string()
     .min(1, "Selling price required")
     .refine((v) => Number(v) >= 0, "Must be a positive number"),

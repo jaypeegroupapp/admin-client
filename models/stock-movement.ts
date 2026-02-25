@@ -13,7 +13,7 @@ const StockMovementSchema = new Schema<IStockMovement>(
     type: { type: String, enum: [ADDEDSTOCK, "OUT"], required: true },
     quantity: { type: Number, required: true, min: 1 },
     purchasePrice: { type: Number, required: true },
-    sellingPriceAtPurchase: { type: Number, default: 0 },
+    gridAtPurchase: { type: Number, default: 0 },
     reason: { type: String, trim: true },
   },
   { timestamps: true }

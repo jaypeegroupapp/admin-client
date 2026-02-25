@@ -56,11 +56,11 @@ export function InventoryTab({ productId }: { productId: string }) {
                   {m.purchasePrice !== undefined && (
                     <> • Purchase Price: R{m.purchasePrice.toFixed(2)}</>
                   )}
-                  {m.sellingPriceAtPurchase !== undefined && (
+                  {m.gridAtPurchase !== undefined && (
                     <>
                       {" "}
                       • Grid Then: R
-                      {m.sellingPriceAtPurchase.toFixed(2)}
+                      {m.gridAtPurchase.toFixed(2)}
                     </>
                   )}
                 </p>

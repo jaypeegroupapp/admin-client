@@ -33,12 +33,12 @@ export async function createStockMovementService(productId: string, data: any) {
     quantity: data.quantity,
     type: data.type, // "IN" | "OUT"
     purchasePrice: data.purchasePrice ?? null,
-    sellingPriceAtPurchase: data.sellingPriceAtPurchase ?? null,
+    gridAtPurchase: data.gridAtPurchase ?? null,
     reason: data.reason || "",
   });
 }
 
-export async function updateProductSellingPriceService(
+export async function updateProductGridService(
   productId: string,
   grid: number
 ) {

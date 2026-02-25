@@ -15,7 +15,7 @@ export const stockInputFormData = [
     placeholder: "Enter purchase price",
   },
   {
-    name: "sellingPriceAtPurchase",
+    name: "gridAtPurchase",
     label: "Grid at Purchase",
     type: "number",
     step: "0.01",

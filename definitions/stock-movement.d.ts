@@ -4,7 +4,7 @@ export interface IStockMovement extends Document {
   type: "IN" | "OUT";
   quantity: number;
   purchasePrice: number;
-  sellingPriceAtPurchase: number;
+  gridAtPurchase: number;
   reason?: string;
   createdAt?: Date;
 }

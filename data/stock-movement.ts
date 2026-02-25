@@ -9,7 +9,7 @@ function stockMovementMap(movement: any) {
     type: movement.type,
     quantity: movement.quantity,
     purchasePrice: movement.purchasePrice,
-    sellingPriceAtPurchase: movement.sellingPriceAtPurchase,
+    gridAtPurchase: movement.gridAtPurchase,
     reason: movement.reason,
     createdAt: movement.createdAt,
   };

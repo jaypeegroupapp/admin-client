@@ -46,7 +46,7 @@ export function AddStockModal({
     defaultValues: {
       quantity: "",
       purchasePrice: "",
-      sellingPriceAtPurchase: "",
+      gridAtPurchase: "",
       supplierName: "",
       invoiceNumber: "",
       invoiceDate: "",

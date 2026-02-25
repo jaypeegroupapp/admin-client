@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import {
   getProductByIdService,
   createStockMovementService,
-  updateProductSellingPriceService,
+  updateProductGridService,
 } from "@/services/stock-movement";
 import { addStockService, removeStockService } from "@/services/stock-movement";
 import { ADDEDSTOCK } from "@/constants/stock-movement";
@@ -32,7 +32,7 @@ export async function createStockMovementAction(
     const {
       quantity,
       purchasePrice,
-      sellingPriceAtPurchase,
+      gridAtPurchase,
       supplierName,
       invoiceNumber,
       invoiceDate,
@@ -53,7 +53,7 @@ export async function createStockMovementAction(
       await addStockService(productId, {
         quantity: parseFloat(quantity),
         purchasePrice: parseFloat(purchasePrice),
-        grid: parseFloat(sellingPriceAtPurchase),
+        grid: parseFloat(gridAtPurchase),
       });
     }
 
@@ -65,7 +65,7 @@ export async function createStockMovementAction(
     const stockMovement = await createStockMovementService(productId, {
       quantity,
       purchasePrice,
-      sellingPriceAtPurchase,
+      gridAtPurchase,
       reason,
       type,
     });
