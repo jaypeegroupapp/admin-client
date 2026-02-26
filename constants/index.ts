@@ -58,7 +58,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     section: "other",
   },
   {
-    name: "Mine Invoices",
+    name: "Invoices",
     href: "/mine-invoices",
     action: "read",
     resource: "mine-invoice",
