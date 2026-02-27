@@ -1,6 +1,6 @@
 "use client";
 
-import { Package, Tag, Layers } from "lucide-react";
+import { Package, Tag, Layers, DollarSign, Layout } from "lucide-react";
 import { useState } from "react";
 import { IProduct } from "@/definitions/product";
 import { EnableDisableProductModal } from "./enable-disable-modal";
@@ -17,6 +17,7 @@ export function ProductSummary({
   const handleToggle = () => {
     setModalOpen(true);
   };
+  const purchasePrice = (product.grid ?? 0) - (product.discount ?? 0);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
@@ -73,12 +74,16 @@ export function ProductSummary({
       {/* PRODUCT DETAILS GRID */}
       <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
         <div className="flex items-center gap-2">
-          <Tag size={16} className="text-gray-500" />
+          <Layout size={16} className="text-gray-500" />
           <span>Grid: R{(product.grid ?? 0).toFixed(2)}</span>
         </div>
         <div className="flex items-center gap-2">
           <Tag size={16} className="text-gray-500" />
-          <span>Cost Price: R{(product.purchasePrice ?? 0).toFixed(2)}</span>
+          <span>Cost Price: R{purchasePrice.toFixed(2)}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <DollarSign size={16} className="text-gray-500" />
+          <span>Discount: R{(product.discount ?? 0).toFixed(2)}</span>
         </div>
         <div className="flex items-center gap-2">
           <Layers size={16} className="text-gray-500" />

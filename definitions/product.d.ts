@@ -6,7 +6,7 @@ export interface IProduct {
   name: string;
   description: string;
   grid?: number;
-  purchasePrice?: number;
+  discount?: number;
   stock?: number;
   categoryId?: Types.ObjectId | string;
   isPublished?: boolean;

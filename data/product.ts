@@ -12,7 +12,8 @@ const mapProduct = (product: any): IProduct => ({
   name: product.name,
   description: product.description,
   grid: product.grid,
-  purchasePrice: product.purchasePrice,
+  discount: product.discount,
+  // purchasePrice: product.purchasePrice,
   stock: product.stock,
   isPublished: product.isPublished ?? false,
 });

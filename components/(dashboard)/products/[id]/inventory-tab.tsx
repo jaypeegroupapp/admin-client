@@ -53,15 +53,9 @@ export function InventoryTab({ productId }: { productId: string }) {
                   {new Date(m.createdAt).toLocaleDateString("en-ZA")} • Qty:{" "}
                   {m.quantity}
                   {/* Prices */}
-                  {m.purchasePrice !== undefined && (
-                    <> • Purchase Price: R{m.purchasePrice.toFixed(2)}</>
-                  )}
+                  {m.purchasePrice !== undefined && <> • Purchase Price: R{}</>}
                   {m.gridAtPurchase !== undefined && (
-                    <>
-                      {" "}
-                      • Grid Then: R
-                      {m.gridAtPurchase.toFixed(2)}
-                    </>
+                    <> • Grid Then: R{m.gridAtPurchase.toFixed(2)}</>
                   )}
                 </p>
 

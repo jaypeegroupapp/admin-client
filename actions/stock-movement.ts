@@ -11,13 +11,14 @@ import {
 import { addStockService, removeStockService } from "@/services/stock-movement";
 import { ADDEDSTOCK } from "@/constants/stock-movement";
 import { createSupplierInvoiceService } from "@/services/supplier-invoice";
+import { getSupplierInvoiceByInvoiceNumber } from "@/data/supplier-invoice";
 
 export async function createStockMovementAction(
   productId: string,
   type: string,
   reason: string,
   prevState: any,
-  formData: FormData
+  formData: FormData,
 ) {
   try {
     const validated = stockFormSchema.safeParse(Object.fromEntries(formData));
@@ -31,10 +32,11 @@ export async function createStockMovementAction(
 
     const {
       quantity,
-      purchasePrice,
       gridAtPurchase,
+      discount,
       supplierName,
       invoiceNumber,
+      invoiceUnitPrice,
       invoiceDate,
     } = validated.data;
 
@@ -46,14 +48,22 @@ export async function createStockMovementAction(
         errors: { global: "Invalid product ID" },
       };
     }
+    const invoice = await getSupplierInvoiceByInvoiceNumber(invoiceNumber);
+    if (type === ADDEDSTOCK && invoice) {
+      // If adding stock, ensure invoice number is unique
+      return {
+        message: "Invoice number already exists",
+        errors: { invoiceNumber: ["This invoice number is already in use"] },
+      };
+    }
 
     // --- Handle movement types ---
     if (type === ADDEDSTOCK) {
       // Update product stock
       await addStockService(productId, {
         quantity: parseFloat(quantity),
-        purchasePrice: parseFloat(purchasePrice),
         grid: parseFloat(gridAtPurchase),
+        discount: parseFloat(discount),
       });
     }
 
@@ -64,8 +74,8 @@ export async function createStockMovementAction(
     // Record movement for history / accounting
     const stockMovement = await createStockMovementService(productId, {
       quantity,
-      purchasePrice,
       gridAtPurchase,
+      discount,
       reason,
       type,
     });
@@ -75,6 +85,8 @@ export async function createStockMovementAction(
       await createSupplierInvoiceService({
         name: supplierName,
         invoiceNumber,
+        invoiceUnitPrice: parseFloat(invoiceUnitPrice),
+        discount: parseFloat(discount),
         invoiceDate,
         stockMovementId: stockMovement._id.toString(),
       });

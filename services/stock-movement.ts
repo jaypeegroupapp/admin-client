@@ -40,19 +40,15 @@ export async function createStockMovementService(productId: string, data: any) {
 
 export async function updateProductGridService(
   productId: string,
-  grid: number
+  grid: number,
 ) {
   await connectDB();
-  return await Product.findByIdAndUpdate(
-    productId,
-    { grid },
-    { new: true }
-  );
+  return await Product.findByIdAndUpdate(productId, { grid }, { new: true });
 }
 
 export async function addStockService(
   productId: string,
-  data: { quantity: number; purchasePrice: number; grid: number }
+  data: { quantity: number; grid: number; discount: number },
 ) {
   await connectDB();
 
@@ -60,8 +56,8 @@ export async function addStockService(
   if (!product) throw new Error("Product not found");
 
   product.stock += data.quantity;
-  product.purchasePrice = data.purchasePrice;
   product.grid = data.grid;
+  product.discount = data.discount;
   await product.save();
 
   return product;

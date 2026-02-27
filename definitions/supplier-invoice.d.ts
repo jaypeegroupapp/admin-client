@@ -6,6 +6,8 @@ export interface ISupplierInvoice {
   status: "pending" | "paid" | "closed";
   paymentDate?: string | null;
   invoiceNumber: string;
+  invoiceUnitPrice: number;
+  discount: number;
   invoiceDate: string;
   stockMovementId: string;
   totalAmount?: number;

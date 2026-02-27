@@ -9,6 +9,8 @@ import mongoose, { Types } from "mongoose";
 export async function createSupplierInvoiceService(data: {
   name: string;
   invoiceNumber: string;
+  invoiceUnitPrice: number;
+  discount: number;
   invoiceDate: string;
   stockMovementId: string;
 }) {
@@ -17,6 +19,8 @@ export async function createSupplierInvoiceService(data: {
   return await SupplierInvoice.create({
     name: data.name,
     invoiceNumber: data.invoiceNumber,
+    invoiceUnitPrice: data.invoiceUnitPrice,
+    discount: data.discount,
     invoiceDate: new Date(data.invoiceDate),
     stockMovementId: new Types.ObjectId(data.stockMovementId),
   });
@@ -54,6 +58,23 @@ export async function getSupplierInvoiceByIdService(id: string) {
     .lean();
 }
 
+export async function getSupplierInvoiceByInvoiceNumberService(
+  invoiceNumber: string,
+) {
+  await connectDB();
+  return await SupplierInvoice.findOne({ invoiceNumber })
+    .populate({
+      path: "stockMovementId",
+      select: "quantity purchasePrice type createdAt",
+      populate: {
+        path: "productId",
+        select: "name",
+      },
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+}
+
 // UPDATE
 export async function updateSupplierInvoiceService(id: string, data: any) {
   await connectDB();
@@ -66,7 +87,7 @@ export async function updateSupplierInvoiceService(id: string, data: any) {
       invoiceDate: new Date(data.invoiceDate),
       stockMovementId: new Types.ObjectId(data.stockMovementId),
     },
-    { new: true }
+    { new: true },
   ).lean();
 }
 
@@ -88,7 +109,7 @@ export async function confirmSupplierInvoicePaymentService(invoiceId: string) {
     session.startTransaction();
 
     const invoice = (await SupplierInvoice.findById(invoiceId).session(
-      session
+      session,
     )) as any;
 
     if (!invoice) {

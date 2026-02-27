@@ -27,12 +27,12 @@ export function AddStockModal({
     null,
     productId,
     ADDEDSTOCK,
-    reason
+    reason,
   );
 
   const [state, formAction, isPending] = useActionState(
     createStockMovementActionWithId,
-    initialState
+    initialState,
   );
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -44,11 +44,12 @@ export function AddStockModal({
   } = useForm({
     resolver: zodResolver(stockFormSchema),
     defaultValues: {
-      quantity: "",
-      purchasePrice: "",
-      gridAtPurchase: "",
+      quantity: 0,
+      gridAtPurchase: 0,
+      discount: 0,
       supplierName: "",
       invoiceNumber: "",
+      invoiceUnitPrice: 0,
       invoiceDate: "",
     },
   });
@@ -58,7 +59,6 @@ export function AddStockModal({
 
     startTransition(() => {
       formAction(formData);
-      onClose();
     });
   });
 
