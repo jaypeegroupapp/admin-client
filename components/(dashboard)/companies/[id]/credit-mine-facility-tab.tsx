@@ -6,6 +6,7 @@ import { Edit, Mountain, Plus, Wallet } from "lucide-react";
 import { getCompanyCreditsByCompanyId } from "@/data/company-credit";
 import { getMines } from "@/data/mine";
 import { CreateCompanyCreditModal } from "./create-company-credit-modal";
+import { motion } from "framer-motion";
 
 export function CreditMineFacilityTab({ companyId }: { companyId: string }) {
   const [credits, setCredits] = useState<any[]>([]);
@@ -24,7 +25,7 @@ export function CreditMineFacilityTab({ companyId }: { companyId: string }) {
       setMines(
         res.data
           .filter((mine: any) => !creditMineNames.includes(mine.name))
-          .map((mine: any) => ({ _id: mine.id, name: mine.name }))
+          .map((mine: any) => ({ _id: mine.id, name: mine.name })),
       );
     }
   };
@@ -34,7 +35,12 @@ export function CreditMineFacilityTab({ companyId }: { companyId: string }) {
   }, [companyId]);
 
   return (
-    <>
+    <motion.div
+      key="credit"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-medium text-gray-700 flex items-center gap-2">
           <Wallet size={16} className="text-gray-500" />
@@ -120,6 +126,6 @@ export function CreditMineFacilityTab({ companyId }: { companyId: string }) {
           }}
         />
       )}
-    </>
+    </motion.div>
   );
 }

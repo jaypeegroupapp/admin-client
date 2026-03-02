@@ -129,28 +129,14 @@ export function CompanyTabs({
         )}
 
         {activeTab === "credit" && (
-          <motion.div
-            key="credit"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <CreditMineFacilityTab companyId={companyId} />
-          </motion.div>
+          <CreditMineFacilityTab companyId={companyId} />
         )}
 
         {activeTab === "credit-trails" && (
-          <motion.div
-            key="credit-trails"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <AccountStatementTab
-              companyId={companyId}
-              debitAmount={debitAmount}
-            />
-          </motion.div>
+          <AccountStatementTab
+            companyId={companyId}
+            debitAmount={debitAmount}
+          />
         )}
       </AnimatePresence>
     </div>

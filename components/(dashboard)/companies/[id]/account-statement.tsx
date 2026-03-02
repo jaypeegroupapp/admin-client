@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Edit, Plus, Wallet } from "lucide-react";
+import { Plus, Wallet } from "lucide-react";
 import { getCompanyCreditTrailsByCompanyId } from "@/data/company-credit";
 import { UpdateCreditModal } from "./add-credit-modal";
+import { motion } from "framer-motion";
 
 export function AccountStatementTab({
   companyId,
@@ -26,7 +27,13 @@ export function AccountStatementTab({
   }, [companyId]);
 
   return (
-    <>
+    <motion.div
+      key="credit-trails"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      {" "}
       {/* HEADER */}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-medium text-gray-700 flex items-center gap-2">
@@ -42,7 +49,6 @@ export function AccountStatementTab({
           <span className="hidden md:block">Add Debit</span>
         </button>
       </div>
-
       {/* TRAIL LIST */}
       {!credit?.trail?.length ? (
         <p className="text-sm text-gray-500">No credit movements yet.</p>
@@ -72,8 +78,8 @@ export function AccountStatementTab({
                   item.type === "CREDIT_ADDED"
                     ? "bg-green-100 text-green-700"
                     : item.type === "CREDIT_USED"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-gray-100 text-gray-700"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-gray-100 text-gray-700"
                 }`}
               >
                 {item.type}
@@ -82,7 +88,6 @@ export function AccountStatementTab({
           ))}
         </div>
       )}
-
       {/* MODAL */}
       {showModal && (
         <UpdateCreditModal
@@ -95,6 +100,6 @@ export function AccountStatementTab({
           }}
         />
       )}
-    </>
+    </motion.div>
   );
 }
