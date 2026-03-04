@@ -46,7 +46,7 @@ export async function getCompanyCredits(
   search = "",
   status = "all",
   fromDate = "",
-  toDate = ""
+  toDate = "",
 ) {
   try {
     const { data, totalCount, stats } = await getCompanyCreditsService(
@@ -55,7 +55,7 @@ export async function getCompanyCredits(
       search,
       status,
       fromDate,
-      toDate
+      toDate,
     );
 
     return {

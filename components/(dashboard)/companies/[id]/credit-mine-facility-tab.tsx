@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Edit, Mountain, Plus, Wallet } from "lucide-react";
-
+import { Plus, Wallet } from "lucide-react";
 import { getCompanyCreditsByCompanyId } from "@/data/company-credit";
 import { getMines } from "@/data/mine";
 import { CreateCompanyCreditModal } from "./create-company-credit-modal";
 import { motion } from "framer-motion";
+import { CreditFacilityItem } from "./item";
 
 export function CreditMineFacilityTab({ companyId }: { companyId: string }) {
   const [credits, setCredits] = useState<any[]>([]);
@@ -35,12 +35,7 @@ export function CreditMineFacilityTab({ companyId }: { companyId: string }) {
   }, [companyId]);
 
   return (
-    <motion.div
-      key="credit"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-medium text-gray-700 flex items-center gap-2">
           <Wallet size={16} className="text-gray-500" />
@@ -66,57 +61,25 @@ export function CreditMineFacilityTab({ companyId }: { companyId: string }) {
       ) : (
         <div className="divide-y divide-gray-200">
           {credits.map((item: any) => (
-            <div
+            <CreditFacilityItem
               key={item.id}
-              className="py-3 flex justify-between items-center"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-                  <Mountain />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    {item.mineName}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-gray-500">
-                      Limit: R{item.creditLimit.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Used: R{item.usedCredit.toLocaleString()}
-                    </p>{" "}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => {
-                    setEditingCredit(item);
-                    setShowModal(true);
-                  }}
-                  className="text-blue-600 hover:text-blue-800 text-xs flex items-center gap-1"
-                >
-                  <Edit size={14} />
-                  Update
-                </button>
-              </div>
-            </div>
+              item={item}
+              companyId={companyId}
+              onEdit={(credit) => {
+                setEditingCredit(credit);
+                setShowModal(true);
+              }}
+              onClose={() => loadCredits()}
+            />
           ))}
         </div>
       )}
 
+      {/* Create / Update */}
       {showModal && (
         <CreateCompanyCreditModal
           companyId={companyId}
-          mines={
-            editingCredit
-              ? mines.concat({
-                  _id: editingCredit.mineId,
-                  name: editingCredit.mineName,
-                })
-              : mines
-          }
+          mines={mines}
           editingCredit={editingCredit}
           open={showModal}
           onClose={() => {

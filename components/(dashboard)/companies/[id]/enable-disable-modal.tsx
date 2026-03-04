@@ -3,19 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BaseModal } from "@/components/ui/base-modal";
-import { updateProductPublishStatusAction } from "@/actions/product";
+import { updateCompanyCreditStatusAction } from "@/actions/company-credit";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  productId: string;
+  creditId: string;
+  companyId: string;
   currentState: boolean;
 }
 
-export function EnableDisableProductModal({
+export function EnableDisableCompanyCreditModal({
   open,
   onClose,
-  productId,
+  creditId,
+  companyId,
   currentState,
 }: Props) {
   const router = useRouter();
@@ -24,8 +26,9 @@ export function EnableDisableProductModal({
   const handleUpdate = async () => {
     setLoading(true);
 
-    const result = await updateProductPublishStatusAction(
-      productId,
+    const result = await updateCompanyCreditStatusAction(
+      creditId,
+      companyId,
       !currentState,
     );
 
@@ -35,19 +38,19 @@ export function EnableDisableProductModal({
       onClose();
       router.refresh();
     } else {
-      alert(result?.message || "Failed to update product status");
+      alert(result?.message || "Failed to update credit status");
     }
   };
 
   return (
     <BaseModal open={open} onClose={onClose}>
       <h3 className="text-lg font-semibold text-gray-800 mb-2">
-        {currentState ? "Unpublish Product" : "Publish Product"}
+        {currentState ? "Disable Credit Facility" : "Enable Credit Facility"}
       </h3>
 
       <p className="text-sm text-gray-600 mb-6">
-        Are you sure you want to {currentState ? "unpublish" : "publish"} this
-        product?
+        Are you sure you want to {currentState ? "disable" : "enable"} this
+        credit facility?
       </p>
 
       <div className="flex justify-end gap-3">
@@ -69,7 +72,7 @@ export function EnableDisableProductModal({
             }
           `}
         >
-          {loading ? "Updating..." : currentState ? "Unpublish" : "Publish"}
+          {loading ? "Updating..." : currentState ? "Disable" : "Enable"}
         </button>
       </div>
     </BaseModal>

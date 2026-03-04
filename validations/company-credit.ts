@@ -15,3 +15,9 @@ export const creditMineFormSchema = z.object({
   reason: z.string().min(1, "Reason is required"),
   document: z.any(),
 });
+
+export const creditDisableMineFormSchema = z.object({
+  creditId: z.string().min(1),
+  requester: z.string().min(1, "Requester is required"),
+  reason: z.string().min(1, "Reason is required"),
+});

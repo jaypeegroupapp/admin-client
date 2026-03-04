@@ -4,6 +4,7 @@
 import {
   creditFormSchema,
   creditMineFormSchema,
+  creditDisableMineFormSchema,
 } from "@/validations/company-credit";
 import {
   updateCompanyCreditService,
@@ -15,11 +16,13 @@ import { uploadFileAction } from "./file";
 import { z } from "zod";
 import { CompanyCreditState } from "@/definitions/company-credit";
 import { redirect } from "next/navigation";
+import { disableCompanyCreditService } from "@/services/company-credit";
+import { updateCompanyCreditStatusService } from "@/services/company-credit";
 
 export async function updateCompanyCreditTrailAction(
   companyId: string,
   prevState: any,
-  formData: FormData
+  formData: FormData,
 ) {
   try {
     // Validate form
@@ -52,10 +55,44 @@ export async function updateCompanyCreditTrailAction(
   }
 }
 
+export async function disableCompanyCreditAction(
+  companyId: string,
+  prevState: CompanyCreditState | undefined,
+  formData: FormData,
+) {
+  try {
+    const rawValues = Object.fromEntries(formData);
+
+    const validated = creditDisableMineFormSchema.safeParse(rawValues);
+
+    if (!validated.success) {
+      return {
+        message: "Validation failed",
+        errors: validated.error.flatten().fieldErrors,
+      };
+    }
+
+    await disableCompanyCreditService({
+      creditId: validated.data.creditId,
+      requester: validated.data.requester,
+      reason: validated.data.reason,
+    });
+  } catch (error: any) {
+    console.error("❌ disableCompanyCreditAction error:", error);
+    return {
+      message: "Failed to disable credit facility",
+      errors: { global: error.message },
+    };
+  }
+
+  revalidatePath(`/companies/${companyId}`);
+  redirect(`/companies/${companyId}`);
+}
+
 export async function updateCompanyCreditAction(
   companyId: string,
   prevState: CompanyCreditState | undefined,
-  formData: FormData
+  formData: FormData,
 ) {
   try {
     const rawValues = Object.fromEntries(formData);
@@ -130,7 +167,7 @@ export async function updateCompanyCreditAction(
 export async function receiveCompanyCreditPaymentAction(
   companyCreditId: string,
   prevState: any,
-  formData: FormData
+  formData: FormData,
 ) {
   try {
     const validated = creditFormSchema.safeParse(Object.fromEntries(formData));
@@ -159,5 +196,20 @@ export async function receiveCompanyCreditPaymentAction(
       message: "Failed to receive payment",
       errors: { global: error.message },
     };
+  }
+}
+
+export async function updateCompanyCreditStatusAction(
+  creditId: string,
+  companyId: string,
+  isActive: boolean,
+) {
+  try {
+    await updateCompanyCreditStatusService(creditId, isActive);
+    revalidatePath(`/companies/${companyId}`);
+    return { success: true, message: "Credit updated successfully." };
+  } catch (error) {
+    console.error("❌ updateCompanyCreditStatusAction error:", error);
+    return { success: false, message: "Failed to update credit status." };
   }
 }

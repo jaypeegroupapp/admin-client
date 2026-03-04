@@ -38,6 +38,7 @@ export function mapCompanyCredit(doc: any) {
     mineName: doc.mineId?.name || "Unknown Mine",
     creditLimit: doc.creditLimit ?? 0,
     usedCredit: doc.usedCredit ?? 0,
+    isActive: doc.isActive ?? false,
   };
 }
 

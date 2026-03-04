@@ -31,8 +31,9 @@ const CompanyCreditSchema = new Schema<CompanyCreditDocument>(
       enum: ["settled", "owing"],
       default: "settled",
     },
+    isActive: { type: Boolean, default: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const CompanyCredit: Model<CompanyCreditDocument> =

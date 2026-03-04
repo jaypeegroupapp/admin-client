@@ -6,6 +6,8 @@ import Company from "@/models/company";
 import { AddCreditData } from "@/definitions/account-statement-trail";
 import CompanyCredit from "@/models/company-credit";
 import CompanyCreditApproval from "@/models/company-credit-approval";
+import { ReceiveCreditPaymentData } from "@/definitions/company-credit";
+import CompanyCreditDisableReason from "@/models/company-credit-disable";
 
 export async function getCompanyCreditsService(
   page = 0,
@@ -13,7 +15,7 @@ export async function getCompanyCreditsService(
   search = "",
   status = "all",
   fromDate = "",
-  toDate = ""
+  toDate = "",
 ) {
   await connectDB();
 
@@ -86,7 +88,7 @@ export async function getCompanyCreditsService(
 
 /* ------------------  SERVICE FUNCTION  ------------------ */
 export async function getCompanyCreditTrailByCompanyIdService(
-  companyId: string
+  companyId: string,
 ) {
   try {
     await connectDB();
@@ -107,7 +109,7 @@ export async function getCompanyCreditTrailByCompanyIdService(
 
 export async function addDebitToCompanyService(
   companyId: string,
-  data: AddCreditData
+  data: AddCreditData,
 ) {
   await connectDB();
   const session = await mongoose.startSession();
@@ -119,7 +121,7 @@ export async function addDebitToCompanyService(
     if (!company) throw new Error("Company not found");
 
     const companyCredit = await CompanyCredit.findOne({ companyId }).session(
-      session
+      session,
     );
     if (!companyCredit) throw new Error("Company credit not found");
 
@@ -175,7 +177,7 @@ export async function addDebitToCompanyService(
           description: data.reason || "Debit updated via admin",
         },
       ],
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
@@ -204,6 +206,39 @@ export async function getCompanyCreditsByCompanyIdService(companyId: string) {
   })
     .populate("mineId") // so we get mine.name
     .lean();
+}
+
+export async function disableCompanyCreditService(data: {
+  creditId: string;
+  requester: string;
+  reason: string;
+}) {
+  await connectDB();
+
+  const { creditId, requester, reason } = data;
+
+  const existingCredit = await CompanyCredit.findById(creditId);
+
+  if (!existingCredit) {
+    throw new Error("Credit facility not found");
+  }
+
+  if (!existingCredit.isActive) {
+    throw new Error("Credit facility is already disabled");
+  }
+
+  // ✅ Store disable reason
+  await CompanyCreditDisableReason.create({
+    companyCreditId: existingCredit._id,
+    requester,
+    reason,
+  });
+
+  // ✅ Disable facility
+  existingCredit.isActive = false;
+  await existingCredit.save();
+
+  return existingCredit;
 }
 
 export async function updateCompanyCreditService(companyId: string, data: any) {
@@ -253,15 +288,18 @@ export async function updateCompanyCreditService(companyId: string, data: any) {
   }
 }
 
-interface ReceiveCreditPaymentData {
-  amount: number;
-  issuedDate: string;
-  reason?: string;
+export async function updateCompanyCreditStatusService(
+  id: string,
+  isActive: boolean,
+) {
+  await connectDB();
+
+  return await CompanyCredit.findByIdAndUpdate(id, { isActive }, { new: true });
 }
 
 export async function receiveCompanyCreditPaymentService(
   companyCreditId: string,
-  data: ReceiveCreditPaymentData
+  data: ReceiveCreditPaymentData,
 ) {
   await connectDB();
   const session = await mongoose.startSession();
@@ -269,9 +307,8 @@ export async function receiveCompanyCreditPaymentService(
   try {
     session.startTransaction();
 
-    const credit = await CompanyCredit.findById(companyCreditId).session(
-      session
-    );
+    const credit =
+      await CompanyCredit.findById(companyCreditId).session(session);
 
     if (!credit) throw new Error("Company credit not found");
 
@@ -297,7 +334,7 @@ export async function receiveCompanyCreditPaymentService(
           description: data.reason || "Company credit payment",
         },
       ],
-      { session }
+      { session },
     );
 
     await session.commitTransaction();

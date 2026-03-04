@@ -1,34 +1,36 @@
 "use client";
 
-import { updateCompanyCreditAction } from "@/actions/company-credit";
+import { disableCompanyCreditAction } from "@/actions/company-credit";
 import { SubmitButton } from "@/components/ui/buttons";
 import InputValidated from "@/components/ui/input-validated";
 import Select from "@/components/ui/select-validated";
 import Textarea from "@/components/ui/textarea-validated";
-import { creditMineFormSchema } from "@/validations/company-credit";
+import { creditDisableMineFormSchema } from "@/validations/company-credit";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useActionState, startTransition, useRef, useEffect } from "react";
+import { useActionState, startTransition, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { BaseModal } from "@/components/ui/base-modal";
 import { creditMineInputFormData } from "@/constants/company-credit";
 
-export function CreateCompanyCreditModal({
+export function DisableCompanyCreditModal({
   companyId,
   mines,
   editingCredit,
   open,
   onClose,
+  isDisableMode = false,
 }: {
   companyId: string;
   mines: { _id: string; name: string }[];
   editingCredit?: any | null;
   open: boolean;
   onClose: () => void;
+  isDisableMode?: boolean;
 }) {
   const initialState = { message: "", errors: {} };
 
   const [state, formAction, isPending] = useActionState(
-    updateCompanyCreditAction.bind(null, companyId),
+    disableCompanyCreditAction.bind(null, companyId),
     initialState,
   );
 
@@ -39,23 +41,27 @@ export function CreateCompanyCreditModal({
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(creditMineFormSchema),
+    resolver: zodResolver(creditDisableMineFormSchema),
     defaultValues: {
-      creditLimit: editingCredit?.creditLimit || "",
-      requester: editingCredit?.requester || "",
-      reason: editingCredit?.reason || "",
-      mineId: editingCredit?.mineId || "",
+      requester: "",
+      reason: "",
+      creditId: editingCredit?.creditId || "",
     },
   });
 
   const onSubmit = (evt: any) => {
     evt.preventDefault();
+
     handleSubmit(() => {
       const formData = new FormData(formRef.current!);
       formData.append("companyId", companyId);
 
       if (editingCredit) {
         formData.append("creditId", editingCredit.id);
+      }
+
+      if (isDisableMode) {
+        formData.append("disable", "true");
       }
 
       startTransition(() => {
@@ -67,23 +73,27 @@ export function CreateCompanyCreditModal({
   return (
     <BaseModal open={open} onClose={onClose}>
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        {editingCredit ? "Update Credit" : "Create Company Credit"}
+        {isDisableMode
+          ? "Disable Credit Facility"
+          : editingCredit
+            ? "Update Credit"
+            : "Create Company Credit"}
       </h2>
 
       <form ref={formRef} onSubmit={onSubmit} className="flex flex-col gap-4">
-        {creditMineInputFormData.map((input) => (
-          <InputValidated
-            key={input.name}
-            {...input}
-            register={register}
-            errors={errors}
-            isPending={isPending}
-            stateError={state?.errors}
-          />
-        ))}
+        {!isDisableMode &&
+          creditMineInputFormData.map((input) => (
+            <InputValidated
+              key={input.name}
+              {...input}
+              register={register}
+              errors={errors}
+              isPending={isPending}
+              stateError={state?.errors}
+            />
+          ))}
 
-        {/* Hide mine selection when editing */}
-        {!editingCredit && (
+        {!editingCredit && !isDisableMode && (
           <Select
             label="Mine"
             name="mineId"
@@ -108,31 +118,19 @@ export function CreateCompanyCreditModal({
         <Textarea
           label="Comments"
           name="reason"
-          placeholder="Enter reason for credit request"
+          placeholder="Enter reason"
           register={register}
           errors={errors}
         />
 
-        <div>
-          <label className="text-sm font-medium text-gray-800">Document</label>
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp"
-            {...register("document")}
-            className="rounded-md border px-3 py-2 bg-white w-100"
-          />
-          {errors.document && (
-            <p className="text-sm text-red-500">
-              {errors.document.message as string}
-            </p>
-          )}
-          {state?.errors && (
-            <p className="text-sm text-red-500">{state?.errors["document"]}</p>
-          )}
-        </div>
-
         <SubmitButton
-          name={editingCredit ? "Update Credit" : "Submit Credit Request"}
+          name={
+            isDisableMode
+              ? "Disable Credit Facility"
+              : editingCredit
+                ? "Update Credit"
+                : "Submit Credit Request"
+          }
           isPending={isPending}
         />
       </form>
