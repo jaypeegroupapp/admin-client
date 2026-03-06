@@ -37,7 +37,7 @@ export function OrderItemsClientPage({
   const [activeTab, setActiveTab] = useState<OrderItemTab>(
     (status === "all"
       ? "All"
-      : status.charAt(0).toUpperCase() + status.slice(1)) as OrderItemTab
+      : status.charAt(0).toUpperCase() + status.slice(1)) as OrderItemTab,
   );
 
   const pageCount = Math.ceil(totalCount / pageSize);
