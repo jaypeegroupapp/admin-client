@@ -9,6 +9,7 @@ import {
   toggleDispenserPublishAction,
 } from "@/actions/dispenser";
 import { useState } from "react";
+import Link from "next/link";
 
 export function DispenserCard({
   dispenser,
@@ -36,70 +37,72 @@ export function DispenserCard({
   };
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="
+    <Link href={`/dispensers/${dispenser.id}`} className="block">
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="
         bg-white rounded-2xl border border-gray-200 p-4 shadow-sm 
         hover:shadow-md transition-all flex flex-col justify-between
       "
-    >
-      <div className="flex items-start gap-3">
-        <div className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center text-blue-500 text-sm">
-          <Droplet size={32} />
-        </div>
+      >
+        <div className="flex items-start gap-3">
+          <div className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center text-blue-500 text-sm">
+            <Droplet size={32} />
+          </div>
 
-        <div className="flex flex-col flex-1">
-          <h3 className="font-semibold text-gray-800">{dispenser.name}</h3>
-          <p className="text-sm text-gray-500 line-clamp-2">
-            Product ID: {dispenser.productId?.toString().substring(0, 8)}...
-          </p>
-          <p className="text-xs text-gray-400 mt-1">
-            Litres: {dispenser.litres ?? 0}L
-          </p>
-          {dispenser.userId && (
-            <p className="text-xs text-gray-400">
-              User ID: {dispenser.userId.toString().substring(0, 8)}...
+          <div className="flex flex-col flex-1">
+            <h3 className="font-semibold text-gray-800">{dispenser.name}</h3>
+            <p className="text-sm text-gray-500 line-clamp-2">
+              Product ID: {dispenser.productId?.toString().substring(0, 8)}...
             </p>
-          )}
+            <p className="text-xs text-gray-400 mt-1">
+              Litres: {dispenser.litres ?? 0}L
+            </p>
+            {dispenser.userId && (
+              <p className="text-xs text-gray-400">
+                User ID: {dispenser.userId.toString().substring(0, 8)}...
+              </p>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="flex justify-between items-center mt-4">
-        <button
-          onClick={handleTogglePublish}
-          className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${
-            dispenser.isPublished
-              ? "bg-green-100 text-green-700"
-              : "bg-gray-200 text-gray-600"
-          }`}
-        >
-          {dispenser.isPublished ? "Published" : "Draft"}
-        </button>
+        <div className="flex justify-between items-center mt-4">
+          <button
+            onClick={handleTogglePublish}
+            className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${
+              dispenser.isPublished
+                ? "bg-green-100 text-green-700"
+                : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            {dispenser.isPublished ? "Published" : "Draft"}
+          </button>
 
-        <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(dispenser)}
-            className="p-1 h-auto"
-          >
-            <Edit size={16} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="p-1 h-auto text-red-500 hover:text-red-700"
-          >
-            <Trash2 size={16} />
-          </Button>
+          {/* <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(dispenser)}
+              className="p-1 h-auto"
+            >
+              <Edit size={16} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="p-1 h-auto text-red-500 hover:text-red-700"
+            >
+              <Trash2 size={16} />
+            </Button>
+          </div> */}
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </Link>
   );
 }

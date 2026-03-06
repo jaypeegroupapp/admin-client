@@ -4,6 +4,7 @@ import { IOrderItemAggregated } from "@/definitions/order-item";
 import { IStaff } from "@/definitions/staff";
 import { IAction } from "@/definitions/action";
 import { IRole } from "@/definitions/role";
+import { IDispenser } from "@/definitions/dispenser";
 
 export function orderItemMap(i: any): IOrderItemAggregated {
   return {
@@ -145,5 +146,29 @@ export function cashTransactionMap(i: any): any {
 
     createdAt: i.createdAt.toISOString(),
     updatedAt: i.updatedAt.toISOString(),
+  };
+}
+
+export function mapDispenser(doc: any): IDispenser {
+  return {
+    id: doc._id.toString(),
+    name: doc.name,
+    productId: doc.productId?._id?.toString() || doc.productId?.toString(),
+    litres: doc.litres ?? 0,
+    isPublished: doc.isPublished ?? false,
+    userId: doc.userId?._id?.toString() || doc.userId?.toString(),
+    createdAt: doc.createdAt?.toISOString(),
+    updatedAt: doc.updatedAt?.toISOString(),
+  };
+}
+
+export function mapDispenserUsage(doc: any): any {
+  return {
+    id: doc._id.toString(),
+    dispenserId: doc.dispenserId.toString(),
+    litresDispensed: doc.litresDispensed,
+    timestamp: doc.timestamp?.toISOString(),
+    orderId: doc.orderId?.toString(),
+    createdAt: doc.createdAt?.toISOString(),
   };
 }
