@@ -2,6 +2,7 @@ export type IconKey =
   | "dashboard"
   | "orders"
   | "truckOrders"
+  | "cashTransactions"
   | "companies"
   | "companyInvoices"
   | "mineInvoices"
@@ -45,6 +46,14 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     action: "read",
     resource: "truck-order",
     icon: "truckOrders",
+    section: "main",
+  },
+  {
+    name: "Cash Transactions",
+    href: "/cash-transactions",
+    action: "read",
+    resource: "cash-transaction",
+    icon: "cashTransactions",
     section: "main",
   },
 

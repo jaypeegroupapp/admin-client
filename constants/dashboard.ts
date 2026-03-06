@@ -12,6 +12,7 @@ import {
   Users,
   Shield,
   User,
+  Banknote,
 } from "lucide-react";
 
 export const months = [
@@ -33,6 +34,7 @@ export const ICONS = {
   dashboard: Home,
   orders: PackageCheck,
   truckOrders: Truck,
+  cashTransactions: Banknote,
   companies: Building2,
   companyInvoices: FileText,
   mineInvoices: WalletMinimal,

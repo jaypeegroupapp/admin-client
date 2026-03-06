@@ -126,3 +126,24 @@ export function mapRole(doc: any): IRole {
     description: doc.description,
   };
 }
+
+export function cashTransactionMap(i: any): any {
+  return {
+    id: i._id.toString(),
+
+    companyName: i.companyName,
+    plateNumber: i.plateNumber,
+
+    litres: i.litresPurchased,
+    grid: i.grid,
+    plusDiscount: i.plusDiscount,
+    total: i.total,
+
+    driverName: i.driverName,
+    phoneNumber: i.phoneNumber,
+    status: i.status,
+
+    createdAt: i.createdAt.toISOString(),
+    updatedAt: i.updatedAt.toISOString(),
+  };
+}
