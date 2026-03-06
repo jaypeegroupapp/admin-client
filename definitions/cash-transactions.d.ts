@@ -9,6 +9,8 @@ export interface ICashTransactionAggregated {
   plateNumber: string;
   driverName: string;
   phoneNumber: string;
+  grid: number;
+  plusDiscount: number;
 
   litres: number;
   total: number;
