@@ -1,26 +1,27 @@
-// src/components/(dashboard)/dispensers/[id]/tabs.tsx
+// src/components/(dashboard)/dispensers/[id]/tabs.tsx (updated)
 "use client";
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Droplet, Settings, Info } from "lucide-react";
+import { Droplet, Settings, Info, Package } from "lucide-react";
 import { UsageTab } from "./usage-tab";
 import { SettingsTab } from "./settings-tab";
+import { StockControlTab } from "./stock-control-tab";
 
 interface Props {
   dispenserId: string;
-  activeTab: "info" | "usage" | "settings";
-  onTabChange: (tab: "info" | "usage" | "settings") => void;
+  activeTab: "info" | "usage" | "settings" | "stock";
+  onTabChange: (tab: "info" | "usage" | "settings" | "stock") => void;
 }
 
 export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
       {/* Tabs */}
-      <div className="flex gap-6 border-b border-gray-200 mb-6">
+      <div className="flex gap-6 border-b border-gray-200 mb-6 overflow-x-auto pb-1">
         <button
           onClick={() => onTabChange("info")}
-          className={`pb-2 font-medium text-sm flex items-center gap-2 ${
+          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
             activeTab === "info"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
@@ -32,7 +33,7 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
 
         <button
           onClick={() => onTabChange("usage")}
-          className={`pb-2 font-medium text-sm flex items-center gap-2 ${
+          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
             activeTab === "usage"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
@@ -43,8 +44,20 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
         </button>
 
         <button
+          onClick={() => onTabChange("stock")}
+          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
+            activeTab === "stock"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <Package size={16} />
+          Stock Control
+        </button>
+
+        {/* <button
           onClick={() => onTabChange("settings")}
-          className={`pb-2 font-medium text-sm flex items-center gap-2 ${
+          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
             activeTab === "settings"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
@@ -52,7 +65,7 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
         >
           <Settings size={16} />
           Settings
-        </button>
+        </button> */}
       </div>
 
       {/* Content */}
@@ -109,7 +122,18 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
           </motion.div>
         )}
 
-        {/* Settings Tab */}
+        {activeTab === "stock" && (
+          <motion.div
+            key="stock"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <StockControlTab dispenserId={dispenserId} />
+          </motion.div>
+        )}
+
         {activeTab === "settings" && (
           <motion.div
             key="settings"
