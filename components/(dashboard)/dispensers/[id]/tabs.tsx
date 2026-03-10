@@ -1,17 +1,19 @@
 // src/components/(dashboard)/dispensers/[id]/tabs.tsx (updated)
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Droplet, Settings, Info, Package } from "lucide-react";
+import { Droplet, Settings, Info, Package, Users } from "lucide-react";
 import { UsageTab } from "./usage-tab";
 import { SettingsTab } from "./settings-tab";
 import { StockControlTab } from "./stock-control-tab";
+import { AttendanceTab } from "./attendance-tab";
 
 interface Props {
   dispenserId: string;
-  activeTab: "info" | "usage" | "settings" | "stock";
-  onTabChange: (tab: "info" | "usage" | "settings" | "stock") => void;
+  activeTab: "info" | "usage" | "settings" | "stock" | "attendance";
+  onTabChange: (
+    tab: "info" | "usage" | "settings" | "stock" | "attendance",
+  ) => void;
 }
 
 export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
@@ -29,6 +31,18 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
         >
           <Info size={16} />
           Info
+        </button>
+
+        <button
+          onClick={() => onTabChange("attendance")}
+          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
+            activeTab === "attendance"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <Users size={16} />
+          Attendance
         </button>
 
         <button
@@ -55,7 +69,7 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
           Stock Control
         </button>
 
-        {/* <button
+        <button
           onClick={() => onTabChange("settings")}
           className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
             activeTab === "settings"
@@ -65,12 +79,11 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
         >
           <Settings size={16} />
           Settings
-        </button> */}
+        </button>
       </div>
 
       {/* Content */}
       <AnimatePresence mode="wait">
-        {/* Info Tab */}
         {activeTab === "info" && (
           <motion.div
             key="info"
@@ -78,8 +91,8 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="text-sm text-gray-600"
           >
+            {/* Info content */}
             <div className="space-y-4">
               <p className="text-gray-700">
                 This dispenser is configured to dispense products based on the
@@ -109,7 +122,18 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
           </motion.div>
         )}
 
-        {/* Usage Tab */}
+        {activeTab === "attendance" && (
+          <motion.div
+            key="attendance"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <AttendanceTab dispenserId={dispenserId} />
+          </motion.div>
+        )}
+
         {activeTab === "usage" && (
           <motion.div
             key="usage"

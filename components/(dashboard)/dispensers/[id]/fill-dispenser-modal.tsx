@@ -99,7 +99,7 @@ export function FillDispenserModal({
 
   return (
     <BaseModal open={open} onClose={onClose}>
-      <div className="p-3 max-h-[90vh] overflow-y-auto">
+      <div className="max-h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">
           Record Dispenser Fill
         </h2>
