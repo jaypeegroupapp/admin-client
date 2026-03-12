@@ -2,6 +2,8 @@
 import Dispenser from "@/models/dispenser";
 import { IDispenser } from "@/definitions/dispenser";
 import { connectDB } from "@/lib/db";
+import { Types } from "mongoose";
+import DispenserAttendanceRecord from "@/models/dispenser-attendance";
 
 export async function getAllDispensersService() {
   await connectDB();
@@ -47,4 +49,32 @@ export async function updateDispenserPublishStatusService(
 ) {
   await connectDB();
   return await Dispenser.findByIdAndUpdate(id, { isPublished }, { new: true });
+}
+
+export async function getDispenserByUserIdService(userId: string) {
+  await connectDB();
+
+  const dispenser = await Dispenser.findOne({
+    userId: new Types.ObjectId(userId),
+    isPublished: true,
+  })
+    .populate("productId", "name price")
+    .lean();
+
+  return dispenser;
+}
+
+export async function getCurrentAttendanceForUserService(
+  userId: string,
+  dispenserId: string,
+) {
+  await connectDB();
+
+  const attendance = await DispenserAttendanceRecord.findOne({
+    userId: new Types.ObjectId(userId),
+    dispenserId: new Types.ObjectId(dispenserId),
+    status: "active",
+  }).lean();
+
+  return attendance;
 }

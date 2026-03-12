@@ -1,10 +1,15 @@
+import { Types } from "mongoose";
+
 export interface IOrderItem {
   id?: string;
-  orderId: string;
-  truckId: string;
+  orderId: Types.ObjectId | string;
+  productId: Types.ObjectId | string;
   quantity: number;
+  price: number;
+  status: "pending" | "accepted" | "completed" | "cancelled";
   signature?: string;
-  status: "pending" | "accepted" | "completed" | "restock" | "cancelled";
+  dispenserId?: Types.ObjectId | string; // Add this
+  attendanceId?: Types.ObjectId | string; // Add this
   createdAt?: string;
   updatedAt?: string;
 }

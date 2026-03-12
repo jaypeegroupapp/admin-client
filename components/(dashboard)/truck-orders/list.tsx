@@ -1,3 +1,4 @@
+// src/components/(dashboard)/truck-orders/list.tsx
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -6,8 +7,10 @@ import OrderItemCard from "./card";
 
 export default function OrderItemList({
   initialItems,
+  userDispenser,
 }: {
   initialItems: IOrderItemAggregated[];
+  userDispenser?: any;
 }) {
   return (
     <motion.div
@@ -30,7 +33,11 @@ export default function OrderItemList({
           </motion.p>
         ) : (
           initialItems.map((item) => (
-            <OrderItemCard key={item.id} item={item} />
+            <OrderItemCard
+              key={item.id}
+              item={item}
+              userDispenser={userDispenser}
+            />
           ))
         )}
       </AnimatePresence>

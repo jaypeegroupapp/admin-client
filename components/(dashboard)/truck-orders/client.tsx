@@ -1,3 +1,4 @@
+// src/components/(dashboard)/truck-orders/client.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { IOrderItemAggregated, OrderItemTab } from "@/definitions/order-item";
 
 import { OrderItemHeader } from "./header";
+import { DispenserInfoHeader } from "./dispenser-info"; // New component
 import OrderItemFilter from "./filter";
 import OrderItemList from "./list";
 import { OrderItemTabs } from "./tabs";
@@ -22,6 +24,7 @@ export function OrderItemsClientPage({
   stats,
   fromDate,
   toDate,
+  userDispenser,
 }: any) {
   const router = useRouter();
   const params = useSearchParams();
@@ -99,6 +102,14 @@ export function OrderItemsClientPage({
     >
       <OrderItemHeader />
 
+      {/* Dispenser Info for Station Attendant */}
+      {userDispenser && (
+        <DispenserInfoHeader
+          dispenser={userDispenser.dispenser}
+          attendance={userDispenser.attendance}
+        />
+      )}
+
       <div className="flex flex-col lg:flex-row items-end gap-4">
         <OrderItemTabs
           activeTab={activeTab}
@@ -114,7 +125,7 @@ export function OrderItemsClientPage({
         <DateFilter from={from} to={to} onChange={handleDateChange} />
       </div>
 
-      <OrderItemList initialItems={items} />
+      <OrderItemList initialItems={items} userDispenser={userDispenser} />
 
       <Pagination
         currentPage={currentPage}

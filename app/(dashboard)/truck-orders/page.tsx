@@ -1,6 +1,7 @@
 // app/(dashboard)/order-items/page.tsx
 import { OrderItemsClientPage } from "@/components/(dashboard)/truck-orders/client";
 import { getOrderItems } from "@/data/order-item";
+import { getCurrentUserDispenser } from "@/data/dispenser";
 
 export const dynamic = "force-dynamic";
 
@@ -26,13 +27,21 @@ export default async function OrdersPage({
   const fromDate = params?.fromDate || "";
   const toDate = params?.toDate || "";
 
+  // Get current user's dispenser assignment
+  const userDispenser = await getCurrentUserDispenser();
+
+  const dispenserId =
+    userDispenser && userDispenser.success && userDispenser.data?.dispenser.id
+      ? userDispenser.data.dispenser.id
+      : undefined;
+
   const { data, totalCount, stats } = await getOrderItems(
     page,
     pageSize,
     search,
     status,
     fromDate,
-    toDate
+    toDate,
   );
 
   return (
@@ -46,6 +55,7 @@ export default async function OrdersPage({
       stats={stats}
       fromDate={fromDate}
       toDate={toDate}
+      userDispenser={userDispenser.success ? userDispenser.data : null}
     />
   );
 }

@@ -1,44 +1,27 @@
-import mongoose, { Schema, Document, Model, Types } from "mongoose";
-import Order from "./order";
-import Truck from "./truck";
+// src/models/order-item.ts
 import { IOrderItem } from "@/definitions/order-item";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
-type IOrderItemDoc = Omit<IOrderItem, "id" | "orderId" | "truckId"> & {
-  orderId: Types.ObjectId;
-  truckId: Types.ObjectId;
-  createdAt?: Date;
-  updatedAt?: Date;
-};
-
-const OrderItemSchema = new Schema<IOrderItemDoc>(
+const OrderItemSchema = new Schema<IOrderItem>(
   {
-    orderId: {
-      type: Schema.Types.ObjectId,
-      ref: Order.modelName,
-      required: true,
-    },
-    truckId: {
-      type: Schema.Types.ObjectId,
-      ref: Truck.modelName,
-      required: true,
-    },
-    quantity: {
-      type: Number,
-      required: true,
-      min: 1,
-    },
-    signature: { type: String, required: false }, // base64 PNG
+    orderId: { type: Schema.Types.ObjectId, ref: "Order", required: true },
+    productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+    quantity: { type: Number, required: true },
+    price: { type: Number, required: true },
     status: {
       type: String,
-      enum: ["pending", "accepted", "completed", "restock", "cancelled"],
+      enum: ["pending", "accepted", "completed", "cancelled"],
       default: "pending",
     },
+    signature: { type: String },
+    dispenserId: { type: Schema.Types.ObjectId, ref: "Dispenser" }, // Add this
+    attendanceId: {
+      type: Schema.Types.ObjectId,
+      ref: "DispenserAttendanceRecord",
+    }, // Add this
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const OrderItem: Model<IOrderItemDoc> =
-  (mongoose.models.OrderItem as Model<IOrderItemDoc>) ||
-  mongoose.model<IOrderItemDoc>("OrderItem", OrderItemSchema);
-
-export default OrderItem;
+export default mongoose.models.OrderItem ||
+  mongoose.model("OrderItem", OrderItemSchema);

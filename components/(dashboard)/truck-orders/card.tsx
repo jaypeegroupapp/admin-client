@@ -1,3 +1,4 @@
+// src/components/(dashboard)/truck-orders/card.tsx
 "use client";
 
 import { useState } from "react";
@@ -8,8 +9,10 @@ import { OrderItemDetailModal } from "./modal";
 
 export default function OrderItemCard({
   item,
+  userDispenser,
 }: {
   item: IOrderItemAggregated;
+  userDispenser?: any;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -22,20 +25,19 @@ export default function OrderItemCard({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className="relative bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+        className="relative bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-pointer"
         onClick={() => setOpen(true)}
       >
-        {/* Expand Icon */}
         {/* STATUS BADGE */}
         <span
           className={`absolute top-3 right-3 inline-block mt-3 px-2.5 py-0.5 text-xs font-semibold rounded-full capitalize ${
             item.status === "completed"
               ? "bg-green-100 text-green-700"
               : item.status === "pending"
-              ? "bg-yellow-100 text-yellow-700"
-              : item.status === "cancelled"
-              ? "bg-red-100 text-red-700"
-              : "bg-gray-200 text-gray-600"
+                ? "bg-yellow-100 text-yellow-700"
+                : item.status === "cancelled"
+                  ? "bg-red-100 text-red-700"
+                  : "bg-gray-200 text-gray-600"
           }`}
         >
           {item.status}
@@ -63,8 +65,17 @@ export default function OrderItemCard({
 
         {/* QUANTITY */}
         <div className="mt-3 text-sm text-gray-700">
-          Quantity: <span className="font-semibold">{item.quantity}</span>
+          Quantity: <span className="font-semibold">{item.quantity}L</span>
         </div>
+
+        {/* Low stock warning for assigned dispenser */}
+        {userDispenser &&
+          item.status === "accepted" &&
+          userDispenser.dispenser.litres < item.quantity && (
+            <div className="mt-2 text-xs text-red-600 bg-red-50 p-1 rounded text-center">
+              ⚠️ Insufficient stock
+            </div>
+          )}
       </motion.div>
 
       {/* MODAL */}
@@ -72,6 +83,7 @@ export default function OrderItemCard({
         open={open}
         onClose={() => setOpen(false)}
         item={item}
+        userDispenser={userDispenser}
       />
     </>
   );

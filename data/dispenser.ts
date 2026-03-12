@@ -3,9 +3,12 @@
 
 import {
   getAllDispensersService,
+  getCurrentAttendanceForUserService,
   getDispenserByIdService,
+  getDispenserByUserIdService,
 } from "@/services/dispenser";
 import { IDispenser } from "@/definitions/dispenser";
+import { getSession } from "@/lib/session";
 
 export async function getDispensers() {
   try {
@@ -33,6 +36,56 @@ export async function getDispenserById(id: string) {
     return {
       success: false,
       message: error?.message ?? "Unable to fetch dispenser",
+    };
+  }
+}
+
+export async function getCurrentUserDispenser() {
+  try {
+    const session = (await getSession()) as any;
+
+    if (!session?.user?.id) {
+      return { success: false, message: "No active session", data: null };
+    }
+
+    // Find dispenser assigned to this user
+    const userId = session.user.id.toString();
+    const dispenser = (await getDispenserByUserIdService(userId)) as any;
+
+    if (!dispenser) {
+      return {
+        success: false,
+        message: "No dispenser assigned to you",
+        data: null,
+      };
+    }
+
+    // Get current attendance record for this user
+    const attendance = (await getCurrentAttendanceForUserService(
+      userId,
+      dispenser._id.toString(),
+    )) as any;
+
+    return {
+      success: true,
+      data: {
+        dispenser: mapDispenser(dispenser),
+        attendance: attendance
+          ? {
+              id: attendance._id.toString(),
+              openingBalance: attendance.openingBalanceLitres,
+              loginTime: attendance.loginTime,
+              totalDispensed: attendance.totalDispensed || 0,
+            }
+          : null,
+      },
+    };
+  } catch (error: any) {
+    console.error("❌ getCurrentUserDispenser error:", error);
+    return {
+      success: false,
+      message: error.message,
+      data: null,
     };
   }
 }
