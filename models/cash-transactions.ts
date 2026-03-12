@@ -1,3 +1,4 @@
+// src/models/cash-transaction.ts
 import mongoose, { Schema, Model } from "mongoose";
 import { ICashTransaction } from "@/definitions/cash-transactions";
 
@@ -37,6 +38,17 @@ const CashTransactionSchema: Schema<ICashTransactionDoc> = new Schema(
       trim: true,
     },
 
+    productId: {
+      type: Schema.Types.ObjectId as any,
+      ref: "Product",
+      required: true,
+    },
+
+    productName: {
+      type: String,
+      required: true,
+    },
+
     grid: {
       type: Number,
       required: true,
@@ -58,8 +70,39 @@ const CashTransactionSchema: Schema<ICashTransactionDoc> = new Schema(
     status: {
       type: String,
       enum: ["pending", "completed", "cancelled"],
-      default: "completed",
+      default: "pending",
       index: true,
+    },
+
+    // Dispenser tracking fields
+    dispenserId: {
+      type: Schema.Types.ObjectId as any,
+      ref: "Dispenser",
+    },
+    attendanceId: {
+      type: Schema.Types.ObjectId as any,
+      ref: "DispenserAttendanceRecord",
+    },
+    completedById: {
+      type: Schema.Types.ObjectId as any,
+      ref: "User",
+    },
+    completedAt: {
+      type: Date,
+    },
+
+    signature: {
+      type: String,
+    },
+
+    // Balance tracking
+    balanceBefore: {
+      type: Number,
+      min: 0,
+    },
+    balanceAfter: {
+      type: Number,
+      min: 0,
     },
   },
   { timestamps: true },
@@ -70,9 +113,7 @@ const CashTransactionSchema: Schema<ICashTransactionDoc> = new Schema(
  */
 CashTransactionSchema.pre("validate", function (next) {
   const doc = this as ICashTransactionDoc;
-
   doc.total = doc.litresPurchased * (doc.grid + doc.plusDiscount);
-
   next();
 });
 

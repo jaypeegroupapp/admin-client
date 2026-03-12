@@ -8,6 +8,13 @@ export async function getAllProductsService() {
   return await Product.find().sort({ createdAt: -1 }).lean();
 }
 
+export async function getAllPublishedProductsService() {
+  await connectDB();
+  return await Product.find({ isPublished: true })
+    .sort({ createdAt: -1 })
+    .lean();
+}
+
 export async function getProductByIdService(id: string) {
   await connectDB();
   return await Product.findById(id).lean();
@@ -20,7 +27,7 @@ export async function createProductService(data: IProduct) {
 
 export async function updateProductService(
   id: string,
-  data: Partial<IProduct>
+  data: Partial<IProduct>,
 ) {
   await connectDB();
   return await Product.findByIdAndUpdate(id, data, { new: true });
@@ -33,7 +40,7 @@ export async function deleteProductService(id: string) {
 
 export async function updateProductPublishStatusService(
   id: string,
-  isPublished: boolean
+  isPublished: boolean,
 ) {
   await connectDB();
   return await Product.findByIdAndUpdate(id, { isPublished }, { new: true });

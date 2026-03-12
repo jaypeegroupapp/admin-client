@@ -5,6 +5,7 @@ import { IStaff } from "@/definitions/staff";
 import { IAction } from "@/definitions/action";
 import { IRole } from "@/definitions/role";
 import { IDispenser } from "@/definitions/dispenser";
+import { ICashTransactionAggregated } from "@/definitions/cash-transactions";
 
 export function orderItemMap(i: any): IOrderItemAggregated {
   return {
@@ -128,27 +129,6 @@ export function mapRole(doc: any): IRole {
   };
 }
 
-export function cashTransactionMap(i: any): any {
-  return {
-    id: i._id.toString(),
-
-    companyName: i.companyName,
-    plateNumber: i.plateNumber,
-
-    litres: i.litresPurchased,
-    grid: i.grid,
-    plusDiscount: i.plusDiscount,
-    total: i.total,
-
-    driverName: i.driverName,
-    phoneNumber: i.phoneNumber,
-    status: i.status,
-
-    createdAt: i.createdAt.toISOString(),
-    updatedAt: i.updatedAt.toISOString(),
-  };
-}
-
 export function mapDispenser(doc: any): IDispenser {
   return {
     id: doc._id.toString(),
@@ -170,5 +150,25 @@ export function mapDispenserUsage(doc: any): any {
     timestamp: doc.timestamp?.toISOString(),
     orderId: doc.orderId?.toString(),
     createdAt: doc.createdAt?.toISOString(),
+  };
+}
+
+// src/data/mapper.ts
+export function cashTransactionMap(doc: any): ICashTransactionAggregated {
+  return {
+    id: doc._id.toString(),
+    companyName: doc.companyName,
+    productName: doc.productName || "Diesel",
+    plateNumber: doc.plateNumber,
+    driverName: doc.driverName,
+    phoneNumber: doc.phoneNumber,
+    grid: doc.grid,
+    plusDiscount: doc.plusDiscount,
+    litres: doc.litresPurchased,
+    total: doc.total,
+    status: doc.status,
+    createdAt: doc.createdAt?.toISOString(),
+    dispenserName: doc.dispenserId?.name,
+    attendantName: doc.completedById?.name,
   };
 }

@@ -1,3 +1,4 @@
+// src/constants/cash-transaction.ts
 export const cashTransactionInputFormData = [
   {
     name: "companyName",
@@ -13,6 +14,7 @@ export const cashTransactionInputFormData = [
     name: "driverName",
     label: "Driver Name",
     placeholder: "Enter driver name",
+    type: "text",
   },
   {
     name: "phoneNumber",
@@ -22,24 +24,9 @@ export const cashTransactionInputFormData = [
   {
     name: "litresPurchased",
     label: "Litres Purchased",
-    type: "number",
-    step: "0.01",
-    min: "0",
     placeholder: "Enter litres",
-  },
-  {
-    name: "grid",
-    label: "Grid Price",
     type: "number",
-    step: "0.01",
+    step: "0.1",
     min: "0",
-    placeholder: "Enter grid price",
-  },
-  {
-    name: "plusDiscount",
-    label: "Plus / Discount",
-    type: "number",
-    step: "0.01",
-    placeholder: "Enter plus or discount",
   },
 ];

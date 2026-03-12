@@ -3,6 +3,7 @@
 
 import {
   getAllProductsService,
+  getAllPublishedProductsService,
   getProductByIdService,
 } from "@/services/product";
 import { IProduct } from "@/definitions/product";
@@ -21,6 +22,20 @@ const mapProduct = (product: any): IProduct => ({
 export async function getProducts() {
   try {
     const result = await getAllProductsService();
+    const products = Array.isArray(result) ? result.map(mapProduct) : [];
+    return { success: true, data: products };
+  } catch (error: any) {
+    console.error("❌ getProducts error:", error);
+    return {
+      success: false,
+      message: error?.message ?? "Unable to fetch products",
+    };
+  }
+}
+
+export async function getPublishedProducts() {
+  try {
+    const result = await getAllPublishedProductsService();
     const products = Array.isArray(result) ? result.map(mapProduct) : [];
     return { success: true, data: products };
   } catch (error: any) {
