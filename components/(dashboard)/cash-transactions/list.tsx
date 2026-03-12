@@ -1,3 +1,4 @@
+// src/components/(dashboard)/cash-transactions/list.tsx
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";

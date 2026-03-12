@@ -39,5 +39,15 @@ const DispenserAttendanceRecordSchema = new Schema<IDispenserAttendanceRecord>(
   { timestamps: true },
 );
 
-export default mongoose.models.DispenserAttendanceRecord ||
-  mongoose.model("DispenserAttendanceRecord", DispenserAttendanceRecordSchema);
+// Indexes
+DispenserAttendanceRecordSchema.index({ dispenserId: 1, status: 1 });
+DispenserAttendanceRecordSchema.index({ userId: 1, status: 1 });
+
+const DispenserAttendanceRecord =
+  mongoose.models.DispenserAttendanceRecord ||
+  mongoose.model<IDispenserAttendanceRecord>(
+    "DispenserAttendanceRecord",
+    DispenserAttendanceRecordSchema,
+  );
+
+export default DispenserAttendanceRecord;

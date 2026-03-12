@@ -17,9 +17,9 @@ import { cashTransactionFormSchema } from "@/validations/cash-transaction";
 import { cashTransactionInputFormData } from "@/constants/cash-transaction";
 import { createCashTransactionAction } from "@/actions/cash-transaction";
 import { getPublishedProducts } from "@/data/product";
-import { Package, AlertCircle } from "lucide-react";
+import { Package, AlertCircle, Droplet } from "lucide-react";
 
-const CashTransactionForm = ({ onClose }: { onClose?: () => void }) => {
+const CashTransactionForm = ({ userDispenser }: { userDispenser?: any }) => {
   type ActionState = {
     message: string;
     errors: Record<string, string | string[]>;
@@ -87,6 +87,12 @@ const CashTransactionForm = ({ onClose }: { onClose?: () => void }) => {
     litresPurchased *
     ((selectedProduct?.grid || 0) + (selectedProduct?.discount || 0));
 
+  // Check if user has dispenser assigned and is logged in
+  const canCreateTransaction =
+    userDispenser?.dispenser && userDispenser?.attendance;
+  const hasEnoughStock =
+    canCreateTransaction && userDispenser.dispenser.litres >= litresPurchased;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 80 }}
@@ -95,8 +101,29 @@ const CashTransactionForm = ({ onClose }: { onClose?: () => void }) => {
       className="bg-white rounded-2xl w-full sm:w-[420px] p-6 shadow-lg"
     >
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        Add Cash Transaction
+        New Cash Transaction
       </h2>
+
+      {/* Dispenser Status Warning */}
+      {userDispenser && !userDispenser.attendance && (
+        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-2">
+          <AlertCircle size={16} className="text-yellow-600 mt-0.5" />
+          <p className="text-sm text-yellow-700">
+            You are not logged into your dispenser. Please log in first.
+          </p>
+        </div>
+      )}
+
+      {userDispenser && userDispenser.attendance && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+          <Droplet size={16} className="text-green-600" />
+          <div className="text-sm text-green-700">
+            <span className="font-medium">{userDispenser.dispenser.name}</span>{" "}
+            - Available Stock:{" "}
+            <span className="font-bold">{userDispenser.dispenser.litres}L</span>
+          </div>
+        </div>
+      )}
 
       <form
         ref={formRef}
@@ -105,14 +132,13 @@ const CashTransactionForm = ({ onClose }: { onClose?: () => void }) => {
           handleSubmit(() => {
             const formData = new FormData(formRef.current!);
             startTransition(() => formAction(formData));
-            if (onClose) onClose();
           })(evt);
         }}
         className="flex flex-col gap-4"
       >
         {/* Product Selection */}
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Product</label>
+          <label className="text-sm font-medium text-gray-700">Product *</label>
           <div className="relative">
             <Package
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -121,13 +147,12 @@ const CashTransactionForm = ({ onClose }: { onClose?: () => void }) => {
             <select
               {...register("productId")}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              disabled={loading}
+              disabled={loading || !canCreateTransaction}
             >
               <option value="">Select a product</option>
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
-                  {product.name} - Grid: R{product.grid || 0} | Discount: R
-                  {product.discount || 0}
+                  {product.name} - R{product.grid || 0}/L
                 </option>
               ))}
             </select>
@@ -145,7 +170,8 @@ const CashTransactionForm = ({ onClose }: { onClose?: () => void }) => {
             register={register}
             errors={errors}
             stateError={state?.errors}
-            isPending={isPending}
+            isPending={!canCreateTransaction}
+            //disabled={!canCreateTransaction}
           />
         ))}
 
@@ -157,36 +183,39 @@ const CashTransactionForm = ({ onClose }: { onClose?: () => void }) => {
         {selectedProduct && litresPurchased > 0 && (
           <div className="bg-blue-50 p-4 rounded-lg space-y-2">
             <h3 className="text-sm font-medium text-blue-800">
-              Price Breakdown
+              Transaction Summary
             </h3>
             <div className="flex justify-between text-sm">
-              <span>Grid Price:</span>
-              <span className="font-medium">
-                R {selectedProduct.grid || 0}/L
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Plus/Discount:</span>
-              <span className="font-medium">
-                R {selectedProduct.discount || 0}/L
-              </span>
-            </div>
-            <div className="flex justify-between text-sm border-t border-blue-200 pt-2">
-              <span>Effective Price:</span>
+              <span>Price per Litre:</span>
               <span className="font-medium">
                 R{" "}
                 {(
                   (selectedProduct.grid || 0) + (selectedProduct.discount || 0)
                 ).toFixed(2)}
-                /L
               </span>
             </div>
-            <div className="flex justify-between text-base font-semibold">
-              <span>Total:</span>
+            <div className="flex justify-between text-sm">
+              <span>Litres:</span>
+              <span className="font-medium">{litresPurchased}L</span>
+            </div>
+            <div className="flex justify-between text-base font-semibold border-t border-blue-200 pt-2">
+              <span>Total Amount:</span>
               <span className="text-green-600">
                 R {calculatedTotal.toFixed(2)}
               </span>
             </div>
+
+            {/* Stock Warning */}
+            {userDispenser &&
+              litresPurchased > userDispenser.dispenser.litres && (
+                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded flex items-start gap-2">
+                  <AlertCircle size={14} className="text-red-600 mt-0.5" />
+                  <p className="text-xs text-red-700">
+                    Insufficient stock! Available:{" "}
+                    {userDispenser.dispenser.litres}L
+                  </p>
+                </div>
+              )}
           </div>
         )}
 
@@ -198,7 +227,14 @@ const CashTransactionForm = ({ onClose }: { onClose?: () => void }) => {
           </div>
         )}
 
-        <SubmitButton name="Save Cash Transaction" isPending={isPending} />
+        <SubmitButton
+          name="Complete Cash Transaction"
+          // isPending={isPending}
+          isPending={
+            !canCreateTransaction ||
+            litresPurchased > (userDispenser?.dispenser?.litres || 0)
+          }
+        />
       </form>
     </motion.div>
   );

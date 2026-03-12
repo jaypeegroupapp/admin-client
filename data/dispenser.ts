@@ -3,12 +3,12 @@
 
 import {
   getAllDispensersService,
-  getCurrentAttendanceForUserService,
   getDispenserByIdService,
   getDispenserByUserIdService,
 } from "@/services/dispenser";
 import { IDispenser } from "@/definitions/dispenser";
 import { getSession } from "@/lib/session";
+import { getCurrentAttendanceForUserService } from "@/services/dispenser-attendance";
 
 export async function getDispensers() {
   try {

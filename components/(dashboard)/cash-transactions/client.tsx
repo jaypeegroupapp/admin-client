@@ -1,3 +1,4 @@
+// src/components/(dashboard)/cash-transactions/client.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,6 +10,7 @@ import {
 } from "@/definitions/cash-transactions";
 
 import { CashTransactionHeader } from "./header";
+import { DispenserInfoHeader } from "./dispenser-info"; // New component
 import CashTransactionFilter from "./filter";
 import CashTransactionList from "./list";
 import { CashTransactionTabs } from "./tabs";
@@ -27,6 +29,7 @@ interface Props {
   stats: Record<CashTransactionTab, number>;
   fromDate: string;
   toDate: string;
+  userDispenser?: any; // Add user dispenser info
 }
 
 export function CashTransactionsClientPage({
@@ -39,6 +42,7 @@ export function CashTransactionsClientPage({
   stats,
   fromDate,
   toDate,
+  userDispenser,
 }: Props) {
   const router = useRouter();
   const params = useSearchParams();
@@ -103,6 +107,10 @@ export function CashTransactionsClientPage({
   };
 
   const handleAdd = () => setIsModalOpen(true);
+  const handleClose = () => {
+    setIsModalOpen(false);
+    router.refresh(); // Refresh to show new transaction
+  };
 
   return (
     <motion.div
@@ -112,6 +120,14 @@ export function CashTransactionsClientPage({
       className="space-y-6"
     >
       <CashTransactionHeader onAdd={handleAdd} />
+
+      {/* Dispenser Info for Station Attendant */}
+      {userDispenser && (
+        <DispenserInfoHeader
+          dispenser={userDispenser.dispenser}
+          attendance={userDispenser.attendance}
+        />
+      )}
 
       <div className="flex flex-col lg:flex-row items-end gap-4">
         <CashTransactionTabs
@@ -137,11 +153,8 @@ export function CashTransactionsClientPage({
         onPageChange={handlePageChange}
       />
 
-      <CashTransactionFormModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      >
-        <CashTransactionForm />
+      <CashTransactionFormModal isOpen={isModalOpen} onClose={handleClose}>
+        <CashTransactionForm userDispenser={userDispenser} />
       </CashTransactionFormModal>
     </motion.div>
   );

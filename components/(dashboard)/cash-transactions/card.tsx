@@ -1,8 +1,9 @@
+// src/components/(dashboard)/cash-transactions/card.tsx
 "use client";
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Banknote, Factory, Truck } from "lucide-react";
+import { Banknote, Factory, Truck, Droplet } from "lucide-react";
 import { ICashTransactionAggregated } from "@/definitions/cash-transactions";
 import { CashTransactionDetailModal } from "./modal";
 
@@ -36,7 +37,7 @@ export default function CashTransactionCard({
 
         <div className="flex items-center gap-3">
           <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-            <Banknote />
+            <Banknote className="text-gray-600" size={24} />
           </div>
           <div>
             <h3 className="font-semibold">{item.driverName}</h3>
@@ -51,13 +52,24 @@ export default function CashTransactionCard({
           </div>
         </div>
 
-        <div className="mt-3 text-sm">
-          Litres: <b>{item.litres}</b>
+        <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+          <div>
+            <span className="text-gray-500">Litres:</span>
+            <b className="ml-1">{item.litres}L</b>
+          </div>
+          <div>
+            <span className="text-gray-500">Total:</span>
+            <b className="ml-1 text-green-600">R {item.total.toFixed(2)}</b>
+          </div>
         </div>
 
-        <div className="mt-1 text-sm">
-          Total: <b>R {item.total.toFixed(2)}</b>
-        </div>
+        {item.dispenserName && (
+          <div className="mt-2 text-xs text-gray-400 flex items-center gap-1">
+            <Droplet size={12} />
+            {item.dispenserName}{" "}
+            {item.attendantName && `• ${item.attendantName}`}
+          </div>
+        )}
       </motion.div>
 
       <CashTransactionDetailModal

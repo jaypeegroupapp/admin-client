@@ -63,18 +63,3 @@ export async function getDispenserByUserIdService(userId: string) {
 
   return dispenser;
 }
-
-export async function getCurrentAttendanceForUserService(
-  userId: string,
-  dispenserId: string,
-) {
-  await connectDB();
-
-  const attendance = await DispenserAttendanceRecord.findOne({
-    userId: new Types.ObjectId(userId),
-    dispenserId: new Types.ObjectId(dispenserId),
-    status: "active",
-  }).lean();
-
-  return attendance;
-}

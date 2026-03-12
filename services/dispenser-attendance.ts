@@ -1,6 +1,6 @@
 // src/services/dispenser-attendance.ts
 import { connectDB } from "@/lib/db";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import DispenserAttendanceRecord from "@/models/dispenser-attendance";
 import Dispenser from "@/models/dispenser";
 import Staff from "@/models/staff";
@@ -160,4 +160,39 @@ export async function getAvailableAttendantsService() {
     email: s.userId?.email || "",
     mines: s.mines || [],
   }));
+}
+
+/**
+ * Update attendance record total dispensed
+ */
+export async function updateAttendanceTotalService(
+  attendanceId: string,
+  litresSold: number,
+) {
+  await connectDB();
+
+  const attendance = await DispenserAttendanceRecord.findById(attendanceId);
+  if (!attendance) {
+    throw new Error("Attendance record not found");
+  }
+
+  attendance.totalDispensed = (attendance.totalDispensed || 0) + litresSold;
+  await attendance.save();
+
+  return attendance;
+}
+
+export async function getCurrentAttendanceForUserService(
+  userId: string,
+  dispenserId: string,
+) {
+  await connectDB();
+
+  const attendance = await DispenserAttendanceRecord.findOne({
+    userId: new Types.ObjectId(userId),
+    dispenserId: new Types.ObjectId(dispenserId),
+    status: "active",
+  }).lean();
+
+  return attendance;
 }

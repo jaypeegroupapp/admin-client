@@ -1,7 +1,7 @@
 // app/(dashboard)/cash-transactions/page.tsx
-
 import { CashTransactionsClientPage } from "@/components/(dashboard)/cash-transactions/client";
 import { getCashTransactions } from "@/data/cash-transactions";
+import { getCurrentUserDispenser } from "@/data/dispenser";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +28,9 @@ export default async function CashTransactionsPage({
   const fromDate = params?.fromDate || "";
   const toDate = params?.toDate || "";
 
+  // Get current user's dispenser assignment
+  const userDispenser = await getCurrentUserDispenser();
+
   const { data, totalCount, stats } = await getCashTransactions(
     page,
     pageSize,
@@ -48,6 +51,7 @@ export default async function CashTransactionsPage({
       stats={stats}
       fromDate={fromDate}
       toDate={toDate}
+      userDispenser={userDispenser.success ? userDispenser.data : null}
     />
   );
 }

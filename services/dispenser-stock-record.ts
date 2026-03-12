@@ -241,3 +241,25 @@ export async function getSupplierInvoiceStats(dispenserId: string) {
     }
   );
 }
+
+/**
+ * Update dispenser stock after a sale
+ */
+export async function updateDispenserStockService(
+  dispenserId: string,
+  newStockLevel: number,
+) {
+  await connectDB();
+
+  const result = await Dispenser.findByIdAndUpdate(
+    dispenserId,
+    {
+      litres: newStockLevel,
+      lastReading: newStockLevel,
+      lastReadingDate: new Date(),
+    },
+    { new: true },
+  );
+
+  return result;
+}
