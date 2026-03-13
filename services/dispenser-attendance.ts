@@ -62,24 +62,13 @@ export async function removeAttendantService(input: {
     await DispenserAttendanceRecord.findById(attendanceRecordId);
   if (!attendanceRecord) throw new Error("Attendance record not found");
 
-  // Get all transactions for this shift to calculate total sold
-  const transactions = await DispenserAttendanceRecord.find({
-    attendanceRecordId: new mongoose.Types.ObjectId(attendanceRecordId),
-    type: "SALE",
-  });
-
-  const totalSold = transactions.reduce(
-    (sum, t) => sum + Math.abs(t.quantity),
-    0,
-  );
-
   // Calculate variance
-  const expectedClosing = attendanceRecord.openingBalanceLitres - totalSold;
+  const expectedClosing =
+    attendanceRecord.openingBalanceLitres - attendanceRecord.totalDispensed;
   const variance = closingBalance - expectedClosing;
 
   // Update attendance record
   attendanceRecord.closingBalanceLitres = closingBalance;
-  attendanceRecord.totalDispensed = totalSold;
   attendanceRecord.expectedClosing = expectedClosing;
   attendanceRecord.variance = variance;
   attendanceRecord.logoutTime = new Date();

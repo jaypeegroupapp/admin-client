@@ -10,13 +10,19 @@ import { AttendanceTab } from "./attendance-tab";
 
 interface Props {
   dispenserId: string;
+  dispenserLitres: number;
   activeTab: "info" | "usage" | "settings" | "stock" | "attendance";
   onTabChange: (
     tab: "info" | "usage" | "settings" | "stock" | "attendance",
   ) => void;
 }
 
-export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
+export function DispenserTabs({
+  dispenserId,
+  dispenserLitres,
+  activeTab,
+  onTabChange,
+}: Props) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
       {/* Tabs */}
@@ -130,7 +136,10 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <AttendanceTab dispenserId={dispenserId} />
+            <AttendanceTab
+              dispenserId={dispenserId}
+              dispenserLitres={dispenserLitres}
+            />
           </motion.div>
         )}
 
@@ -154,7 +163,10 @@ export function DispenserTabs({ dispenserId, activeTab, onTabChange }: Props) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <StockControlTab dispenserId={dispenserId} />
+            <StockControlTab
+              dispenserId={dispenserId}
+              dispenserLitres={dispenserLitres}
+            />
           </motion.div>
         )}
 

@@ -20,23 +20,26 @@ import {
 } from "@/data/dispenser-stock-record";
 import { FillDispenserModal } from "./fill-dispenser-modal";
 
-export function StockControlTab({ dispenserId }: { dispenserId: string }) {
+export function StockControlTab({
+  dispenserId,
+  dispenserLitres,
+}: {
+  dispenserId: string;
+  dispenserLitres: number;
+}) {
   const [stockRecords, setStockRecords] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
-  const [currentBalance, setCurrentBalance] = useState<number>(0);
   const [showModal, setShowModal] = useState(false);
   const [expandedRecord, setExpandedRecord] = useState<string | null>(null);
 
   const loadData = async () => {
-    const [records, analyticsData, balance] = await Promise.all([
+    const [records, analyticsData] = await Promise.all([
       getDispenserStockHistory(dispenserId),
       getDispenserStockAnalytics(dispenserId),
-      getCurrentBalance(dispenserId),
     ]);
 
     setStockRecords(records);
     setAnalytics(analyticsData);
-    setCurrentBalance(balance);
   };
 
   useEffect(() => {
@@ -74,7 +77,7 @@ export function StockControlTab({ dispenserId }: { dispenserId: string }) {
           <div className="bg-blue-50 rounded-lg p-4">
             <p className="text-xs text-blue-600 font-medium">Current Balance</p>
             <p className="text-2xl font-bold text-blue-700">
-              {currentBalance.toFixed(1)}L
+              {dispenserLitres.toFixed(1)}L
             </p>
           </div>
 
@@ -391,7 +394,7 @@ export function StockControlTab({ dispenserId }: { dispenserId: string }) {
         open={showModal}
         onClose={() => setShowModal(false)}
         dispenserId={dispenserId}
-        currentBalance={currentBalance}
+        currentBalance={dispenserLitres}
         onSuccess={loadData}
       />
     </>

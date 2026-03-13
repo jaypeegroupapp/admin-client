@@ -55,6 +55,7 @@ export function DispenserDetailsClient({
           dispenserId={dispenser.id!}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          dispenserLitres={dispenser.litres || 0}
         />
       </motion.div>
 

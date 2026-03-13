@@ -1,7 +1,14 @@
 // src/components/(dashboard)/dispensers/[id]/summary.tsx
 "use client";
 
-import { Droplet, Package, User, Calendar, Activity, TrendingUp } from "lucide-react";
+import {
+  Droplet,
+  Package,
+  User,
+  Calendar,
+  Activity,
+  TrendingUp,
+} from "lucide-react";
 import { useState } from "react";
 import { IDispenser } from "@/definitions/dispenser";
 import { IProduct } from "@/definitions/product";
@@ -37,7 +44,8 @@ export function DispenserSummary({
             </h2>
 
             <p className="text-sm text-gray-500 mt-1">
-              Capacity: <span className="font-medium">{dispenser.litres ?? 0}L</span>
+              Capacity:{" "}
+              <span className="font-medium">{dispenser.litres ?? 0}L</span>
             </p>
 
             <p className="text-sm text-gray-500 mt-2">
@@ -88,7 +96,7 @@ export function DispenserSummary({
         </div>
         <div className="flex items-center gap-2">
           <TrendingUp size={16} className="text-gray-500" />
-          <span>Remaining: {((dispenser.litres ?? 0) - totalUsage).toFixed(1)}L</span>
+          <span>Remaining: {(dispenser.litres ?? 0).toFixed(1)}L</span>
         </div>
         <div className="flex items-center gap-2">
           <User size={16} className="text-gray-500" />
@@ -96,7 +104,10 @@ export function DispenserSummary({
         </div>
         <div className="flex items-center gap-2">
           <Calendar size={16} className="text-gray-500" />
-          <span>Last Updated: {new Date(dispenser.updatedAt!).toLocaleDateString("en-ZA")}</span>
+          <span>
+            Last Updated:{" "}
+            {new Date(dispenser.updatedAt!).toLocaleDateString("en-ZA")}
+          </span>
         </div>
       </div>
 
@@ -104,13 +115,21 @@ export function DispenserSummary({
       <div className="mt-4">
         <div className="flex justify-between text-xs text-gray-500 mb-1">
           <span>Usage Progress</span>
-          <span>{Math.min(100, Math.round((totalUsage / (dispenser.litres || 1)) * 100))}%</span>
+          <span>
+            {Math.min(
+              100,
+              Math.round(
+                (totalUsage / ((dispenser.litres || 1) + totalUsage)) * 100,
+              ),
+            )}
+            %
+          </span>
         </div>
         <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div 
+          <div
             className="h-full bg-blue-500 rounded-full"
-            style={{ 
-              width: `${Math.min(100, (totalUsage / (dispenser.litres || 1)) * 100)}%` 
+            style={{
+              width: `${Math.min(100, (totalUsage / (dispenser.litres || 1)) * 100)}%`,
             }}
           />
         </div>

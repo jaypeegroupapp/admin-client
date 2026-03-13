@@ -35,7 +35,7 @@ export function FillDispenserModal({
   );
 
   const formRef = useRef<HTMLFormElement>(null);
-  const [showInvoiceFields, setShowInvoiceFields] = useState(false);
+  const [showInvoiceFields, setShowInvoiceFields] = useState(true);
 
   const {
     register,

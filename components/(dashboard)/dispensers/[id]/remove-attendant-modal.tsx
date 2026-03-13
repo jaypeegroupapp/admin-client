@@ -16,12 +16,14 @@ export function RemoveAttendantModal({
   open,
   onClose,
   attendanceRecord,
+  currentBalance,
   dispenserId,
   onSuccess,
 }: {
   open: boolean;
   onClose: () => void;
   attendanceRecord: any;
+  currentBalance: number;
   dispenserId: string;
   onSuccess?: () => void;
 }) {
@@ -44,7 +46,7 @@ export function RemoveAttendantModal({
   } = useForm({
     resolver: zodResolver(removeAttendantSchema),
     defaultValues: {
-      closingBalance: attendanceRecord.openingBalanceLitres,
+      closingBalance: currentBalance,
     },
   });
 
@@ -52,20 +54,20 @@ export function RemoveAttendantModal({
 
   // Calculate expected and variance in real-time
   const totalSold = attendanceRecord.totalDispensed || 0;
-  const expectedClosing = attendanceRecord.openingBalanceLitres - totalSold;
+  const expectedClosing = currentBalance;
   const variance = Number(closingBalance) - expectedClosing;
   const variancePercent =
-    expectedClosing > 0 ? ((variance / expectedClosing) * 100).toFixed(1) : "0";
+    expectedClosing > 0 ? (variance / expectedClosing) * 100 : 0;
 
   const getVarianceStatus = () => {
-    if (Math.abs(variance) < 0.1) {
+    if (Math.abs(variancePercent) < 0.1) {
       return {
         color: "text-green-600",
         bg: "bg-green-50",
         icon: CheckCircle,
         text: "Exact match - No variance",
       };
-    } else if (Math.abs(variance) < 1) {
+    } else if (Math.abs(variancePercent) < 15) {
       return {
         color: "text-yellow-600",
         bg: "bg-yellow-50",
@@ -172,7 +174,9 @@ export function RemoveAttendantModal({
                   >
                     {variance > 0 ? "+" : ""}
                     {variance.toFixed(2)}L
-                    <span className="text-sm ml-1">({variancePercent}%)</span>
+                    <span className="text-sm ml-1">
+                      ({variancePercent.toFixed(1)}%)
+                    </span>
                   </p>
                 </div>
               </div>
