@@ -1,6 +1,11 @@
 // src/models/dispenser-usage.ts
 import { IDispenserUsage } from "@/definitions/dispenser-usage";
 import mongoose, { Schema, Document } from "mongoose";
+import CashTransaction from "./cash-transactions";
+import OrderItem from "./order-item";
+import Order from "./order";
+import DispenserAttendanceRecord from "./dispenser-attendance";
+import Dispenser from "./dispenser";
 
 interface DispenserUsageDocument
   extends Document, Omit<IDispenserUsage, "id" | "createdAt" | "updatedAt"> {
@@ -12,19 +17,22 @@ const DispenserUsageSchema = new Schema<DispenserUsageDocument>(
   {
     dispenserId: {
       type: Schema.Types.ObjectId,
-      ref: "Dispenser",
+      ref: Dispenser.modelName,
       required: true,
     },
     litresDispensed: { type: Number, required: true, min: 0 },
     timestamp: { type: Date, default: Date.now, required: true },
 
     // Related entities
-    orderId: { type: Schema.Types.ObjectId, ref: "Order" },
-    orderItemId: { type: Schema.Types.ObjectId, ref: "OrderItem" },
-    cashTransactionId: { type: Schema.Types.ObjectId, ref: "CashTransaction" },
+    orderId: { type: Schema.Types.ObjectId, ref: Order.modelName },
+    orderItemId: { type: Schema.Types.ObjectId, ref: OrderItem.modelName },
+    cashTransactionId: {
+      type: Schema.Types.ObjectId,
+      ref: CashTransaction.modelName,
+    },
     attendanceId: {
       type: Schema.Types.ObjectId,
-      ref: "DispenserAttendanceRecord",
+      ref: DispenserAttendanceRecord.modelName,
     },
 
     // Balance tracking

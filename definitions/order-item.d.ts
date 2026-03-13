@@ -4,6 +4,7 @@ export interface IOrderItem {
   id?: string;
   orderId: Types.ObjectId | string;
   productId: Types.ObjectId | string;
+  truckId: Types.ObjectId | string;
   quantity: number;
   price: number;
   status: "pending" | "accepted" | "completed" | "cancelled";
