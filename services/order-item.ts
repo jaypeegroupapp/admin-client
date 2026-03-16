@@ -257,41 +257,7 @@ export async function getAllOrderItemsService() {
   return JSON.parse(JSON.stringify(agg));
 }
 
-/* export async function completeOrderItem(itemId: string, signature?: string) {
-  await connectDB();
-
-  try {
-    const item = await OrderItem.findById(itemId);
-
-    if (!item) {
-      return { success: false, message: "Order item not found." };
-    }
-
-    // Don't allow re-completion
-    if (item.status === "completed") {
-      return { success: false, message: "Order item already completed." };
-    }
-
-    item.status = "completed";
-
-    if (signature) {
-      item.signature = signature; // base64 PNG
-    }
-
-    await item.save();
-
-    // Return the fully populated order item
-
-    return {
-      success: true,
-    };
-  } catch (error) {
-    console.error("❌ completeOrderItem service error:", error);
-    return { success: false, message: "Failed to complete order item." };
-  }
-} */
-
-// Alternative approach using findByIdAndUpdate
+// src/services/order-item.ts (updated completeOrderItem)
 export async function completeOrderItem(itemId: string, signature?: string) {
   await connectDB();
   const session = await mongoose.startSession();
@@ -306,10 +272,13 @@ export async function completeOrderItem(itemId: string, signature?: string) {
       return { success: false, message: "User not authenticated" };
     }
 
-    // Get the order item (read-only)
+    // Get the order item with populated data
     const item = await OrderItem.findById(itemId)
-      .populate("orderId")
+      .populate({
+        path: "orderId",
+      })
       .populate("productId")
+      .populate("truckId", "plateNumber make model")
       .session(session);
 
     if (!item) {
@@ -366,7 +335,11 @@ export async function completeOrderItem(itemId: string, signature?: string) {
       };
     }
 
-    // Update order item using findByIdAndUpdate (bypasses validation)
+    const order = item.orderId as any;
+    const balanceBefore = dispenser.litres;
+    const balanceAfter = balanceBefore - quantity;
+
+    // Update order item
     await OrderItem.findByIdAndUpdate(
       itemId,
       {
@@ -375,11 +348,10 @@ export async function completeOrderItem(itemId: string, signature?: string) {
         attendanceId: attendance._id,
         ...(signature && { signature }),
       },
-      { session, runValidators: false }, // Disable validators to avoid price/productId validation
+      { session, runValidators: false },
     );
 
-    // Update order status
-    const order = item.orderId as any;
+    // Update order status if all items completed
     const orderItems = await OrderItem.find({ orderId: order._id }).session(
       session,
     );
@@ -394,9 +366,6 @@ export async function completeOrderItem(itemId: string, signature?: string) {
     }
 
     // Update dispenser stock
-    const balanceBefore = dispenser.litres;
-    const balanceAfter = balanceBefore - quantity;
-
     await Dispenser.findByIdAndUpdate(
       dispenser._id,
       {
@@ -407,7 +376,7 @@ export async function completeOrderItem(itemId: string, signature?: string) {
       { session },
     );
 
-    // Create dispenser usage record
+    // Create dispenser usage record with full metadata
     await DispenserUsage.create(
       [
         {
@@ -419,6 +388,12 @@ export async function completeOrderItem(itemId: string, signature?: string) {
           attendanceId: attendance._id,
           balanceBefore,
           balanceAfter,
+          type: "SALE",
+          metadata: {
+            companyName: order.companyName,
+            plateNumber: order.truckId?.plateNumber || order.truckNumber,
+            driverName: order.driverName,
+          },
         },
       ],
       { session },

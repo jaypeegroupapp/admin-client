@@ -18,3 +18,4 @@ export const assignAttendantSchema = z.object({
 });
 
 export type AssignAttendantForm = z.infer<typeof assignAttendantSchema>;
+

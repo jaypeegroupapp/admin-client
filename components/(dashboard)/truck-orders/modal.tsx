@@ -178,7 +178,7 @@ export function OrderItemDetailModal({
                             : "text-green-600"
                         }`}
                       >
-                        {userDispenser.dispenser.litres}L
+                        {userDispenser.dispenser.litres.toFixed(2)}L
                       </p>
                     </div>
                   </div>

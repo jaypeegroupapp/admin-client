@@ -1,6 +1,7 @@
-// src/components/(dashboard)/cash-transactions/dispenser-info-header.tsx
+// src/components/(dashboard)/truck-orders/dispenser-info-header.tsx
 "use client";
 
+import { useEffect, useState } from "react";
 import { Droplet, User, AlertCircle } from "lucide-react";
 
 export function DispenserInfoHeader({
@@ -10,8 +11,29 @@ export function DispenserInfoHeader({
   dispenser: any;
   attendance: any;
 }) {
+  const [mounted, setMounted] = useState(false);
   const remainingLitres = dispenser.litres || 0;
-  const lowStock = remainingLitres < 100; // Threshold for low stock warning
+  const lowStock = remainingLitres < 100;
+
+  // Prevent hydration mismatch by only rendering dynamic content after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Format time consistently
+  const formatTime = (dateString: string) => {
+    if (!mounted) {
+      // Return a static placeholder during SSR
+      return "--:--:--";
+    }
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("en-ZA", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false, // Use 24-hour format to avoid AM/PM mismatch
+    });
+  };
 
   return (
     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-sm">
@@ -39,7 +61,7 @@ export function DispenserInfoHeader({
               <span
                 className={`text-2xl font-bold ${lowStock ? "text-red-600" : "text-green-600"}`}
               >
-                {remainingLitres}L
+                {remainingLitres.toFixed(2)}L
               </span>
               {lowStock && (
                 <span className="flex items-center gap-1 text-xs text-red-600 bg-red-50 px-2 py-1 rounded-full">
@@ -58,10 +80,10 @@ export function DispenserInfoHeader({
             <div>
               <p className="text-xs text-gray-500">Your Shift</p>
               <p className="text-sm font-medium">
-                Opened: {new Date(attendance.loginTime).toLocaleTimeString()}
+                Opened: {formatTime(attendance.loginTime)}
               </p>
               <p className="text-xs text-gray-600">
-                Opening: {attendance.openingBalance}L | Sold:{" "}
+                Opening: {attendance.openingBalance.toFixed(2)}L | Sold:{" "}
                 {attendance.totalDispensed || 0}L
               </p>
             </div>
@@ -70,7 +92,7 @@ export function DispenserInfoHeader({
       </div>
 
       {/* Progress Bar */}
-      {attendance && attendance.openingBalance > 0 && (
+      {attendance && attendance.openingBalance > 0 && mounted && (
         <div className="mt-3">
           <div className="flex justify-between text-xs text-gray-500 mb-1">
             <span>Shift Progress</span>

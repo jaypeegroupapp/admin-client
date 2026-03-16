@@ -10,7 +10,6 @@ import {
 } from "@/definitions/cash-transactions";
 
 import { CashTransactionHeader } from "./header";
-import { DispenserInfoHeader } from "./dispenser-info"; // New component
 import CashTransactionFilter from "./filter";
 import CashTransactionList from "./list";
 import { CashTransactionTabs } from "./tabs";
@@ -18,6 +17,7 @@ import DateFilter from "@/components/ui/date-filter";
 import { Pagination } from "@/components/ui/pagination";
 import CashTransactionForm from "./form";
 import CashTransactionFormModal from "@/components/ui/modal";
+import { DispenserInfoHeader } from "@/components/ui/dispenser-info";
 
 interface Props {
   initialItems: ICashTransactionAggregated[];

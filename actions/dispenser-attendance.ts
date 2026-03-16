@@ -2,28 +2,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import {
   assignAttendantService,
   removeAttendantService,
   getCurrentAttendanceService,
 } from "@/services/dispenser-attendance";
 import { getStaffByIdService } from "@/services/staff";
-
-const assignAttendantSchema = z.object({
-  attendantId: z.string().min(1, "Attendant is required"),
-  openingBalance: z.coerce
-    .number()
-    .min(0, "Opening balance must be 0 or greater"),
-  notes: z.string().optional(),
-});
-
-const removeAttendantSchema = z.object({
-  closingBalance: z.coerce
-    .number()
-    .min(0, "Closing balance must be 0 or greater"),
-  notes: z.string().optional(),
-});
+import {
+  assignAttendantSchema,
+  removeAttendantSchema,
+} from "@/validations/dispenser-attendance";
 
 export async function assignAttendantAction(
   dispenserId: string,

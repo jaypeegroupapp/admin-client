@@ -148,7 +148,7 @@ export function AttendanceTab({
             <div>
               <p className="text-xs text-blue-600">Opening Balance</p>
               <p className="font-medium text-blue-900">
-                {currentAttendance.openingBalanceLitres}L
+                {currentAttendance.openingBalanceLitres.toFixed(2)}L
               </p>
             </div>
             <div>
@@ -320,7 +320,7 @@ export function AttendanceTab({
                                 Opening Balance:
                               </span>
                               <span className="font-medium">
-                                {record.openingBalanceLitres}L
+                                {record.openingBalanceLitres.toFixed(2)}L
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
@@ -346,7 +346,7 @@ export function AttendanceTab({
                                 Actual Closing:
                               </span>
                               <span className="font-medium">
-                                {record.closingBalanceLitres || "—"}L
+                                {record.closingBalanceLitres?.toFixed(2) || "—"}L
                               </span>
                             </div>
                             {record.closingBalanceLitres && (

@@ -34,9 +34,6 @@ export function RemoveAttendantModal({
   );
 
   const formRef = useRef<HTMLFormElement>(null);
-  const [calculatedVariance, setCalculatedVariance] = useState<number | null>(
-    null,
-  );
 
   const {
     register,
@@ -46,7 +43,7 @@ export function RemoveAttendantModal({
   } = useForm({
     resolver: zodResolver(removeAttendantSchema),
     defaultValues: {
-      closingBalance: currentBalance,
+      closingBalance: currentBalance.toFixed(2),
     },
   });
 
@@ -112,7 +109,7 @@ export function RemoveAttendantModal({
               <div>
                 <p className="text-xs text-gray-500">Opening Balance</p>
                 <p className="text-lg font-semibold">
-                  {attendanceRecord.openingBalanceLitres}L
+                  {attendanceRecord.openingBalanceLitres.toFixed(2)}L
                 </p>
               </div>
               <div>

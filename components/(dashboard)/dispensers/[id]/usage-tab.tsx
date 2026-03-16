@@ -212,7 +212,8 @@ export function UsageTab({ dispenserId }: { dispenserId: string }) {
                         {record.balanceBefore && record.balanceAfter && (
                           <span className="text-xs text-gray-400 flex items-center gap-1">
                             <TrendingDown size={12} className="text-red-400" />
-                            {record.balanceBefore}L → {record.balanceAfter}L
+                            {record.balanceBefore.toFixed(2)}L →{" "}
+                            {record.balanceAfter.toFixed(2)}L
                           </span>
                         )}
                       </div>
@@ -330,7 +331,7 @@ export function UsageTab({ dispenserId }: { dispenserId: string }) {
                           />
                         </div>
                         <span className="text-gray-700 font-medium">
-                          {record.balanceAfter}L remaining
+                          {record.balanceAfter.toFixed(2)}L remaining
                         </span>
                       </div>
                     </div>

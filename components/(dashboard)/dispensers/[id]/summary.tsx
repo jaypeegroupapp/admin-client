@@ -45,7 +45,9 @@ export function DispenserSummary({
 
             <p className="text-sm text-gray-500 mt-1">
               Capacity:{" "}
-              <span className="font-medium">{dispenser.litres ?? 0}L</span>
+              <span className="font-medium">
+                {(dispenser.litres ?? 0).toFixed(2)}L
+              </span>
             </p>
 
             <p className="text-sm text-gray-500 mt-2">

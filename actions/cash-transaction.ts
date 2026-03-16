@@ -15,6 +15,7 @@ import {
 import { updateDispenserStockService } from "@/services/dispenser-stock-record";
 import { createDispenserUsageService } from "@/services/dispenser-usage";
 
+// src/actions/cash-transaction.ts (updated)
 export async function createCashTransactionAction(
   prevState: any,
   formData: FormData,
@@ -98,11 +99,11 @@ export async function createCashTransactionAction(
       grid: product.grid || 0,
       plusDiscount: product.discount || 0,
       productName: product.name,
-      status: "completed", // Complete immediately
+      status: "completed",
       dispenserId: dispenser._id.toString(),
       attendanceId: attendance._id.toString(),
       completedById: session.user.id,
-      completedAt: new Date().toString(),
+      completedAt: (new Date()).toLocaleString(),
       balanceBefore: balanceBefore,
       balanceAfter: balanceAfter,
     });
@@ -110,15 +111,16 @@ export async function createCashTransactionAction(
     // Update dispenser stock
     await updateDispenserStockService(dispenser._id.toString(), balanceAfter);
 
-    // Create dispenser usage record with the transaction ID
+    // Create dispenser usage record with full metadata
     await createDispenserUsageService({
       dispenserId: dispenser._id.toString(),
       litresDispensed: validated.data.litresPurchased,
       timestamp: new Date(),
-      cashTransactionId: transaction._id.toString(), // Use the created transaction ID
+      cashTransactionId: transaction._id.toString(),
       attendanceId: attendance._id.toString(),
       balanceBefore: balanceBefore,
       balanceAfter: balanceAfter,
+      type: "SALE",
       metadata: {
         companyName: validated.data.companyName,
         plateNumber: validated.data.plateNumber,

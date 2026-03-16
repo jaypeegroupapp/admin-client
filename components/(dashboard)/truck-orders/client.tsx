@@ -7,12 +7,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { IOrderItemAggregated, OrderItemTab } from "@/definitions/order-item";
 
 import { OrderItemHeader } from "./header";
-import { DispenserInfoHeader } from "./dispenser-info"; // New component
 import OrderItemFilter from "./filter";
 import OrderItemList from "./list";
 import { OrderItemTabs } from "./tabs";
 import DateFilter from "@/components/ui/date-filter";
 import { Pagination } from "@/components/ui/pagination";
+import { DispenserInfoHeader } from "@/components/ui/dispenser-info";
 
 export function OrderItemsClientPage({
   initialItems,

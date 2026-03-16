@@ -120,7 +120,9 @@ const CashTransactionForm = ({ userDispenser }: { userDispenser?: any }) => {
           <div className="text-sm text-green-700">
             <span className="font-medium">{userDispenser.dispenser.name}</span>{" "}
             - Available Stock:{" "}
-            <span className="font-bold">{userDispenser.dispenser.litres}L</span>
+            <span className="font-bold">
+              {userDispenser.dispenser.litres.toFixed(2)}L
+            </span>
           </div>
         </div>
       )}

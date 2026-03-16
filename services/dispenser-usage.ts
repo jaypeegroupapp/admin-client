@@ -3,70 +3,20 @@ import mongoose from "mongoose";
 import DispenserUsage from "@/models/dispenser-usage";
 import { connectDB } from "@/lib/db";
 
-/* export async function getTotalDispenserUsageService(dispenserId: string) {
-  await connectDB();
-
-  const usageObj = await DispenserUsage.aggregate([
-    {
-      $match: {
-        dispenserId: new mongoose.Types.ObjectId(dispenserId),
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        totalLitres: { $sum: "$litresDispensed" },
-      },
-    },
-  ]);
-
-  return usageObj[0]?.totalLitres || 0;
-}
- */
 /**
- * Get dispenser usage history for a specific dispenser
- */
-/* export async function getDispenserUsageHistoryService(
-  dispenserId: string,
-  limit?: number,
-  fromDate?: Date,
-  toDate?: Date,
-) {
-  await connectDB();
-
-  const filter: any = {
-    dispenserId: new mongoose.Types.ObjectId(dispenserId),
-  };
-
-  if (fromDate || toDate) {
-    filter.timestamp = {};
-    if (fromDate) filter.timestamp.$gte = fromDate;
-    if (toDate) filter.timestamp.$lte = toDate;
-  }
-
-  let query = DispenserUsage.find(filter)
-    .populate("cashTransactionId")
-    .populate("attendanceId", "loginTime logoutTime")
-    .sort({ timestamp: -1 });
-
-  if (limit) {
-    query = query.limit(limit);
-  }
-
-  return await query.lean();
-}
-
- */ /**
  * Create a dispenser usage record for audit trail
  */
 export async function createDispenserUsageService(data: {
   dispenserId: string;
   litresDispensed: number;
   timestamp: Date;
-  cashTransactionId: string;
+  cashTransactionId?: string;
+  orderId?: string;
+  orderItemId?: string;
   attendanceId: string;
   balanceBefore: number;
   balanceAfter: number;
+  type: "SALE" | "STOCK_IN" | "ADJUSTMENT";
   metadata?: {
     companyName?: string;
     plateNumber?: string;
@@ -75,18 +25,32 @@ export async function createDispenserUsageService(data: {
 }) {
   await connectDB();
 
-  const usageRecord = await DispenserUsage.create({
+  const usageData: any = {
     dispenserId: new mongoose.Types.ObjectId(data.dispenserId),
     litresDispensed: data.litresDispensed,
     timestamp: data.timestamp,
-    cashTransactionId: new mongoose.Types.ObjectId(data.cashTransactionId),
     attendanceId: new mongoose.Types.ObjectId(data.attendanceId),
     balanceBefore: data.balanceBefore,
     balanceAfter: data.balanceAfter,
-    metadata: data.metadata,
-    type: "SALE", // Add type field to distinguish from stock fills
-  });
+    type: data.type,
+    metadata: data.metadata || {},
+  };
 
+  if (data.cashTransactionId) {
+    usageData.cashTransactionId = new mongoose.Types.ObjectId(
+      data.cashTransactionId,
+    );
+  }
+
+  if (data.orderId) {
+    usageData.orderId = new mongoose.Types.ObjectId(data.orderId);
+  }
+
+  if (data.orderItemId) {
+    usageData.orderItemId = new mongoose.Types.ObjectId(data.orderItemId);
+  }
+
+  const usageRecord = await DispenserUsage.create(usageData);
   return usageRecord;
 }
 
@@ -144,6 +108,9 @@ export async function getTotalDispenserUsageService(dispenserId: string) {
   return usageObj[0]?.totalLitres || 0;
 }
 
+/**
+ * Get dispenser usage history with full population
+ */
 export async function getDispenserUsageHistoryService(
   dispenserId: string,
   limit?: number,
@@ -169,22 +136,22 @@ export async function getDispenserUsageHistoryService(
     })
     .populate({
       path: "orderId",
-      select: "orderNumber truckNumber status",
+      select: "orderNumber truckNumber companyName driverName",
     })
     .populate({
       path: "attendanceId",
       populate: [
         {
-          path: "attendantId", // First populate the staff record
+          path: "attendantId",
           model: "Staff",
           populate: {
-            path: "userId", // Then populate the user from staff
+            path: "userId",
             model: "User",
             select: "name email",
           },
         },
         {
-          path: "userId", // Also populate the direct user reference
+          path: "userId",
           model: "User",
           select: "name email",
         },
@@ -196,23 +163,12 @@ export async function getDispenserUsageHistoryService(
     query = query.limit(limit);
   }
 
-  const results = await query.lean();
-
-  // Transform the data to include metadata from populated fields
-  return results.map((record: any) => {
-    // If it's a cash transaction, merge the metadata
-    if (record.cashTransactionId) {
-      record.metadata = {
-        ...record.metadata,
-        companyName: record.cashTransactionId.companyName,
-        plateNumber: record.cashTransactionId.plateNumber,
-        driverName: record.cashTransactionId.driverName,
-      };
-    }
-    return record;
-  });
+  return await query.lean();
 }
 
+/**
+ * Get dispenser usage statistics
+ */
 export async function getDispenserUsageStatsService(
   dispenserId: string,
   fromDate?: Date,
@@ -256,7 +212,7 @@ export async function getDispenserUsageStatsService(
                       $cond: [
                         { $ifNull: ["$orderId", false] },
                         "order",
-                        "other",
+                        "$type",
                       ],
                     },
                   ],
@@ -266,6 +222,17 @@ export async function getDispenserUsageStatsService(
               litres: { $sum: "$litresDispensed" },
             },
           },
+        ],
+        byAttendant: [
+          {
+            $group: {
+              _id: "$attendanceId",
+              count: { $sum: 1 },
+              litres: { $sum: "$litresDispensed" },
+            },
+          },
+          { $sort: { litres: -1 } },
+          { $limit: 5 },
         ],
         daily: [
           {
@@ -288,6 +255,7 @@ export async function getDispenserUsageStatsService(
     stats[0] || {
       totals: [{ totalLitres: 0, totalTransactions: 0, avgLitres: 0 }],
       byType: [],
+      byAttendant: [],
       daily: [],
     }
   );

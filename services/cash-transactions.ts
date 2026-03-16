@@ -52,17 +52,14 @@ export async function getCashTransactionsService(
 
   const filter: FilterQuery<CashTransactionDocument> = {};
 
-  // Add dispenser filter if provided
   if (dispenserId) {
     filter.dispenserId = new mongoose.Types.ObjectId(dispenserId);
   }
 
-  // STATUS FILTER
   if (status !== "all") {
     filter.status = status as any;
   }
 
-  // SEARCH FILTER
   if (search) {
     filter.$or = [
       { driverName: { $regex: search, $options: "i" } },
@@ -72,7 +69,6 @@ export async function getCashTransactionsService(
     ];
   }
 
-  // DATE FILTER
   if (fromDate || toDate) {
     filter.createdAt = {};
     if (fromDate) filter.createdAt.$gte = new Date(fromDate);
@@ -84,6 +80,7 @@ export async function getCashTransactionsService(
       .populate("dispenserId", "name")
       .populate("productId", "name")
       .populate("completedById", "name")
+      .populate("attendanceId")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(pageSize)
@@ -92,7 +89,6 @@ export async function getCashTransactionsService(
     CashTransaction.countDocuments(filter),
   ]);
 
-  // STATUS STATS
   const statsAggregation = await CashTransaction.aggregate([
     {
       $group: {
