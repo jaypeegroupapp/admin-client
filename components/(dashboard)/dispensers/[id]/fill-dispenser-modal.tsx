@@ -11,7 +11,6 @@ import InputValidated from "@/components/ui/input-validated";
 import { fillDispenserAction } from "@/actions/dispenser-stock-record";
 import { fillDispenserInputFormData } from "@/constants/dispenser-stock-record";
 import {
-  FillDispenserFormData,
   fillDispenserSchema,
 } from "@/validations/dispenser-stock-record";
 
@@ -41,6 +40,7 @@ export function FillDispenserModal({
     register,
     handleSubmit,
     watch,
+    reset,
     setValue,
     formState: { errors },
   } = useForm({
@@ -85,7 +85,10 @@ export function FillDispenserModal({
 
     startTransition(() => {
       formAction(formData);
-      if (onSuccess) onSuccess();
+      if (onSuccess) {
+        onSuccess();
+        reset();
+      }
       onClose();
     });
   });
