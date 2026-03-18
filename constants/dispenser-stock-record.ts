@@ -30,7 +30,7 @@ export const fillDispenserInputFormData = [
   },
   {
     name: "discount",
-    label: "Discount (%)",
+    label: "Discount (R)",
     type: "number",
     step: "0.1",
     min: "0",

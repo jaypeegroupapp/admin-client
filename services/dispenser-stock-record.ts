@@ -4,6 +4,7 @@ import DispenserStockRecord from "@/models/dispenser-stock-record";
 import Dispenser from "@/models/dispenser";
 import { getSupplierInvoiceByInvoiceNumberService } from "@/services/supplier-invoice";
 import { connectDB } from "@/lib/db";
+import { getDispenserByIdService } from "./dispenser";
 
 export interface FillDispenserInput {
   dispenserId: string;
@@ -98,7 +99,8 @@ export async function recordDispenserFill(input: FillDispenserInput) {
   }
 
   // Get opening balance
-  const openingBalance = await getCurrentDispenserBalance(dispenserId);
+  const dispenser = (await getDispenserByIdService(dispenserId)) as any;
+  const openingBalance = Number(dispenser.litres);
 
   // Calculate expected closing balance
   const expectedClosingBalance = openingBalance + purchasedQuantity;
@@ -160,7 +162,7 @@ export async function getDispenserStockHistory(dispenserId: string) {
   })
     .populate("purchaseId")
     .populate("recordedBy", "name email")
-    .sort({ fillDate: -1 })
+    .sort({ createdAt: -1 })
     .lean();
 
   return records;

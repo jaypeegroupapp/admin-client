@@ -392,7 +392,10 @@ export function StockControlTab({
       {/* Fill Dispenser Modal */}
       <FillDispenserModal
         open={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={() => {
+          setShowModal(false);
+          loadData();
+        }}
         dispenserId={dispenserId}
         currentBalance={dispenserLitres}
         onSuccess={loadData}

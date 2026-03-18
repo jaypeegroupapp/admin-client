@@ -296,7 +296,7 @@ export function FillDispenserModal({
                     {discount > 0 && (
                       <div className="flex justify-between text-xs text-gray-500">
                         <span>Discount Applied:</span>
-                        <span>{discount}%</span>
+                        <span>R {discount.toFixed(2)}</span>
                       </div>
                     )}
                   </div>
