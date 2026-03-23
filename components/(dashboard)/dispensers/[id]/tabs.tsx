@@ -75,7 +75,7 @@ export function DispenserTabs({
           Stock Control
         </button>
 
-        <button
+        {/* <button
           onClick={() => onTabChange("settings")}
           className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
             activeTab === "settings"
@@ -85,7 +85,7 @@ export function DispenserTabs({
         >
           <Settings size={16} />
           Settings
-        </button>
+        </button> */}
       </div>
 
       {/* Content */}
