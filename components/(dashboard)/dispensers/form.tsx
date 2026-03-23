@@ -16,7 +16,7 @@ import {
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { dispenserCompleteFormData } from "@/constants/dispenser";
-import { getProducts } from "@/data/product";
+import { getPublishedProducts } from "@/data/product";
 import { IProduct } from "@/definitions/product";
 
 export default function DispenserAddForm({
@@ -43,7 +43,7 @@ export default function DispenserAddForm({
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await getProducts();
+      const res = await getPublishedProducts();
       if (res?.success) setProducts(res.data || []);
     };
     fetchProducts();
