@@ -337,7 +337,7 @@ export function AttendanceTab({
                                 {(
                                   record.openingBalanceLitres -
                                   (record.totalDispensed || 0)
-                                ).toFixed(1)}
+                                ).toFixed(2)}
                                 L
                               </span>
                             </div>
