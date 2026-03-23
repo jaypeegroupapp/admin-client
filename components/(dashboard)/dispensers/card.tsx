@@ -1,9 +1,8 @@
 // src/components/(dashboard)/dispensers/card.tsx
 "use client";
 import { motion } from "framer-motion";
-import { Droplet, Edit, Trash2 } from "lucide-react";
+import { Droplet } from "lucide-react";
 import { IDispenser } from "@/definitions/dispenser";
-import { Button } from "@/components/ui/button";
 import {
   deleteDispenserAction,
   toggleDispenserPublishAction,
@@ -81,26 +80,6 @@ export function DispenserCard({
           >
             {dispenser.isPublished ? "Published" : "Draft"}
           </button>
-
-          {/* <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(dispenser)}
-              className="p-1 h-auto"
-            >
-              <Edit size={16} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="p-1 h-auto text-red-500 hover:text-red-700"
-            >
-              <Trash2 size={16} />
-            </Button>
-          </div> */}
         </div>
       </motion.div>
     </Link>
