@@ -3,11 +3,7 @@
 import { motion } from "framer-motion";
 import { Droplet } from "lucide-react";
 import { IDispenser } from "@/definitions/dispenser";
-import {
-  deleteDispenserAction,
-  toggleDispenserPublishAction,
-} from "@/actions/dispenser";
-import { useState } from "react";
+import { toggleDispenserPublishAction } from "@/actions/dispenser";
 import Link from "next/link";
 
 export function DispenserCard({
@@ -19,17 +15,6 @@ export function DispenserCard({
   onEdit: (dispenser: IDispenser) => void;
   onRefresh: () => void;
 }) {
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this dispenser?")) {
-      setIsDeleting(true);
-      await deleteDispenserAction(dispenser.id!);
-      onRefresh();
-      setIsDeleting(false);
-    }
-  };
-
   const handleTogglePublish = async () => {
     await toggleDispenserPublishAction(dispenser.id!, !dispenser.isPublished);
     onRefresh();
@@ -56,14 +41,14 @@ export function DispenserCard({
           <div className="flex flex-col flex-1">
             <h3 className="font-semibold text-gray-800">{dispenser.name}</h3>
             <p className="text-sm text-gray-500 line-clamp-2">
-              Product ID: {dispenser.productId?.toString().substring(0, 8)}...
+              Product: {dispenser.productName}
             </p>
             <p className="text-xs text-gray-400 mt-1">
               Litres: {dispenser.litres ?? 0}L
             </p>
             {dispenser.userId && (
               <p className="text-xs text-gray-400">
-                User ID: {dispenser.userId.toString().substring(0, 8)}...
+                User ID: {dispenser.attendanceName}
               </p>
             )}
           </div>

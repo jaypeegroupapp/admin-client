@@ -95,9 +95,11 @@ function mapDispenser(doc: any): IDispenser {
     id: doc._id.toString(),
     name: doc.name,
     productId: doc.productId?._id?.toString() || doc.productId?.toString(),
+    productName: doc.productId?.name?.toString(),
     litres: doc.litres ?? 0,
     isPublished: doc.isPublished ?? false,
     userId: doc.userId?._id?.toString() || doc.userId?.toString(),
+    attendanceName: doc.userId?.name(),
     createdAt: doc.createdAt?.toISOString(),
     updatedAt: doc.updatedAt?.toISOString(),
   };

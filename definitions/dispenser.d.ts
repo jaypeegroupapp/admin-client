@@ -5,9 +5,11 @@ export interface IDispenser {
   id?: string;
   name: string;
   productId: Types.ObjectId | string;
+  productName?: string;
   litres?: number;
   isPublished: boolean;
   userId?: Types.ObjectId | string;
+  attendanceName?: string;
   createdAt?: string;
   updatedAt?: string;
 }
