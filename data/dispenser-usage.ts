@@ -1,6 +1,7 @@
 // src/data/dispenser-usage.ts
 "use server";
 import {
+  getDispenserUsageHistoryPaginatedService,
   getDispenserUsageHistoryService,
   getTotalDispenserUsageService,
 } from "@/services/dispenser-usage";
@@ -14,6 +15,38 @@ export async function getTotalDispenserUsage(dispenserId: string) {
   }
 }
 
+export async function getDispenserUsageHistoryPaginated(
+  dispenserId: string,
+  page: number = 0,
+  pageSize: number = 10,
+  filter: string = "all",
+) {
+  try {
+    const result = await getDispenserUsageHistoryPaginatedService(
+      dispenserId,
+      page,
+      pageSize,
+      filter,
+    );
+
+    return {
+      data: result.data.map(mapDispenserUsage),
+      totalCount: result.totalCount,
+      page: result.page,
+      pageSize: result.pageSize,
+      totalPages: result.totalPages,
+    };
+  } catch (err) {
+    console.error("❌ getDispenserUsageHistoryPaginated error:", err);
+    return {
+      data: [],
+      totalCount: 0,
+      page: 0,
+      pageSize: 10,
+      totalPages: 0,
+    };
+  }
+}
 export async function getDispenserUsageHistory(dispenserId: string) {
   try {
     const usage = await getDispenserUsageHistoryService(dispenserId);

@@ -166,6 +166,97 @@ export async function getDispenserUsageHistoryService(
   return await query.lean();
 }
 
+export async function getDispenserUsageHistoryPaginatedService(
+  dispenserId: string,
+  page: number = 0,
+  pageSize: number = 10,
+  filter: string = "all",
+  fromDate?: Date,
+  toDate?: Date,
+) {
+  await connectDB();
+  const skip = page * pageSize;
+
+  const baseFilter: any = {
+    dispenserId: new mongoose.Types.ObjectId(dispenserId),
+  };
+
+  // Add type filter
+  if (filter === "orders") {
+    baseFilter.orderId = { $exists: true, $ne: null };
+    baseFilter.type = "SALE";
+  } else if (filter === "cash") {
+    baseFilter.cashTransactionId = { $exists: true, $ne: null };
+    baseFilter.type = "SALE";
+  }
+
+  if (fromDate || toDate) {
+    baseFilter.timestamp = {};
+    if (fromDate) baseFilter.timestamp.$gte = fromDate;
+    if (toDate) baseFilter.timestamp.$lte = toDate;
+  }
+
+  // Get total count for pagination
+  const totalCount = await DispenserUsage.countDocuments(baseFilter);
+
+  // Get paginated data
+  const data = await DispenserUsage.find(baseFilter)
+    .populate({
+      path: "cashTransactionId",
+      select: "companyName plateNumber driverName total",
+    })
+    .populate({
+      path: "orderId",
+      select: "orderNumber truckNumber companyName driverName",
+    })
+    .populate({
+      path: "attendanceId",
+      populate: [
+        {
+          path: "attendantId",
+          model: "Staff",
+          populate: {
+            path: "userId",
+            model: "User",
+            select: "name email",
+          },
+        },
+        {
+          path: "userId",
+          model: "User",
+          select: "name email",
+        },
+      ],
+    })
+    .sort({ timestamp: -1 })
+    .skip(skip)
+    .limit(pageSize)
+    .lean();
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Transform data
+  const transformedData = data.map((record: any) => {
+    if (record.cashTransactionId) {
+      record.metadata = {
+        ...record.metadata,
+        companyName: record.cashTransactionId.companyName,
+        plateNumber: record.cashTransactionId.plateNumber,
+        driverName: record.cashTransactionId.driverName,
+      };
+    }
+    return record;
+  });
+
+  return {
+    data: transformedData,
+    totalCount,
+    page,
+    pageSize,
+    totalPages,
+  };
+}
+
 /**
  * Get dispenser usage statistics
  */
