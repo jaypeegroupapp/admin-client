@@ -1,4 +1,4 @@
-// src/components/(dashboard)/orders/[id]/status-badge.tsx
+// src/components/(dashboard)/orders/[id]/order-item-status-badge.tsx
 "use client";
 
 import { CheckCircle, Clock, XCircle, AlertCircle } from "lucide-react";
@@ -28,27 +28,19 @@ const statusConfig = {
     icon: XCircle,
     label: "Cancelled",
   },
-  restock: {
-    bg: "bg-purple-100",
-    text: "text-purple-700",
-    icon: AlertCircle,
-    label: "Restock",
-  },
 };
 
-export function OrderStatusBadge({ status }: { status: string }) {
+export function OrderItemStatusBadge({ status }: { status: string }) {
   const config =
     statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
   const Icon = config.icon;
 
   return (
     <div
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${config.bg}`}
+      className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}
     >
-      <Icon size={16} className={config.text} />
-      <span className={`text-sm font-medium ${config.text}`}>
-        {config.label}
-      </span>
+      <Icon size={12} />
+      {config.label}
     </div>
   );
 }

@@ -1,14 +1,19 @@
+// src/components/(dashboard)/orders/[id]/header.tsx
 "use client";
 
-import { ArrowLeft, Trash2 } from "lucide-react";
-import { IOrder } from "@/definitions/order";
+import { ArrowLeft, Printer, Download } from "lucide-react";
 
-interface Props {
-  order: IOrder;
+export function OrderHeader({
+  order,
+  onBack,
+}: {
+  order: any;
   onBack: () => void;
-}
+}) {
+  const handlePrint = () => {
+    window.print();
+  };
 
-export function OrderHeader({ onBack }: Props) {
   return (
     <div className="flex items-center justify-between">
       <button
@@ -18,6 +23,25 @@ export function OrderHeader({ onBack }: Props) {
         <ArrowLeft size={18} />
         Back
       </button>
+
+      <h1 className="text-xl font-semibold text-gray-800">Order Details</h1>
+
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handlePrint}
+          className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+          title="Print Order"
+        >
+          <Printer size={18} />
+        </button>
+        <button
+          onClick={handlePrint}
+          className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+          title="Download PDF"
+        >
+          <Download size={18} />
+        </button>
+      </div>
     </div>
   );
 }

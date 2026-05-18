@@ -1,3 +1,4 @@
+// src/components/(dashboard)/orders/[id]/client.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -7,17 +8,8 @@ import { OrderHeader } from "./header";
 import { OrderSummary } from "./summary";
 import { OrderItemsList } from "./item-list";
 
-export function OrderDetailsClient({
-  order,
-  productStock,
-}: {
-  order: IOrder;
-  productStock: number;
-}) {
+export function OrderDetailsClient({ order }: { order: any }) {
   const router = useRouter();
-  const totalStockToDeduct = order.items
-    ? order.items.reduce((acc, item) => acc + item.quantity, 0)
-    : 0;
 
   return (
     <motion.div
@@ -27,14 +19,7 @@ export function OrderDetailsClient({
       className="space-y-8"
     >
       <OrderHeader order={order} onBack={() => router.back()} />
-
-      <OrderSummary
-        order={order}
-        productStock={productStock}
-        totalStockToDeduct={totalStockToDeduct}
-      />
-
-      {/* 🧩 Order Items Section */}
+      <OrderSummary order={order} />
       <OrderItemsList items={order.items || []} />
     </motion.div>
   );

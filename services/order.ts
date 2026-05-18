@@ -191,29 +191,89 @@ export async function getOrdersByMineService(mineId: string) {
 /**
  * ✅ Get a single Order by ID
  */
+// src/services/order.ts
 export async function getOrderByIdService(id: string) {
   await connectDB();
+
+  // Fetch the order
   const order = (await Order.findById(id)
-    .populate("productId")
-    .populate("mineId")
-    .populate("companyId")
-    .populate("userId")
+    .populate("productId", "name price description")
+    .populate("mineId", "name location")
+    .populate("companyId", "name email phone address")
+    .populate("userId", "name email")
+    .populate("invoiceId", "invoiceNumber totalAmount status")
     .lean()) as any;
 
   if (!order) return null;
 
-  // fetch order items
-  const items = (await OrderItem.find({ orderId: id })
-    .populate("truckId", "registrationNumber plateNumber")
+  // Fetch order items
+  const items = (await OrderItem.find({
+    orderId: new mongoose.Types.ObjectId(id),
+  })
+    .populate(
+      "truckId",
+      "plateNumber make model year companyName registrationNumber",
+    )
+    .populate("productId", "name price")
+    .populate("dispenserId", "name litres")
+    .populate({
+      path: "attendanceId",
+      select: "loginTime logoutTime",
+      populate: {
+        path: "attendantId",
+        populate: {
+          path: "userId",
+          select: "name email",
+        },
+      },
+    })
+    .sort({ createdAt: -1 })
     .lean()) as any[];
 
+  // Format the order with items
   return {
-    ...order,
     id: order._id.toString(),
-    items,
+    orderNumber:
+      order.orderNumber || order._id.toString().slice(-8).toUpperCase(),
+    companyId: order.companyId?._id?.toString(),
+    company: order.companyId,
+    userId: order.userId?._id?.toString(),
+    user: order.userId,
+    mineId: order.mineId?._id?.toString(),
+    mine: order.mineId,
+    productId: order.productId?._id?.toString(),
+    product: order.productId,
+    invoiceId: order.invoiceId?._id?.toString(),
+    invoice: order.invoiceId,
+    purchasePrice: order.purchasePrice,
+    grid: order.grid,
+    totalAmount: order.totalAmount,
+    collectionDate: order.collectionDate,
+    status: order.status,
+    reason: order.reason,
+    signature: order.signature,
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt,
+    items: items.map((item: any) => ({
+      id: item._id.toString(),
+      orderId: item.orderId.toString(),
+      truckId: item.truckId?._id?.toString(),
+      truck: item.truckId,
+      productId: item.productId?._id?.toString(),
+      product: item.productId,
+      quantity: item.quantity,
+      price: item.price,
+      status: item.status,
+      signature: item.signature,
+      dispenserId: item.dispenserId?._id?.toString(),
+      dispenser: item.dispenserId,
+      attendanceId: item.attendanceId?._id?.toString(),
+      attendance: item.attendanceId,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    })),
   };
 }
-
 /**
  * ✅ Get all Orders for the logged-in user
  */
