@@ -40,14 +40,14 @@ const AccountStatementTrailSchema = new Schema<AccountStatementTrailDocument>(
     newBalance: { type: Number, required: true },
     description: { type: String, trim: true },
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: { createdAt: true, updatedAt: false } },
 );
 
 const AccountStatementTrail: Model<AccountStatementTrailDocument> =
   mongoose.models.AccountStatementTrail ||
   mongoose.model<AccountStatementTrailDocument>(
     "AccountStatementTrail",
-    AccountStatementTrailSchema
+    AccountStatementTrailSchema,
   );
 
 export default AccountStatementTrail;

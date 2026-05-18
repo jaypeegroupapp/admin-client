@@ -107,6 +107,7 @@ export async function getCompanyCreditTrailByCompanyIdService(
   }
 }
 
+// src/services/company-credit.ts
 export async function addDebitToCompanyService(
   companyId: string,
   data: AddCreditData,
@@ -117,64 +118,49 @@ export async function addDebitToCompanyService(
   try {
     session.startTransaction();
 
-    const company = await Company.findById(companyId).session(session);
+    // Get company
+    const company = (await Company.findById(companyId).session(session)) as any;
     if (!company) throw new Error("Company not found");
 
-    const companyCredit = await CompanyCredit.findOne({ companyId }).session(
+    // Get or create company credit record
+    let companyCredit = (await CompanyCredit.findOne({ companyId }).session(
       session,
-    );
-    if (!companyCredit) throw new Error("Company credit not found");
-
-    let payment = data.amount;
-    let excess = 0;
-
-    const oldDebitFinal = company.debitAmount;
-
-    // -----------------------------------------
-    // 1️⃣ PAY DOWN USED CREDIT FIRST
-    // -----------------------------------------
-    if (companyCredit.usedCredit > 0) {
-      if (payment >= companyCredit.usedCredit) {
-        // Overpay: clear credit and send excess to debit
-        payment -= companyCredit.usedCredit;
-        companyCredit.usedCredit = 0;
-      } else {
-        // Not enough: only reduce credit
-        companyCredit.usedCredit -= payment;
-        payment = 0;
-      }
+    )) as any;
+    if (!companyCredit) {
+      companyCredit = await CompanyCredit.create(
+        [
+          {
+            companyId: new mongoose.Types.ObjectId(companyId),
+            balance: 0,
+            limit: 0,
+            usedCredit: 0,
+            mineId: new mongoose.Types.ObjectId(company.mineId),
+          },
+        ],
+        { session },
+      );
+      companyCredit = companyCredit[0];
     }
 
-    // -----------------------------------------
-    // 2️⃣ REMAINING PAYMENT GOES TO DEBIT ACCOUNT
-    // -----------------------------------------
-    if (payment > 0) {
-      excess = payment;
-      // add excess
-      company.debitAmount = oldDebitFinal + excess;
-    } else {
-      // No excess
-      company.debitAmount = oldDebitFinal;
-    }
+    const debitAmount = data.amount;
+    const oldDebitAmount = company.debitAmount || 0;
+    const newDebitAmount = oldDebitAmount + debitAmount;
 
-    const newDebitFinal = company.debitAmount;
-
-    // Save both with transaction
-    await companyCredit.save({ session });
+    // Update company debit amount
+    company.debitAmount = newDebitAmount;
     await company.save({ session });
 
-    // -----------------------------------------
-    // 3️⃣ ACCOUNT TRAIL
-    // -----------------------------------------
+    // Create account statement trail record
     await AccountStatementTrail.create(
       [
         {
-          companyId: company._id,
+          companyId: new mongoose.Types.ObjectId(companyId),
+          mineId: company.mineId,
           type: "debit-added",
-          amount: data.amount,
-          oldBalance: oldDebitFinal,
-          newBalance: newDebitFinal,
-          description: data.reason || "Debit updated via admin",
+          amount: debitAmount,
+          oldBalance: oldDebitAmount,
+          newBalance: newDebitAmount,
+          description: data.reason || "Debit added via admin",
         },
       ],
       { session },
@@ -185,10 +171,9 @@ export async function addDebitToCompanyService(
 
     return {
       success: true,
-      oldDebit: oldDebitFinal,
-      newDebit: newDebitFinal,
-      appliedToCredit: data.amount - excess,
-      excessAddedToDebit: excess,
+      oldDebit: oldDebitAmount,
+      newDebit: newDebitAmount,
+      amountAdded: debitAmount,
     };
   } catch (error: any) {
     await session.abortTransaction();
