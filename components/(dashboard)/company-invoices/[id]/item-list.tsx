@@ -22,7 +22,8 @@ export function InvoiceOrdersList({ orders }: { orders: IOrder[] }) {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => {
-            const outstanding = order.totalAmount - order.debit - order.credit;
+            const outstanding =
+              order.totalAmount - (order.debit || 0) - (order.credit || 0);
 
             return (
               <div key={order.id} className="border rounded-xl p-4">
@@ -43,21 +44,21 @@ export function InvoiceOrdersList({ orders }: { orders: IOrder[] }) {
                   <div>
                     <p className="text-gray-500">Debit</p>
                     <p className="text-purple-600 font-medium">
-                      R {order.debit.toFixed(2)}
+                      R {(order.debit || 0).toFixed(2)}
                     </p>
                   </div>
 
                   <div>
                     <p className="text-gray-500">Credit</p>
                     <p className="text-orange-600 font-medium">
-                      R {order.credit.toFixed(2)}
+                      R {(order.credit || 0).toFixed(2)}
                     </p>
                   </div>
 
                   <div>
                     <p className="text-gray-500">Outstanding</p>
                     <p className="text-red-600 font-medium">
-                      R {order.credit.toFixed(2)}
+                      R {(order.credit || 0).toFixed(2)}
                     </p>
                   </div>
                 </div>
