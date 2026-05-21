@@ -21,7 +21,7 @@ export const actionFormSchema = z.object({
     .string()
     .regex(
       /^[a-z]+(-[a-z]+)*:[a-z]+(-[a-z]+)*$/,
-      'Action name must follow "<resource>:<action>" e.g. truck-order:accept-now'
+      'Action name must follow "<resource>:<action>" e.g. truck-order:accept-now',
     ),
 
   description: z.string().min(3, "Description is required"),

@@ -13,3 +13,16 @@ export interface ITanker {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export type TankerFormState = {
+  errors: {
+    name?: string[];
+    productId?: string[];
+    stockLevel?: string[];
+    capacity?: string[];
+    isPublished?: string[];
+    userId?: string[];
+    global?: string[];
+  };
+  message: string;
+};

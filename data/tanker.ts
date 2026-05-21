@@ -7,20 +7,6 @@ import {
 } from "@/services/tanker";
 import { ITanker } from "@/definitions/tanker";
 
-const mapTanker = (tanker: any): ITanker => ({
-  id: tanker._id?.toString?.() ?? tanker.id ?? "",
-  name: tanker.name,
-  productId: tanker.productId?._id?.toString() ?? tanker.productId,
-  productName: tanker.productId?.name,
-  stockLevel: tanker.stockLevel ?? 0,
-  capacity: tanker.capacity ?? 0,
-  isPublished: tanker.isPublished ?? false,
-  userId: tanker.userId?._id?.toString() ?? tanker.userId,
-  attendanceName: tanker.userId?.name,
-  createdAt: tanker.createdAt,
-  updatedAt: tanker.updatedAt,
-});
-
 export async function getTankers() {
   try {
     const result = await getAllTankersService();
@@ -38,10 +24,16 @@ export async function getTankers() {
 export async function getTankerById(id: string) {
   try {
     const result = await getTankerByIdService(id);
-    if (!result) return { success: false, message: "Tanker not found" };
+    if (!result) {
+      return { success: false, message: "Tanker not found" };
+    }
     return { success: true, data: mapTanker(result) };
   } catch (error: any) {
-    return { success: false, message: error?.message };
+    console.error("❌ getTankerById error:", error);
+    return {
+      success: false,
+      message: error?.message ?? "Unable to fetch tanker",
+    };
   }
 }
 
@@ -52,4 +44,20 @@ export async function getTotalStockByProduct(productId: string) {
   } catch (error: any) {
     return { success: false, totalStock: 0, message: error?.message };
   }
+}
+
+function mapTanker(doc: any): ITanker {
+  return {
+    id: doc._id.toString(),
+    name: doc.name,
+    productId: doc.productId?._id?.toString() || doc.productId?.toString(),
+    productName: doc.productId?.name?.toString(),
+    stockLevel: doc.stockLevel ?? 0,
+    capacity: doc.capacity ?? 0,
+    isPublished: doc.isPublished ?? false,
+    userId: doc.userId?._id?.toString() || doc.userId?.toString(),
+    attendanceName: doc.userId?.name,
+    createdAt: doc.createdAt?.toISOString(),
+    updatedAt: doc.updatedAt?.toISOString(),
+  };
 }

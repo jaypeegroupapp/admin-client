@@ -32,6 +32,7 @@ export async function createTankerAction(
     const validated = tankerFormSchema.safeParse(rawData);
 
     if (!validated.success) {
+      console.log(validated.error.flatten().fieldErrors);
       return {
         message: "Validation failed",
         errors: validated.error.flatten().fieldErrors,
