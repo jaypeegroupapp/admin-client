@@ -41,6 +41,8 @@ export async function getTankerStockAnalyticsService(tankerId: string) {
 export async function restockTankerService(
   tankerId: string,
   quantityAdded: number,
+  actualMeterReading: number,
+  beforeStock?: number,
   supplierName?: string,
   invoiceNumber?: string,
   invoiceUnitPrice?: number,
@@ -58,17 +60,29 @@ export async function restockTankerService(
     throw new Error("Tanker not found");
   }
 
-  const beforeStock = tanker.stockLevel;
+  const openingBalance =
+    beforeStock !== undefined ? beforeStock : tanker.stockLevel;
+  const expectedClosingBalance = openingBalance + quantityAdded;
 
   // Check capacity
-  if (tanker.stockLevel + quantityAdded > tanker.capacity) {
+  if (expectedClosingBalance > tanker.capacity) {
     throw new Error(
-      `Restock would exceed tanker capacity of ${tanker.capacity}L`,
+      `Restock would exceed tanker capacity of ${tanker.capacity}L. Expected: ${expectedClosingBalance}L`,
     );
   }
 
-  // Update tanker stock
-  tanker.stockLevel += quantityAdded;
+  // Calculate variance
+  const variance = actualMeterReading - expectedClosingBalance;
+  const variancePercentage =
+    expectedClosingBalance > 0 ? (variance / expectedClosingBalance) * 100 : 0;
+
+  // Determine status (5% tolerance)
+  const tolerance = 5;
+  const status =
+    Math.abs(variancePercentage) <= tolerance ? "completed" : "discrepancy";
+
+  // Update tanker stock with actual meter reading
+  tanker.stockLevel = actualMeterReading;
   await tanker.save();
 
   // Calculate financial metrics
@@ -79,12 +93,17 @@ export async function restockTankerService(
   const potentialRevenue = quantityAdded * (gridAtPurchase || 0);
   const profit = potentialRevenue - discountedTotal;
 
-  // Record restock with full financial details
+  // Record restock with all details
   await TankerRestock.create({
     tankerId: new Types.ObjectId(tankerId),
     quantityAdded,
-    beforeStock,
-    afterStock: tanker.stockLevel,
+    beforeStock: openingBalance,
+    afterStock: actualMeterReading,
+    expectedClosingBalance,
+    actualMeterReading,
+    variance,
+    variancePercentage,
+    status,
     supplierName: supplierName || undefined,
     invoiceNumber: invoiceNumber || undefined,
     invoiceUnitPrice: invoiceUnitPrice || undefined,
@@ -93,17 +112,21 @@ export async function restockTankerService(
     discount: discount || 0,
     notes: notes || undefined,
     restockDate: restockDate || new Date(),
-    status: "completed",
   });
 
-  // Record transaction with financial details
+  // Record transaction with details
   await TankerTransaction.create({
     tankerId: new Types.ObjectId(tankerId),
     type: "RESTOCK",
     quantity: quantityAdded,
-    beforeStock,
-    afterStock: tanker.stockLevel,
+    beforeStock: openingBalance,
+    afterStock: actualMeterReading,
     details: {
+      expectedClosingBalance,
+      actualMeterReading,
+      variance,
+      variancePercentage,
+      status,
       supplierName: supplierName || undefined,
       invoiceNumber: invoiceNumber || undefined,
       invoiceUnitPrice: invoiceUnitPrice || undefined,

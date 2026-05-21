@@ -6,8 +6,12 @@ export const restockTankerSchema = z.object({
     .number()
     .min(0.1, "Quantity must be greater than 0")
     .max(100000, "Quantity too large"),
+  actualMeterReading: z.coerce
+    .number()
+    .min(0, "Meter reading must be 0 or greater"),
+  beforeStock: z.coerce.number().optional(),
 
-  // Supplier invoice fields (from stock movement)
+  // Supplier invoice fields
   supplierName: z.string().optional(),
   invoiceNumber: z.string().optional(),
   invoiceUnitPrice: z.coerce

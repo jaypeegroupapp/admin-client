@@ -1,12 +1,17 @@
 "use client";
 
 import { StockLevelPreview } from "./stock-level";
+import { VariancePreview } from "./variance";
 import { FinancialPreview } from "./financial";
 
 interface PreviewProps {
   quantityAdded: number;
   currentStock: number;
   capacity: number;
+  actualMeterReading: number;
+  expectedClosing: number;
+  variance: number;
+  variancePercent: string;
   invoiceUnitPrice: number;
   gridAtPurchase: number;
   discount: number;
@@ -17,6 +22,10 @@ export function RestockPreview({
   quantityAdded,
   currentStock,
   capacity,
+  actualMeterReading,
+  expectedClosing,
+  variance,
+  variancePercent,
   invoiceUnitPrice,
   gridAtPurchase,
   discount,
@@ -32,6 +41,15 @@ export function RestockPreview({
         quantityAdded={quantityAdded}
         currentStock={currentStock}
         capacity={capacity}
+      />
+
+      <VariancePreview
+        currentStock={currentStock}
+        quantityAdded={quantityAdded}
+        expectedClosing={expectedClosing}
+        actualMeterReading={actualMeterReading}
+        variance={variance}
+        variancePercent={variancePercent}
       />
 
       {showFinancialFields && invoiceUnitPrice > 0 && (

@@ -12,6 +12,8 @@ export async function restockTankerAction(
   try {
     const rawData = {
       quantityAdded: formData.get("quantityAdded"),
+      actualMeterReading: formData.get("actualMeterReading"),
+      beforeStock: formData.get("beforeStock"),
       supplierName: formData.get("supplierName") || undefined,
       invoiceNumber: formData.get("invoiceNumber") || undefined,
       invoiceUnitPrice: formData.get("invoiceUnitPrice") || undefined,
@@ -37,6 +39,8 @@ export async function restockTankerAction(
     await restockTankerService(
       tankerId,
       data.quantityAdded,
+      data.actualMeterReading,
+      data.beforeStock ? Number(data.beforeStock) : undefined,
       data.supplierName,
       data.invoiceNumber,
       data.invoiceUnitPrice ? Number(data.invoiceUnitPrice) : undefined,

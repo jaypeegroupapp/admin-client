@@ -9,7 +9,7 @@ import { SubmitButton } from "@/components/ui/buttons";
 import { restockTankerAction } from "@/actions/tanker-stock";
 import { restockTankerSchema } from "@/validations/tanker-stock";
 import { CurrentStockDisplay } from "./current-stock-display";
-import { RestockQuantityField } from "./quantity-field";
+import { RestockQuantityFields } from "./quantity-fields";
 import { FinancialFieldsToggle } from "./financial-fields-toggle";
 import { FinancialFields } from "./financial-fields";
 import { RestockDateField } from "./date-field";
@@ -47,18 +47,26 @@ export function RestockTankerModal({
     resolver: zodResolver(restockTankerSchema),
     defaultValues: {
       quantityAdded: 0,
+      actualMeterReading: currentStock,
       discount: 0,
       restockDate: new Date().toISOString().split("T")[0],
     },
   });
 
   const quantityAdded = Number(watch("quantityAdded")) || 0;
+  const actualMeterReading = Number(watch("actualMeterReading")) || 0;
   const invoiceUnitPrice = Number(watch("invoiceUnitPrice")) || 0;
   const gridAtPurchase = Number(watch("gridAtPurchase")) || 0;
   const discount = Number(watch("discount")) || 0;
 
+  const expectedClosing = currentStock + quantityAdded;
+  const variance = actualMeterReading - expectedClosing;
+  const variancePercent =
+    expectedClosing > 0 ? ((variance / expectedClosing) * 100).toFixed(1) : "0";
+
   const onSubmit = handleSubmit(() => {
     const formData = new FormData(formRef.current!);
+    formData.set("beforeStock", currentStock.toString());
     startTransition(() => {
       formAction(formData);
       onClose();
@@ -73,12 +81,14 @@ export function RestockTankerModal({
         </h2>
 
         <form ref={formRef} onSubmit={onSubmit} className="space-y-4">
+          <input type="hidden" name="beforeStock" value={currentStock} />
+
           <CurrentStockDisplay
             currentStock={currentStock}
             capacity={capacity}
           />
 
-          <RestockQuantityField
+          <RestockQuantityFields
             register={register}
             errors={errors}
             isPending={isPending}
@@ -116,6 +126,10 @@ export function RestockTankerModal({
             quantityAdded={quantityAdded}
             currentStock={currentStock}
             capacity={capacity}
+            actualMeterReading={actualMeterReading}
+            expectedClosing={expectedClosing}
+            variance={variance}
+            variancePercent={variancePercent}
             invoiceUnitPrice={invoiceUnitPrice}
             gridAtPurchase={gridAtPurchase}
             discount={discount}
