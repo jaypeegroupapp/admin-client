@@ -147,27 +147,72 @@ export function StockControlTab({
                   <ChevronDown size={18} />
                 )}
               </div>
-
               {expandedRecord === record.id && (
                 <div className="border-t border-gray-200 bg-gray-50 p-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    {record.supplierName && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Supplier Details */}
+                    {(record.supplierName || record.invoiceNumber) && (
                       <div>
                         <h4 className="text-xs font-medium text-gray-500 mb-2">
                           Supplier Details
                         </h4>
-                        <p className="text-sm">
-                          Supplier: {record.supplierName}
-                        </p>
+                        {record.supplierName && (
+                          <p className="text-sm">
+                            Supplier: {record.supplierName}
+                          </p>
+                        )}
                         {record.invoiceNumber && (
                           <p className="text-sm">
                             Invoice: {record.invoiceNumber}
                           </p>
                         )}
+                        {record.invoiceDate && (
+                          <p className="text-sm">
+                            Invoice Date:{" "}
+                            {new Date(record.invoiceDate).toLocaleDateString(
+                              "en-ZA",
+                            )}
+                          </p>
+                        )}
                       </div>
                     )}
+
+                    {/* Financial Details */}
+                    {(record.invoiceUnitPrice > 0 ||
+                      record.gridAtPurchase > 0) && (
+                      <div>
+                        <h4 className="text-xs font-medium text-gray-500 mb-2">
+                          Financial Details
+                        </h4>
+                        {record.invoiceUnitPrice > 0 && (
+                          <p className="text-sm">
+                            Unit Price: R{record.invoiceUnitPrice.toFixed(2)}/L
+                          </p>
+                        )}
+                        {record.gridAtPurchase > 0 && (
+                          <p className="text-sm">
+                            Selling Price: R{record.gridAtPurchase.toFixed(2)}/L
+                          </p>
+                        )}
+                        {record.discount > 0 && (
+                          <p className="text-sm text-green-600">
+                            Discount: {record.discount}%
+                          </p>
+                        )}
+                        {record.invoiceUnitPrice > 0 && (
+                          <p className="text-sm font-medium mt-1">
+                            Total Cost: R
+                            {(
+                              record.quantityAdded * record.invoiceUnitPrice
+                            ).toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Notes */}
                     {record.notes && (
-                      <div className="col-span-2">
+                      <div className="md:col-span-2">
                         <p className="text-sm text-gray-600">
                           <span className="font-medium">Notes:</span>{" "}
                           {record.notes}
@@ -176,7 +221,7 @@ export function StockControlTab({
                     )}
                   </div>
                 </div>
-              )}
+              )}{" "}
             </motion.div>
           ))}
         </div>

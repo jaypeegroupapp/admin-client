@@ -24,10 +24,17 @@ export async function getTankerStockAnalyticsService(tankerId: string) {
     (sum, r) => sum + (r.quantityAdded || 0),
     0,
   );
+  const totalCost = records.reduce(
+    (sum, r) => sum + r.quantityAdded * (r.invoiceUnitPrice || 0),
+    0,
+  );
+  const totalDiscount = records.reduce((sum, r) => sum + (r.discount || 0), 0);
 
   return {
     totalRestocks,
     totalReceived,
+    totalCost,
+    totalDiscount,
   };
 }
 
@@ -36,6 +43,10 @@ export async function restockTankerService(
   quantityAdded: number,
   supplierName?: string,
   invoiceNumber?: string,
+  invoiceUnitPrice?: number,
+  invoiceDate?: Date,
+  gridAtPurchase?: number,
+  discount?: number,
   notes?: string,
   restockDate?: Date,
 ) {
@@ -49,11 +60,26 @@ export async function restockTankerService(
 
   const beforeStock = tanker.stockLevel;
 
+  // Check capacity
+  if (tanker.stockLevel + quantityAdded > tanker.capacity) {
+    throw new Error(
+      `Restock would exceed tanker capacity of ${tanker.capacity}L`,
+    );
+  }
+
   // Update tanker stock
   tanker.stockLevel += quantityAdded;
   await tanker.save();
 
-  // Record restock
+  // Calculate financial metrics
+  const totalCost = quantityAdded * (invoiceUnitPrice || 0);
+  const discountedTotal = discount
+    ? totalCost * (1 - discount / 100)
+    : totalCost;
+  const potentialRevenue = quantityAdded * (gridAtPurchase || 0);
+  const profit = potentialRevenue - discountedTotal;
+
+  // Record restock with full financial details
   await TankerRestock.create({
     tankerId: new Types.ObjectId(tankerId),
     quantityAdded,
@@ -61,12 +87,16 @@ export async function restockTankerService(
     afterStock: tanker.stockLevel,
     supplierName: supplierName || undefined,
     invoiceNumber: invoiceNumber || undefined,
+    invoiceUnitPrice: invoiceUnitPrice || undefined,
+    invoiceDate: invoiceDate || undefined,
+    gridAtPurchase: gridAtPurchase || undefined,
+    discount: discount || 0,
     notes: notes || undefined,
     restockDate: restockDate || new Date(),
     status: "completed",
   });
 
-  // Record transaction
+  // Record transaction with financial details
   await TankerTransaction.create({
     tankerId: new Types.ObjectId(tankerId),
     type: "RESTOCK",
@@ -76,10 +106,37 @@ export async function restockTankerService(
     details: {
       supplierName: supplierName || undefined,
       invoiceNumber: invoiceNumber || undefined,
+      invoiceUnitPrice: invoiceUnitPrice || undefined,
+      invoiceDate: invoiceDate || undefined,
+      gridAtPurchase: gridAtPurchase || undefined,
+      discount: discount || 0,
+      totalCost: discountedTotal,
+      potentialRevenue,
+      profit,
       notes: notes || undefined,
     },
     timestamp: new Date(),
   });
 
   return tanker;
+}
+
+export async function validateTankerInvoiceNumber(
+  invoiceNumber: string,
+  tankerId: string,
+): Promise<boolean> {
+  await connectDB();
+
+  const existingRecord = await TankerRestock.findOne({
+    invoiceNumber,
+    tankerId: new Types.ObjectId(tankerId),
+  }).lean();
+
+  if (existingRecord) {
+    throw new Error(
+      `Invoice number ${invoiceNumber} already used for this tanker`,
+    );
+  }
+
+  return true;
 }

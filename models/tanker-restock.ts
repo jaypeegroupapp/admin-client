@@ -5,11 +5,23 @@ export interface ITankerRestock {
   quantityAdded: number;
   beforeStock: number;
   afterStock: number;
+
+  // Supplier invoice details
   supplierName?: string;
   invoiceNumber?: string;
+  invoiceUnitPrice?: number;
+  invoiceDate?: Date;
+
+  // Pricing details
+  gridAtPurchase?: number;
+  discount: number;
+
+  // Other fields
   notes?: string;
   restockDate: Date;
   status: "pending" | "completed";
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const TankerRestockSchema = new Schema<ITankerRestock>(
@@ -18,8 +30,18 @@ const TankerRestockSchema = new Schema<ITankerRestock>(
     quantityAdded: { type: Number, required: true, min: 0 },
     beforeStock: { type: Number, required: true, min: 0 },
     afterStock: { type: Number, required: true, min: 0 },
-    supplierName: { type: String },
-    invoiceNumber: { type: String },
+
+    // Supplier invoice details
+    supplierName: { type: String, trim: true },
+    invoiceNumber: { type: String, trim: true, sparse: true },
+    invoiceUnitPrice: { type: Number, min: 0 },
+    invoiceDate: { type: Date },
+
+    // Pricing details
+    gridAtPurchase: { type: Number, min: 0 },
+    discount: { type: Number, default: 0, min: 0, max: 100 },
+
+    // Other fields
     notes: { type: String },
     restockDate: { type: Date, default: Date.now },
     status: {
@@ -31,7 +53,10 @@ const TankerRestockSchema = new Schema<ITankerRestock>(
   { timestamps: true },
 );
 
+// Indexes for efficient querying
 TankerRestockSchema.index({ tankerId: 1, restockDate: -1 });
+TankerRestockSchema.index({ invoiceNumber: 1 }, { sparse: true });
+TankerRestockSchema.index({ supplierName: 1 });
 
 const TankerRestock =
   mongoose.models.TankerRestock ||
