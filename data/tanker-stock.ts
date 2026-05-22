@@ -14,6 +14,11 @@ export async function getTankerStockHistory(tankerId: string) {
       quantityAdded: record.quantityAdded,
       beforeStock: record.beforeStock,
       afterStock: record.afterStock,
+      expectedClosingBalance: record.expectedClosingBalance,
+      actualMeterReading: record.actualMeterReading,
+      variance: record.variance,
+      variancePercentage: record.variancePercentage,
+      status: record.status,
       supplierName: record.supplierName,
       invoiceNumber: record.invoiceNumber,
       invoiceUnitPrice: record.invoiceUnitPrice,
@@ -21,7 +26,6 @@ export async function getTankerStockHistory(tankerId: string) {
       gridAtPurchase: record.gridAtPurchase,
       discount: record.discount,
       notes: record.notes,
-      status: record.status || "completed",
       restockDate: record.restockDate || record.createdAt,
       createdAt: record.createdAt,
     }));
@@ -32,7 +36,6 @@ export async function getTankerStockHistory(tankerId: string) {
     return [];
   }
 }
-
 export async function getTankerStockAnalytics(tankerId: string) {
   try {
     return await getTankerStockAnalyticsService(tankerId);

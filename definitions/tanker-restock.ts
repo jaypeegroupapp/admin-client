@@ -5,6 +5,11 @@ export interface ITankerRestock {
   quantityAdded: number;
   beforeStock: number;
   afterStock: number;
+  expectedClosingBalance: number;
+  actualMeterReading: number;
+  variance: number;
+  variancePercentage: number;
+  status: "completed" | "discrepancy";
 
   // Supplier invoice details
   supplierName?: string;
@@ -19,7 +24,7 @@ export interface ITankerRestock {
   // Other fields
   notes?: string;
   restockDate: Date;
-  status: "pending" | "completed";
+  recordedBy?: mongoose.Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }

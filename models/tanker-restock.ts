@@ -7,6 +7,15 @@ const TankerRestockSchema = new Schema<ITankerRestock>(
     quantityAdded: { type: Number, required: true, min: 0 },
     beforeStock: { type: Number, required: true, min: 0 },
     afterStock: { type: Number, required: true, min: 0 },
+    expectedClosingBalance: { type: Number, required: true, min: 0 },
+    actualMeterReading: { type: Number, required: true, min: 0 },
+    variance: { type: Number, required: true },
+    variancePercentage: { type: Number, required: true, default: 0 },
+    status: {
+      type: String,
+      enum: ["completed", "discrepancy"],
+      default: "completed",
+    },
 
     // Supplier invoice details
     supplierName: { type: String, trim: true },
@@ -21,19 +30,12 @@ const TankerRestockSchema = new Schema<ITankerRestock>(
     // Other fields
     notes: { type: String },
     restockDate: { type: Date, default: Date.now },
-    status: {
-      type: String,
-      enum: ["pending", "completed"],
-      default: "completed",
-    },
+    recordedBy: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true },
 );
 
-// Indexes for efficient querying
 TankerRestockSchema.index({ tankerId: 1, restockDate: -1 });
-TankerRestockSchema.index({ invoiceNumber: 1 }, { sparse: true });
-TankerRestockSchema.index({ supplierName: 1 });
 
 const TankerRestock =
   mongoose.models.TankerRestock ||
