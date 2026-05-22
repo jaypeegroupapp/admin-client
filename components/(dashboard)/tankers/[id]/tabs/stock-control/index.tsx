@@ -1,20 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import {
-  Package,
-  Plus,
-  Calendar,
-  ChevronDown,
-  ChevronUp,
-  AlertTriangle,
-} from "lucide-react";
+import { Package, Plus } from "lucide-react";
 import {
   getTankerStockHistory,
   getTankerStockAnalytics,
 } from "@/data/tanker-stock";
 import { RestockTankerModal } from "./restock-modal";
+import { AnalyticsCards } from "./analytics-cards";
+import { RestockHistoryList } from "./restock-history-list";
 
 export function StockControlTab({
   tankerId,
@@ -28,7 +22,6 @@ export function StockControlTab({
   const [stockRecords, setStockRecords] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
-  const [expandedRecord, setExpandedRecord] = useState<string | null>(null);
 
   const loadData = async () => {
     const [records, analyticsData] = await Promise.all([
@@ -43,57 +36,13 @@ export function StockControlTab({
     loadData();
   }, [tankerId]);
 
-  const getStatusBadge = (status: string) => {
-    if (status === "completed") {
-      return (
-        <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
-          Completed
-        </span>
-      );
-    }
-    return (
-      <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">
-        Discrepancy
-      </span>
-    );
-  };
-
-  const getVarianceColor = (variance: number) => {
-    if (Math.abs(variance) < 0.1) return "text-green-600";
-    if (Math.abs(variance) < 1) return "text-yellow-600";
-    return "text-red-600";
-  };
-
   return (
     <>
-      {analytics && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-blue-50 rounded-lg p-4">
-            <p className="text-xs text-blue-600 font-medium">Current Stock</p>
-            <p className="text-2xl font-bold text-blue-700">{currentStock}L</p>
-          </div>
-          <div className="bg-green-50 rounded-lg p-4">
-            <p className="text-xs text-green-600 font-medium">Total Restocks</p>
-            <p className="text-2xl font-bold text-green-700">
-              {analytics.totalRestocks}
-            </p>
-          </div>
-          <div className="bg-purple-50 rounded-lg p-4">
-            <p className="text-xs text-purple-600 font-medium">
-              Total Received
-            </p>
-            <p className="text-2xl font-bold text-purple-700">
-              {analytics.totalReceived?.toFixed(1) || 0}L
-            </p>
-          </div>
-          <div className="bg-orange-50 rounded-lg p-4">
-            <p className="text-xs text-orange-600 font-medium">Fill Rate</p>
-            <p className="text-2xl font-bold text-orange-700">
-              {((currentStock / capacity) * 100).toFixed(1)}%
-            </p>
-          </div>
-        </div>
-      )}
+      <AnalyticsCards
+        currentStock={currentStock}
+        capacity={capacity}
+        analytics={analytics}
+      />
 
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-medium text-gray-700 flex items-center gap-2">
@@ -109,265 +58,7 @@ export function StockControlTab({
         </button>
       </div>
 
-      {stockRecords.length === 0 ? (
-        <div className="text-center py-8 bg-gray-50 rounded-lg">
-          <Package size={32} className="mx-auto text-gray-400 mb-2" />
-          <p className="text-sm text-gray-500">No restock records yet</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {stockRecords.map((record) => (
-            <motion.div
-              key={record.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="border border-gray-200 rounded-lg overflow-hidden"
-            >
-              <div
-                className="p-4 bg-white hover:bg-gray-50 cursor-pointer flex items-center justify-between"
-                onClick={() =>
-                  setExpandedRecord(
-                    expandedRecord === record.id ? null : record.id,
-                  )
-                }
-              >
-                <div className="flex items-center gap-4 flex-1 flex-wrap">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} className="text-gray-400" />
-                    <span className="text-sm text-gray-600">
-                      {new Date(record.restockDate).toLocaleDateString("en-ZA")}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm">
-                      <span className="text-gray-500">Before:</span>{" "}
-                      <span className="font-medium">{record.beforeStock}L</span>
-                    </span>
-                    <span className="text-sm">
-                      <span className="text-gray-500">Added:</span>{" "}
-                      <span className="font-medium text-green-600">
-                        +{record.quantityAdded}L
-                      </span>
-                    </span>
-                    <span className="text-sm">
-                      <span className="text-gray-500">After:</span>{" "}
-                      <span className="font-medium">{record.afterStock}L</span>
-                    </span>
-                    {record.variance !== 0 && (
-                      <span
-                        className={`text-sm font-medium ${getVarianceColor(record.variance)}`}
-                      >
-                        <span className="text-gray-500">Var:</span>{" "}
-                        {record.variance > 0 ? "+" : ""}
-                        {record.variance.toFixed(1)}L
-                      </span>
-                    )}
-                  </div>
-                  {getStatusBadge(record.status)}
-                </div>
-                {expandedRecord === record.id ? (
-                  <ChevronUp size={18} className="text-gray-400" />
-                ) : (
-                  <ChevronDown size={18} className="text-gray-400" />
-                )}
-              </div>
-
-              {expandedRecord === record.id && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="border-t border-gray-200 bg-gray-50 p-4"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Volume Calculations */}
-                    <div>
-                      <h4 className="text-xs font-medium text-gray-500 mb-2">
-                        Volume Calculation
-                      </h4>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">
-                            Opening Balance:
-                          </span>
-                          <span className="font-medium">
-                            {record.beforeStock}L
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Added:</span>
-                          <span className="font-medium text-green-600">
-                            +{record.quantityAdded}L
-                          </span>
-                        </div>
-                        <div className="flex justify-between border-t border-gray-200 pt-1 mt-1">
-                          <span className="text-gray-600">
-                            Expected Closing:
-                          </span>
-                          <span className="font-medium">
-                            {record.expectedClosingBalance}L
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Actual Reading:</span>
-                          <span className="font-medium">
-                            {record.actualMeterReading}L
-                          </span>
-                        </div>
-                        <div className="flex justify-between border-t border-gray-200 pt-1 mt-1">
-                          <span className="text-gray-600">Variance:</span>
-                          <span
-                            className={`font-medium ${
-                              Math.abs(record.variance) < 0.1
-                                ? "text-green-600"
-                                : Math.abs(record.variance) < 1
-                                  ? "text-yellow-600"
-                                  : "text-red-600"
-                            }`}
-                          >
-                            {record.variance > 0 ? "+" : ""}
-                            {record.variance.toFixed(2)}L
-                            <span className="text-xs ml-1">
-                              ({record.variancePercentage?.toFixed(1) || "0"}%)
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Purchase Details */}
-                    {(record.supplierName || record.invoiceNumber) && (
-                      <div>
-                        <h4 className="text-xs font-medium text-gray-500 mb-2">
-                          Purchase Details
-                        </h4>
-                        <div className="bg-white p-3 rounded-lg border border-gray-200">
-                          {record.supplierName && (
-                            <p className="text-sm font-medium text-gray-800">
-                              {record.supplierName}
-                            </p>
-                          )}
-                          {record.invoiceNumber && (
-                            <p className="text-xs text-gray-500">
-                              Invoice: {record.invoiceNumber}
-                            </p>
-                          )}
-                          <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
-                            {record.invoiceUnitPrice > 0 && (
-                              <>
-                                <div>
-                                  <span className="text-gray-500">
-                                    Unit Price:
-                                  </span>
-                                  <p className="font-medium">
-                                    R{record.invoiceUnitPrice.toFixed(2)}/L
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-gray-500">
-                                    Total Cost:
-                                  </span>
-                                  <p className="font-medium">
-                                    R
-                                    {(
-                                      record.quantityAdded *
-                                      record.invoiceUnitPrice
-                                    ).toFixed(2)}
-                                  </p>
-                                </div>
-                              </>
-                            )}
-                            {record.gridAtPurchase > 0 && (
-                              <>
-                                <div>
-                                  <span className="text-gray-500">
-                                    Selling Price:
-                                  </span>
-                                  <p className="font-medium">
-                                    R{record.gridAtPurchase.toFixed(2)}/L
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-gray-500">
-                                    Potential Revenue:
-                                  </span>
-                                  <p className="font-medium">
-                                    R
-                                    {(
-                                      record.quantityAdded *
-                                      record.gridAtPurchase
-                                    ).toFixed(2)}
-                                  </p>
-                                </div>
-                              </>
-                            )}
-                            {record.discount > 0 && (
-                              <div className="col-span-2">
-                                <span className="text-gray-500">Discount:</span>
-                                <p className="font-medium text-green-600">
-                                  {record.discount}%
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                          {record.invoiceDate && (
-                            <p className="text-xs text-gray-400 mt-2">
-                              Invoice Date:{" "}
-                              {new Date(record.invoiceDate).toLocaleDateString(
-                                "en-ZA",
-                              )}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Notes and Metadata */}
-                    <div className="md:col-span-2">
-                      {record.notes && (
-                        <p className="text-sm text-gray-600 bg-white p-2 rounded">
-                          <span className="font-medium">Notes:</span>{" "}
-                          {record.notes}
-                        </p>
-                      )}
-                      <div className="flex justify-between text-xs text-gray-400 mt-2">
-                        <span>
-                          Recorded:{" "}
-                          {new Date(record.createdAt).toLocaleString("en-ZA")}
-                        </span>
-                        {record.restockDate && (
-                          <span>
-                            Restock Date:{" "}
-                            {new Date(record.restockDate).toLocaleDateString(
-                              "en-ZA",
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Discrepancy Warning */}
-                  {record.status === "discrepancy" && (
-                    <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded flex items-start gap-2">
-                      <AlertTriangle
-                        size={16}
-                        className="text-red-500 mt-0.5"
-                      />
-                      <p className="text-xs text-red-700">
-                        Variance of {record.variance.toFixed(2)}L (
-                        {record.variancePercentage?.toFixed(1) || "0"}%)
-                        detected. Please investigate possible leak, theft, or
-                        meter calibration issue.
-                      </p>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </motion.div>
-          ))}
-        </div>
-      )}
+      <RestockHistoryList records={stockRecords} onRefresh={loadData} />
 
       <RestockTankerModal
         open={showModal}
