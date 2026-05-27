@@ -23,7 +23,7 @@ export default function ProductAddForm({
   const createProductActionWithId = createProductAction.bind(null, productId);
   const [state, formAction, isPending] = useActionState(
     createProductActionWithId,
-    initialState
+    initialState,
   );
 
   const formRef = useRef<HTMLFormElement>(null);
