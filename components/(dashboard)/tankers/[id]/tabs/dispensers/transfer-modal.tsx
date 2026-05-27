@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useActionState, startTransition } from "react";
@@ -10,6 +10,15 @@ import InputValidated from "@/components/ui/input-validated";
 import { transferToDispenserAction } from "@/actions/tanker-transfer";
 import { transferToDispenserSchema } from "@/validations/tanker-transfer";
 
+interface TransferModalProps {
+  open: boolean;
+  onClose: () => void;
+  tankerId: string;
+  dispenserId: string;
+  dispenserName: string;
+  currentTankerStock: number;
+}
+
 export function TransferToDispenserModal({
   open,
   onClose,
@@ -17,14 +26,7 @@ export function TransferToDispenserModal({
   dispenserId,
   dispenserName,
   currentTankerStock,
-}: {
-  open: boolean;
-  onClose: () => void;
-  tankerId: string;
-  dispenserId: string;
-  dispenserName: string;
-  currentTankerStock: number;
-}) {
+}: TransferModalProps) {
   const initialState = { message: "", errors: {} };
   const [state, formAction, isPending] = useActionState(
     transferToDispenserAction.bind(null, tankerId, dispenserId),
@@ -96,7 +98,11 @@ export function TransferToDispenserModal({
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Remaining in Tanker:</span>
                 <span
-                  className={`font-medium ${remainingAfterTransfer < 0 ? "text-red-600" : ""}`}
+                  className={`font-medium ${
+                    remainingAfterTransfer < 0
+                      ? "text-red-600"
+                      : "text-green-600"
+                  }`}
                 >
                   {Math.max(0, remainingAfterTransfer)}L
                 </span>
@@ -115,7 +121,7 @@ export function TransferToDispenserModal({
             stateError={state?.errors}
           />
 
-          {state?.message && !state.success && (
+          {state?.message && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">{state.message}</p>
             </div>

@@ -5,7 +5,7 @@ import { connectDB } from "@/lib/db";
 import {
   connectDispenserService,
   disconnectDispenserService,
-  getTankerDispensersService,
+  getActiveConnectionService,
 } from "@/services/tanker-dispenser";
 import { connectDispenserSchema } from "@/validations/tanker-dispenser";
 
@@ -30,13 +30,13 @@ export async function connectDispenserToTankerAction(
 
     const { dispenserId } = validated.data;
 
-    // Check if connection already exists
-    const existingConnections = await getTankerDispensersService(tankerId);
-    const alreadyConnected = existingConnections.some(
-      (conn: any) => conn.dispenserId.toString() === dispenserId,
+    // Check if connection already exists and is active
+    const existingConnection = await getActiveConnectionService(
+      tankerId,
+      dispenserId,
     );
 
-    if (alreadyConnected) {
+    if (existingConnection) {
       return {
         message: "Dispenser is already connected to this tanker",
         errors: { dispenserId: ["Already connected"] },
@@ -49,8 +49,17 @@ export async function connectDispenserToTankerAction(
     return { success: true, message: "Dispenser connected successfully" };
   } catch (error: any) {
     console.error("❌ connectDispenserToTankerAction error:", error);
+
+    // Handle duplicate key error specifically
+    if (error.code === 11000) {
+      return {
+        message: "Dispenser is already connected to this tanker",
+        errors: { dispenserId: ["This dispenser is already connected"] },
+      };
+    }
+
     return {
-      message: "Failed to connect dispenser",
+      message: error.message || "Failed to connect dispenser",
       errors: { global: error.message },
     };
   }
@@ -61,7 +70,13 @@ export async function disconnectDispenserFromTankerAction(
   dispenserId: string,
 ) {
   try {
-    await disconnectDispenserService(tankerId, dispenserId);
+    await connectDB();
+
+    const result = await disconnectDispenserService(tankerId, dispenserId);
+
+    if (!result) {
+      return { success: false, error: "Connection not found" };
+    }
 
     revalidatePath(`/tankers/${tankerId}`);
     return { success: true, message: "Dispenser disconnected successfully" };

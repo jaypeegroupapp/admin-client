@@ -23,8 +23,12 @@ const TankerDispenserSchema = new Schema<ITankerDispenser>(
   { timestamps: true },
 );
 
-TankerDispenserSchema.index({ tankerId: 1, dispenserId: 1 }, { unique: true });
-TankerDispenserSchema.index({ dispenserId: 1, isActive: 1 });
+// Compound unique index on tankerId and dispenserId (only one active connection allowed)
+// But we want to allow reactivation of inactive connections, so we need a partial unique index
+TankerDispenserSchema.index(
+  { tankerId: 1, dispenserId: 1, isActive: 1 },
+  { unique: true, partialFilterExpression: { isActive: true } },
+);
 
 const TankerDispenser =
   mongoose.models.TankerDispenser ||

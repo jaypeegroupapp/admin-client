@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ITanker } from "@/definitions/tanker";
@@ -34,10 +34,17 @@ export function TankerDetailsClient({
   >("info");
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = useCallback(() => {
+    router.refresh();
+    setRefreshKey((prev) => prev + 1);
+  }, [router]);
 
   return (
     <>
       <motion.div
+        key={refreshKey}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -63,6 +70,7 @@ export function TankerDetailsClient({
           tankerStock={tanker.stockLevel}
           tankerCapacity={tanker.capacity}
           connectedDispensers={connectedDispensers}
+          onRefresh={handleRefresh}
         />
       </motion.div>
 
@@ -71,7 +79,7 @@ export function TankerDetailsClient({
           tanker={tanker}
           onClose={() => {
             setIsEditOpen(false);
-            router.refresh();
+            handleRefresh();
           }}
         />
       </TankerModal>

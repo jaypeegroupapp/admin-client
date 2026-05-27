@@ -23,6 +23,7 @@ interface Props {
     tab: "info" | "dispensers" | "stock" | "spillage" | "history",
   ) => void;
   connectedDispensers: ConnectedDispenser[];
+  onRefresh: () => void;
 }
 
 export function TankerTabs({
@@ -32,6 +33,7 @@ export function TankerTabs({
   activeTab,
   onTabChange,
   connectedDispensers,
+  onRefresh,
 }: Props) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
@@ -122,6 +124,7 @@ export function TankerTabs({
               tankerId={tankerId}
               connectedDispensers={connectedDispensers}
               tankerStock={tankerStock}
+              onRefresh={onRefresh} // Placeholder, implement refresh logic as needed
             />
           </motion.div>
         )}
