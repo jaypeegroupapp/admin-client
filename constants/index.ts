@@ -8,6 +8,7 @@ export type IconKey =
   | "mineInvoices"
   | "products"
   | "dispensers"
+  | "tankers"
   | "mines"
   | "companyCredits"
   | "creditApproval"
@@ -89,6 +90,14 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     action: "read",
     resource: "dispenser",
     icon: "dispensers",
+    section: "other",
+  },
+  {
+    name: "Tankers",
+    href: "/tankers",
+    action: "read",
+    resource: "tanker",
+    icon: "tankers",
     section: "other",
   },
   {

@@ -14,6 +14,7 @@ import {
   User,
   Banknote,
   Droplet,
+  Fuel,
 } from "lucide-react";
 
 export const months = [
@@ -41,6 +42,7 @@ export const ICONS = {
   mineInvoices: WalletMinimal,
   products: Package,
   dispensers: Droplet,
+  tankers: Fuel,
   mines: Mountain,
   companyCredits: CreditCard,
   creditApproval: FileCheck2,
