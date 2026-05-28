@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Info, Users, Droplet, ArrowLeftRight, Settings } from "lucide-react";
 
-// Tab components (skeletons for now)
+// Tab components
 import { InfoTab } from "./info-tab";
 import { AttendanceTab } from "./attendance-tab";
 import { UsageTab } from "./usage-tab";
@@ -112,7 +112,10 @@ export function DispenserTabs({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <AttendanceTab dispenserId={dispenserId} />
+            <AttendanceTab
+              dispenserId={dispenserId}
+              totalDispensed={totalDispensed}
+            />
           </motion.div>
         )}
 
