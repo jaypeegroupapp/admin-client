@@ -6,7 +6,7 @@ export interface IDispenser {
   name: string;
   productId: Types.ObjectId | string;
   productName?: string;
-  litres?: number;
+  totalDispensed: number; // Total litres dispensed through this dispenser (cumulative)
   isPublished: boolean;
   userId?: Types.ObjectId | string;
   attendanceName?: string;

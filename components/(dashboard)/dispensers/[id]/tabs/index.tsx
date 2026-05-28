@@ -1,35 +1,37 @@
-// src/components/(dashboard)/dispensers/[id]/tabs.tsx (updated)
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Droplet, Settings, Info, Package, Users } from "lucide-react";
-import { UsageTab } from "./usage-tab";
-import { SettingsTab } from "./settings-tab";
-import { StockControlTab } from "./stock-control-tab";
+import { Info, Users, Droplet, ArrowLeftRight, Settings } from "lucide-react";
+
+// Tab components (skeletons for now)
+import { InfoTab } from "./info-tab";
 import { AttendanceTab } from "./attendance-tab";
+import { UsageTab } from "./usage-tab";
+import { TransfersTab } from "./transfers-tab";
+import { SettingsTab } from "./settings-tab";
 
 interface Props {
   dispenserId: string;
-  dispenserLitres: number;
-  activeTab: "info" | "usage" | "settings" | "stock" | "attendance";
+  totalDispensed: number;
+  activeTab: "info" | "attendance" | "usage" | "transfers" | "settings";
   onTabChange: (
-    tab: "info" | "usage" | "settings" | "stock" | "attendance",
+    tab: "info" | "attendance" | "usage" | "transfers" | "settings",
   ) => void;
 }
 
 export function DispenserTabs({
   dispenserId,
-  dispenserLitres,
+  totalDispensed,
   activeTab,
   onTabChange,
 }: Props) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-      {/* Tabs */}
+      {/* Tabs Navigation */}
       <div className="flex gap-6 border-b border-gray-200 mb-6 overflow-x-auto pb-1">
         <button
           onClick={() => onTabChange("info")}
-          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
+          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap transition-all ${
             activeTab === "info"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
@@ -41,7 +43,7 @@ export function DispenserTabs({
 
         <button
           onClick={() => onTabChange("attendance")}
-          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
+          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap transition-all ${
             activeTab === "attendance"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
@@ -53,7 +55,7 @@ export function DispenserTabs({
 
         <button
           onClick={() => onTabChange("usage")}
-          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
+          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap transition-all ${
             activeTab === "usage"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
@@ -64,20 +66,20 @@ export function DispenserTabs({
         </button>
 
         <button
-          onClick={() => onTabChange("stock")}
-          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
-            activeTab === "stock"
+          onClick={() => onTabChange("transfers")}
+          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap transition-all ${
+            activeTab === "transfers"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
-          <Package size={16} />
-          Stock Control
+          <ArrowLeftRight size={16} />
+          Tanker Transfers
         </button>
 
-        {/* <button
+        <button
           onClick={() => onTabChange("settings")}
-          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
+          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap transition-all ${
             activeTab === "settings"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
@@ -85,10 +87,10 @@ export function DispenserTabs({
         >
           <Settings size={16} />
           Settings
-        </button> */}
+        </button>
       </div>
 
-      {/* Content */}
+      {/* Tab Content */}
       <AnimatePresence mode="wait">
         {activeTab === "info" && (
           <motion.div
@@ -98,33 +100,7 @@ export function DispenserTabs({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Info content */}
-            <div className="space-y-4">
-              <p className="text-gray-700">
-                This dispenser is configured to dispense products based on the
-                assigned product ID.
-              </p>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-medium text-gray-800 mb-2">
-                  Dispenser Details
-                </h3>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex justify-between">
-                    <span className="text-gray-500">Dispenser ID:</span>
-                    <span className="font-mono">{dispenserId}</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-gray-500">Litres Capacity:</span>
-                    <span>Variable (0 = unlimited)</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-gray-500">Status:</span>
-                    <span>Active/Inactive toggle available</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            <InfoTab dispenserId={dispenserId} />
           </motion.div>
         )}
 
@@ -136,10 +112,7 @@ export function DispenserTabs({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <AttendanceTab
-              dispenserId={dispenserId}
-              dispenserLitres={dispenserLitres}
-            />
+            <AttendanceTab dispenserId={dispenserId} />
           </motion.div>
         )}
 
@@ -155,17 +128,17 @@ export function DispenserTabs({
           </motion.div>
         )}
 
-        {activeTab === "stock" && (
+        {activeTab === "transfers" && (
           <motion.div
-            key="stock"
+            key="transfers"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <StockControlTab
+            <TransfersTab
               dispenserId={dispenserId}
-              dispenserLitres={dispenserLitres}
+              totalDispensed={totalDispensed}
             />
           </motion.div>
         )}

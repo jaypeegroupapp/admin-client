@@ -1,4 +1,3 @@
-// src/components/(dashboard)/dispensers/add-form.tsx
 "use client";
 
 import { createDispenserAction } from "@/actions/dispenser";
@@ -57,7 +56,7 @@ export default function DispenserAddForm({
     resolver: zodResolver(dispenserFormSchema),
     defaultValues: {
       name: dispenser?.name || "",
-      litres: dispenser?.litres || 0,
+      totalDispensed: dispenser?.totalDispensed || 0,
       isPublished: dispenser?.isPublished || false,
     },
   });
@@ -105,7 +104,7 @@ export default function DispenserAddForm({
             <option value="">Select a product</option>
             {products.map((product) => (
               <option key={product.id} value={product.id}>
-                {product.name}
+                {product.name} - R{product.grid?.toFixed(2) || 0}/L
               </option>
             ))}
           </select>

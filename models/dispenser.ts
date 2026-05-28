@@ -1,6 +1,5 @@
-// src/models/dispenser.ts
 import { IDispenser } from "@/definitions/dispenser";
-import mongoose, { Schema, Document, Types, model, models } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 import User from "./user";
 import Product from "./product";
 
@@ -18,7 +17,7 @@ const DispenserSchema = new Schema<DispenserDocument>(
       ref: Product.modelName,
       required: true,
     },
-    litres: { type: Number, default: 0, min: 0 },
+    totalDispensed: { type: Number, default: 0, min: 0 }, // Cumulative dispensed litres
     isPublished: { type: Boolean, default: false },
     userId: {
       type: Schema.Types.ObjectId,

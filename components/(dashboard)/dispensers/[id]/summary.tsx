@@ -1,4 +1,3 @@
-// src/components/(dashboard)/dispensers/[id]/summary.tsx
 "use client";
 
 import {
@@ -7,7 +6,7 @@ import {
   User,
   Calendar,
   Activity,
-  TrendingUp,
+  Gauge,
 } from "lucide-react";
 import { useState } from "react";
 import { IDispenser } from "@/definitions/dispenser";
@@ -44,10 +43,7 @@ export function DispenserSummary({
             </h2>
 
             <p className="text-sm text-gray-500 mt-1">
-              Capacity:{" "}
-              <span className="font-medium">
-                {(dispenser.litres ?? 0).toFixed(2)}L
-              </span>
+              Meter Type: <span className="font-medium">Flow Meter</span>
             </p>
 
             <p className="text-sm text-gray-500 mt-2">
@@ -94,15 +90,18 @@ export function DispenserSummary({
         </div>
         <div className="flex items-center gap-2">
           <Activity size={16} className="text-gray-500" />
-          <span>Total Usage: {totalUsage}L</span>
+          <span>Total Dispensed: {totalUsage.toLocaleString()}L</span>
         </div>
         <div className="flex items-center gap-2">
-          <TrendingUp size={16} className="text-gray-500" />
-          <span>Remaining: {(dispenser.litres ?? 0).toFixed(1)}L</span>
+          <Gauge size={16} className="text-gray-500" />
+          <span>
+            Current Meter Reading:{" "}
+            {dispenser.totalDispensed?.toLocaleString() ?? 0}L
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <User size={16} className="text-gray-500" />
-          <span>Assigned User: {dispenser.userId ? "Yes" : "No"}</span>
+          <span>Assigned Attendant: {dispenser.userId ? "Yes" : "No"}</span>
         </div>
         <div className="flex items-center gap-2">
           <Calendar size={16} className="text-gray-500" />
@@ -110,30 +109,6 @@ export function DispenserSummary({
             Last Updated:{" "}
             {new Date(dispenser.updatedAt!).toLocaleDateString("en-ZA")}
           </span>
-        </div>
-      </div>
-
-      {/* USAGE PROGRESS BAR */}
-      <div className="mt-4">
-        <div className="flex justify-between text-xs text-gray-500 mb-1">
-          <span>Usage Progress</span>
-          <span>
-            {Math.min(
-              100,
-              Math.round(
-                (totalUsage / ((dispenser.litres || 1) + totalUsage)) * 100,
-              ),
-            )}
-            %
-          </span>
-        </div>
-        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-blue-500 rounded-full"
-            style={{
-              width: `${Math.min(100, (totalUsage / (dispenser.litres || 1)) * 100)}%`,
-            }}
-          />
         </div>
       </div>
 

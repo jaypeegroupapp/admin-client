@@ -1,4 +1,3 @@
-// src/components/(dashboard)/dispensers/card.tsx
 "use client";
 import { motion } from "framer-motion";
 import { Droplet } from "lucide-react";
@@ -44,11 +43,12 @@ export function DispenserCard({
               Product: {dispenser.productName}
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              Litres: {dispenser.litres ?? 0}L
+              Total Dispensed: {dispenser.totalDispensed?.toLocaleString() ?? 0}
+              L
             </p>
             {dispenser.userId && (
               <p className="text-xs text-gray-400">
-                User ID: {dispenser.attendanceName}
+                Attendant: {dispenser.attendanceName}
               </p>
             )}
           </div>
@@ -63,7 +63,7 @@ export function DispenserCard({
                 : "bg-gray-200 text-gray-600"
             }`}
           >
-            {dispenser.isPublished ? "Published" : "Draft"}
+            {dispenser.isPublished ? "Active" : "Inactive"}
           </button>
         </div>
       </motion.div>

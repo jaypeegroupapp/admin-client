@@ -1,4 +1,3 @@
-// src/validations/dispenser.ts
 import { z } from "zod";
 
 export const dispenserFormSchema = z.object({
@@ -7,7 +6,10 @@ export const dispenserFormSchema = z.object({
     .min(2, "Dispenser name is required")
     .max(100, "Name is too long"),
   productId: z.string().min(1, "Product selection is required"),
-  litres: z.coerce.number().min(0, "Litres must be 0 or greater").optional(),
+  totalDispensed: z.coerce
+    .number()
+    .min(0, "Total dispensed must be 0 or greater")
+    .optional(),
   isPublished: z.boolean().optional(),
   userId: z.string().optional(),
 });

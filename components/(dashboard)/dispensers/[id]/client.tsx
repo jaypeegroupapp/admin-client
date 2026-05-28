@@ -1,4 +1,3 @@
-// src/components/(dashboard)/dispensers/[id]/client.tsx
 "use client";
 
 import { useState } from "react";
@@ -24,7 +23,7 @@ export function DispenserDetailsClient({
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    "info" | "usage" | "settings" | "stock" | "attendance"
+    "info" | "attendance" | "usage" | "transfers" | "settings"
   >("info");
 
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -55,7 +54,7 @@ export function DispenserDetailsClient({
           dispenserId={dispenser.id!}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          dispenserLitres={dispenser.litres || 0}
+          totalDispensed={dispenser.totalDispensed || 0}
         />
       </motion.div>
 

@@ -1,4 +1,3 @@
-// app/(dashboard)/dispensers/[id]/page.tsx
 import { DispenserDetailsClient } from "@/components/(dashboard)/dispensers/[id]/client";
 import { getDispenserById } from "@/data/dispenser";
 import { getProductById } from "@/data/product";

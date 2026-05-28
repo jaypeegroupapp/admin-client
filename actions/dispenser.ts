@@ -10,6 +10,7 @@ import {
   deleteDispenserService,
   getDispenserByIdService,
   updateDispenserPublishStatusService,
+  addDispensedQuantityService,
 } from "@/services/dispenser";
 import { IDispenser } from "@/definitions/dispenser";
 
@@ -22,7 +23,9 @@ export async function createDispenserAction(
     const rawData = {
       name: formData.get("name"),
       productId: formData.get("productId"),
-      litres: formData.get("litres") ? Number(formData.get("litres")) : 0,
+      totalDispensed: formData.get("totalDispensed")
+        ? Number(formData.get("totalDispensed"))
+        : 0,
       isPublished: formData.get("isPublished") === "true",
       userId: formData.get("userId") || undefined,
     };
@@ -62,6 +65,19 @@ export async function createDispenserAction(
   let url = dispenserId ? `/dispensers/${dispenserId}` : "/dispensers";
   revalidatePath(url);
   redirect(url);
+}
+
+export async function recordDispensedQuantityAction(
+  id: string,
+  quantity: number,
+) {
+  try {
+    await addDispensedQuantityService(id, quantity);
+    revalidatePath(`/dispensers/${id}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
 }
 
 export async function deleteDispenserAction(id: string) {

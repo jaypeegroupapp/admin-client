@@ -129,19 +129,6 @@ export function mapRole(doc: any): IRole {
   };
 }
 
-export function mapDispenser(doc: any): IDispenser {
-  return {
-    id: doc._id.toString(),
-    name: doc.name,
-    productId: doc.productId?._id?.toString() || doc.productId?.toString(),
-    litres: doc.litres ?? 0,
-    isPublished: doc.isPublished ?? false,
-    userId: doc.userId?._id?.toString() || doc.userId?.toString(),
-    createdAt: doc.createdAt?.toISOString(),
-    updatedAt: doc.updatedAt?.toISOString(),
-  };
-}
-
 export function mapDispenserUsage(doc: any): any {
   return {
     id: doc._id.toString(),

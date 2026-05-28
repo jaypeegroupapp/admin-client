@@ -1,9 +1,7 @@
-// src/services/dispenser.ts
 import Dispenser from "@/models/dispenser";
 import { IDispenser } from "@/definitions/dispenser";
 import { connectDB } from "@/lib/db";
 import { Types } from "mongoose";
-import DispenserAttendanceRecord from "@/models/dispenser-attendance";
 
 export async function getAllDispensersService() {
   await connectDB();
@@ -49,6 +47,23 @@ export async function updateDispenserPublishStatusService(
 ) {
   await connectDB();
   return await Dispenser.findByIdAndUpdate(id, { isPublished }, { new: true });
+}
+
+export async function addDispensedQuantityService(
+  id: string,
+  quantity: number,
+) {
+  await connectDB();
+  const dispenser = await Dispenser.findById(id);
+  if (!dispenser) throw new Error("Dispenser not found");
+
+  const newTotal = (dispenser.totalDispensed || 0) + quantity;
+
+  return await Dispenser.findByIdAndUpdate(
+    id,
+    { totalDispensed: newTotal },
+    { new: true },
+  ).lean();
 }
 
 export async function getDispenserByUserIdService(userId: string) {
