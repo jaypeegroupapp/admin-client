@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 
 export function ModalHeader({ onClose }: { onClose: () => void }) {
   return (
-    <div className="flex justify-between items-center border-b border-gray-200 pb-3">
+    <div className="flex justify-between items-center border-b border-gray-200 pb-3 print:border-gray-300">
       <h2 className="text-lg font-semibold text-gray-800">Order Details</h2>
       <button
         onClick={onClose}

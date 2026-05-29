@@ -307,12 +307,18 @@ export async function completeOrderItem(itemId: string, signature?: string) {
       };
     }
 
-    // Find active attendance
+    // Find active attendance with full population
     const attendance = await DispenserAttendanceRecord.findOne({
       userId: new mongoose.Types.ObjectId(userSession.user.id),
       dispenserId: dispenser._id,
       status: "active",
-    }).session(session);
+    })
+      .populate({
+        path: "attendantId",
+        select: "name",
+      })
+      .populate("dispenserId", "name")
+      .session(session);
 
     if (!attendance) {
       await session.abortTransaction();
@@ -322,6 +328,11 @@ export async function completeOrderItem(itemId: string, signature?: string) {
         message: "You are not logged into this dispenser. Please log in first.",
       };
     }
+
+    // Extract attendant name from populated data
+    const attendantName = attendance.attendantId
+      ? attendance.attendantId.name
+      : "Unknown Attendant";
 
     // Find the tanker connected to this dispenser
     const tankerConnection = await TankerDispenser.findOne({
@@ -460,6 +471,7 @@ export async function completeOrderItem(itemId: string, signature?: string) {
             driverName: order.driverName,
             tankerId: tanker._id.toString(),
             tankerName: tanker.name,
+            attendantName,
           },
         },
       ],
@@ -476,6 +488,7 @@ export async function completeOrderItem(itemId: string, signature?: string) {
     await session.commitTransaction();
     session.endSession();
 
+    // Return with attendant name from populated data
     return {
       success: true,
       message: "Order completed successfully",
@@ -485,6 +498,10 @@ export async function completeOrderItem(itemId: string, signature?: string) {
         litresSold: quantity,
         tankerRemainingStock: tankerAfterStock,
         meterReading: meterAfter,
+        attendantName,
+        attendantId: attendance.attendantId?._id?.toString(),
+        loginTime: attendance.loginTime,
+        openingBalance: attendance.openingBalanceLitres,
       },
     };
   } catch (error) {

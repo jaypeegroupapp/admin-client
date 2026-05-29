@@ -31,7 +31,6 @@ export function OrderItemDetailModal({
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
   const [isCompleted, setIsCompleted] = useState(false);
-  const [isPrinting, setIsPrinting] = useState(false);
   const [completedData, setCompletedData] = useState<any>(null);
   const router = useRouter();
 
@@ -41,6 +40,10 @@ export function OrderItemDetailModal({
   const insufficientStock = tankerStock < item.quantity;
   const hasAttendance = !!userDispenser?.attendance;
   const hasDispenser = !!userDispenser?.dispenser;
+  const attendantName =
+    userDispenser?.dispenser?.attendanceName ||
+    userDispenser?.attendance?.attendantName ||
+    "Unknown Attendant";
 
   const canFulfill =
     item.status === "accepted" &&
@@ -66,8 +69,10 @@ export function OrderItemDetailModal({
       if (result.success) {
         setMessage("✅ Order completed successfully!");
         setIsCompleted(true);
-        setCompletedData(result.data);
-        // router.refresh();
+        setCompletedData({
+          ...result.data,
+          completedAt: new Date().toISOString(),
+        });
       } else {
         setMessage(result.message || "❌ Failed to complete order.");
       }
@@ -75,8 +80,8 @@ export function OrderItemDetailModal({
   };
 
   const handlePrint = () => {
-    setIsPrinting(true);
     window.print();
+    router.refresh();
   };
 
   const handleClose = () => {
@@ -84,7 +89,20 @@ export function OrderItemDetailModal({
     setCompletedData(null);
     setMessage("");
     setSignature(null);
-    onClose();
+    router.refresh();
+  };
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString("en-ZA", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
   };
 
   return (
@@ -111,6 +129,7 @@ export function OrderItemDetailModal({
             canFulfill={canFulfill}
             attendance={userDispenser?.attendance}
             dispenserName={userDispenser?.dispenser?.name}
+            attendantName={attendantName}
             quantity={item.quantity}
           />
         )}
@@ -130,30 +149,70 @@ export function OrderItemDetailModal({
 
         {isCompleted && completedData && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 print:bg-white print:border print:border-gray-300">
-            <h3 className="font-semibold text-green-800 mb-2">
+            <h3 className="font-semibold text-green-800 mb-3 text-lg">
               ✅ Order Completed
             </h3>
-            <div className="space-y-1 text-sm">
-              <p>
-                <span className="text-gray-600">Dispenser:</span>{" "}
-                {completedData.dispenserName}
-              </p>
-              <p>
-                <span className="text-gray-600">Tanker:</span>{" "}
-                {completedData.tankerName}
-              </p>
-              <p>
-                <span className="text-gray-600">Litres Sold:</span>{" "}
-                {completedData.litresSold}L
-              </p>
-              <p>
-                <span className="text-gray-600">Tanker Remaining:</span>{" "}
-                {completedData.tankerRemainingStock}L
-              </p>
-              <p>
-                <span className="text-gray-600">Meter Reading:</span>{" "}
-                {completedData.meterReading.toLocaleString()}L
-              </p>
+            <div className="space-y-2 text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <p>
+                  <span className="text-gray-600">Dispenser:</span>
+                </p>
+                <p className="font-medium">{completedData.dispenserName}</p>
+
+                <p>
+                  <span className="text-gray-600">Tanker:</span>
+                </p>
+                <p className="font-medium">{completedData.tankerName}</p>
+
+                <p>
+                  <span className="text-gray-600">Litres Sold:</span>
+                </p>
+                <p className="font-medium text-blue-600">
+                  {completedData.litresSold}L
+                </p>
+
+                <p>
+                  <span className="text-gray-600">Tanker Remaining:</span>
+                </p>
+                <p className="font-medium">
+                  {completedData.tankerRemainingStock}L
+                </p>
+
+                <p>
+                  <span className="text-gray-600">Meter Reading:</span>
+                </p>
+                <p className="font-medium">
+                  {completedData.meterReading.toLocaleString()}L
+                </p>
+
+                <p>
+                  <span className="text-gray-600">Station Attendant:</span>
+                </p>
+                <p className="font-medium">{completedData.attendantName}</p>
+
+                <p>
+                  <span className="text-gray-600">Shift Started:</span>
+                </p>
+                <p className="font-medium">
+                  {completedData.loginTime
+                    ? new Date(completedData.loginTime).toLocaleString()
+                    : "N/A"}
+                </p>
+
+                <p>
+                  <span className="text-gray-600">Opening Meter:</span>
+                </p>
+                <p className="font-medium">
+                  {completedData.openingBalance?.toLocaleString() || 0}L
+                </p>
+
+                <p>
+                  <span className="text-gray-600">Completed At:</span>
+                </p>
+                <p className="font-medium">
+                  {formatDateTime(completedData.completedAt)}
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -164,7 +223,6 @@ export function OrderItemDetailModal({
           status={item.status}
           hasExistingSignature={hasExistingSignature}
           isCompleted={isCompleted}
-          isPrinting={isPrinting}
           isPending={isPending}
           signature={signature}
           canFulfill={canFulfill}
