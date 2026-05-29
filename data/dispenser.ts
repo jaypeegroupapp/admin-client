@@ -9,6 +9,8 @@ import {
 import { IDispenser } from "@/definitions/dispenser";
 import { getSession } from "@/lib/session";
 import { getCurrentAttendanceForUserService } from "@/services/dispenser-attendance";
+import { getTankerByDispenserIdService } from "@/services/tanker";
+import { ITanker } from "@/definitions/tanker";
 
 export async function getDispensers() {
   try {
@@ -48,7 +50,6 @@ export async function getCurrentUserDispenser() {
       return { success: false, message: "No active session", data: null };
     }
 
-    // Find dispenser assigned to this user
     const userId = session.user.id.toString();
     const dispenser = (await getDispenserByUserIdService(userId)) as any;
 
@@ -60,16 +61,30 @@ export async function getCurrentUserDispenser() {
       };
     }
 
-    // Get current attendance record for this user
     const attendance = (await getCurrentAttendanceForUserService(
       userId,
       dispenser._id.toString(),
     )) as any;
 
+    // Get connected tanker info
+    let tankerStock = null;
+    let tankerName = null;
+
+    const tanker = (await getTankerByDispenserIdService(
+      dispenser._id.toString(),
+    )) as ITanker | null;
+
+    if (tanker) {
+      tankerStock = tanker.stockLevel;
+      tankerName = tanker.name;
+    }
+
     return {
       success: true,
       data: {
         dispenser: mapDispenser(dispenser),
+        tankerStock,
+        tankerName,
         attendance: attendance
           ? {
               id: attendance._id.toString(),

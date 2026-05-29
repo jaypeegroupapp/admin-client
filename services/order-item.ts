@@ -7,6 +7,9 @@ import DispenserUsage from "@/models/dispenser-usage";
 import DispenserAttendanceRecord from "@/models/dispenser-attendance";
 import { getSession } from "@/lib/session";
 import Order from "@/models/order";
+import TankerTransaction from "@/models/tanker-transaction";
+import Tanker from "@/models/tanker";
+import TankerDispenser from "@/models/tanker-dispenser";
 
 export async function getOrderItemsService(
   page = 0,
@@ -264,7 +267,6 @@ export async function completeOrderItem(itemId: string, signature?: string) {
   session.startTransaction();
 
   try {
-    // Get current user from session
     const userSession = (await getSession()) as any;
     if (!userSession?.user?.id) {
       await session.abortTransaction();
@@ -272,11 +274,8 @@ export async function completeOrderItem(itemId: string, signature?: string) {
       return { success: false, message: "User not authenticated" };
     }
 
-    // Get the order item with populated data
     const item = await OrderItem.findById(itemId)
-      .populate({
-        path: "orderId",
-      })
+      .populate({ path: "orderId" })
       .populate("productId")
       .populate("truckId", "plateNumber make model")
       .session(session);
@@ -324,20 +323,52 @@ export async function completeOrderItem(itemId: string, signature?: string) {
       };
     }
 
-    // Check stock
-    const quantity = item.quantity || 0;
-    if (dispenser.litres < quantity) {
+    // Find the tanker connected to this dispenser
+    const tankerConnection = await TankerDispenser.findOne({
+      dispenserId: dispenser._id,
+      isActive: true,
+    }).session(session);
+
+    if (!tankerConnection) {
       await session.abortTransaction();
       session.endSession();
       return {
         success: false,
-        message: `Insufficient stock. Available: ${dispenser.litres}L, Required: ${quantity}L`,
+        message:
+          "No tanker connected to this dispenser. Please contact your manager.",
+      };
+    }
+
+    // Get the tanker
+    const tanker = await Tanker.findById(tankerConnection.tankerId).session(
+      session,
+    );
+    if (!tanker) {
+      await session.abortTransaction();
+      session.endSession();
+      return {
+        success: false,
+        message: "Connected tanker not found.",
+      };
+    }
+
+    const quantity = item.quantity || 0;
+
+    // Check if tanker has enough stock
+    if (tanker.stockLevel < quantity) {
+      await session.abortTransaction();
+      session.endSession();
+      return {
+        success: false,
+        message: `Insufficient stock in tanker. Available: ${tanker.stockLevel}L, Required: ${quantity}L`,
       };
     }
 
     const order = item.orderId as any;
-    const balanceBefore = dispenser.litres;
-    const balanceAfter = balanceBefore - quantity;
+    const tankerBeforeStock = tanker.stockLevel;
+    const tankerAfterStock = tankerBeforeStock - quantity;
+    const meterBefore = dispenser.totalDispensed || 0;
+    const meterAfter = meterBefore + quantity;
 
     // Update order item
     await OrderItem.findByIdAndUpdate(
@@ -365,18 +396,52 @@ export async function completeOrderItem(itemId: string, signature?: string) {
       );
     }
 
-    // Update dispenser stock
-    await Dispenser.findByIdAndUpdate(
-      dispenser._id,
+    // Update tanker stock (decrease)
+    await Tanker.findByIdAndUpdate(
+      tanker._id,
       {
-        litres: balanceAfter,
-        lastReading: balanceAfter,
+        stockLevel: tankerAfterStock,
+        lastReading: tankerAfterStock,
         lastReadingDate: new Date(),
       },
       { session },
     );
 
-    // Create dispenser usage record with full metadata
+    // Update dispenser meter reading (increase total dispensed)
+    await Dispenser.findByIdAndUpdate(
+      dispenser._id,
+      {
+        totalDispensed: meterAfter,
+        lastReading: meterAfter,
+        lastReadingDate: new Date(),
+      },
+      { session },
+    );
+
+    // Record tanker transaction (stock out)
+    await TankerTransaction.create(
+      [
+        {
+          tankerId: tanker._id,
+          type: "TRANSFER_OUT",
+          quantity: quantity,
+          beforeStock: tankerBeforeStock,
+          afterStock: tankerAfterStock,
+          details: {
+            dispenserId: dispenser._id,
+            dispenserName: dispenser.name,
+            orderId: order._id,
+            orderItemId: item._id,
+            customerName: order.companyName,
+            plateNumber: order.truckId?.plateNumber || order.truckNumber,
+          },
+          timestamp: new Date(),
+        },
+      ],
+      { session },
+    );
+
+    // Create dispenser usage record
     await DispenserUsage.create(
       [
         {
@@ -386,25 +451,25 @@ export async function completeOrderItem(itemId: string, signature?: string) {
           orderId: order._id,
           orderItemId: item._id,
           attendanceId: attendance._id,
-          balanceBefore,
-          balanceAfter,
+          balanceBefore: meterBefore,
+          balanceAfter: meterAfter,
           type: "SALE",
           metadata: {
             companyName: order.companyName,
             plateNumber: order.truckId?.plateNumber || order.truckNumber,
             driverName: order.driverName,
+            tankerId: tanker._id.toString(),
+            tankerName: tanker.name,
           },
         },
       ],
       { session },
     );
 
-    // Update attendance record
+    // Update attendance record total dispensed
     await DispenserAttendanceRecord.findByIdAndUpdate(
       attendance._id,
-      {
-        $inc: { totalDispensed: quantity },
-      },
+      { $inc: { totalDispensed: quantity } },
       { session },
     );
 
@@ -416,9 +481,10 @@ export async function completeOrderItem(itemId: string, signature?: string) {
       message: "Order completed successfully",
       data: {
         dispenserName: dispenser.name,
-        litresBefore: balanceBefore,
-        litresAfter: balanceAfter,
+        tankerName: tanker.name,
         litresSold: quantity,
+        tankerRemainingStock: tankerAfterStock,
+        meterReading: meterAfter,
       },
     };
   } catch (error) {

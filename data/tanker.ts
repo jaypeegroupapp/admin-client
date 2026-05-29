@@ -2,6 +2,7 @@
 
 import {
   getAllTankersService,
+  getTankerByDispenserIdService,
   getTankerByIdService,
   getTotalStockByProductIdService,
 } from "@/services/tanker";
@@ -60,4 +61,21 @@ function mapTanker(doc: any): ITanker {
     createdAt: doc.createdAt?.toISOString(),
     updatedAt: doc.updatedAt?.toISOString(),
   };
+}
+
+export async function getTankerByDispenserId(dispenserId: string) {
+  try {
+    const result = await getTankerByDispenserIdService(dispenserId);
+    if (!result) {
+      return { success: false, data: null, message: "No tanker connected" };
+    }
+    return { success: true, data: mapTanker(result) };
+  } catch (error: any) {
+    console.error("❌ getTankerByDispenserId error:", error);
+    return {
+      success: false,
+      message: error?.message ?? "Unable to fetch tanker",
+      data: null,
+    };
+  }
 }

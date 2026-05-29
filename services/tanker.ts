@@ -2,6 +2,7 @@ import Tanker from "@/models/tanker";
 import { ITanker } from "@/definitions/tanker";
 import { connectDB } from "@/lib/db";
 import { Types } from "mongoose";
+import TankerDispenser from "@/models/tanker-dispenser";
 
 export async function getAllTankersService() {
   await connectDB();
@@ -61,4 +62,20 @@ export async function getTotalStockByProductIdService(productId: string) {
     { $group: { _id: "$productId", totalStock: { $sum: "$stockLevel" } } },
   ]);
   return result[0]?.totalStock || 0;
+}
+
+export async function getTankerByDispenserIdService(dispenserId: string) {
+  await connectDB();
+
+  const connection = (await TankerDispenser.findOne({
+    dispenserId: new Types.ObjectId(dispenserId),
+    isActive: true,
+  }).lean()) as any;
+
+  if (!connection) {
+    return null;
+  }
+
+  const tanker = await Tanker.findById(connection.tankerId).lean();
+  return tanker;
 }

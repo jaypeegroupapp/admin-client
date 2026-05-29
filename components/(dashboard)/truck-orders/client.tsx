@@ -1,4 +1,3 @@
-// src/components/(dashboard)/truck-orders/client.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -29,7 +28,6 @@ export function OrderItemsClientPage({
   const router = useRouter();
   const params = useSearchParams();
 
-  /** Local State */
   const [items, setItems] = useState(initialItems);
   const [filterText, setFilterText] = useState(search || "");
   const [debouncedSearch, setDebouncedSearch] = useState(filterText);
@@ -47,13 +45,11 @@ export function OrderItemsClientPage({
 
   useEffect(() => setItems(initialItems), [initialItems]);
 
-  /** Debounced Search */
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(filterText), 300);
     return () => clearTimeout(t);
   }, [filterText]);
 
-  /** Update URL on search */
   useEffect(() => {
     const q = new URLSearchParams(params.toString());
     q.set("search", debouncedSearch);
@@ -61,31 +57,24 @@ export function OrderItemsClientPage({
     router.push(`?${q.toString()}`);
   }, [debouncedSearch]);
 
-  /** Date Change */
   const handleDateChange = (f: string, t: string) => {
     setFrom(f);
     setTo(t);
-
     const q = new URLSearchParams(params.toString());
     f ? q.set("fromDate", f) : q.delete("fromDate");
     t ? q.set("toDate", t) : q.delete("toDate");
     q.set("page", "0");
-
     router.push(`?${q.toString()}`);
   };
 
-  /** Tab Change */
   const handleTabChange = (tab: OrderItemTab) => {
     setActiveTab(tab);
-
     const q = new URLSearchParams(params.toString());
     q.set("status", tab === "All" ? "all" : tab.toLowerCase());
     q.set("page", "0");
-
     router.push(`?${q.toString()}`);
   };
 
-  /** Pagination */
   const handlePageChange = (p: number) => {
     const q = new URLSearchParams(params.toString());
     q.set("page", String(p));
@@ -107,6 +96,8 @@ export function OrderItemsClientPage({
         <DispenserInfoHeader
           dispenser={userDispenser.dispenser}
           attendance={userDispenser.attendance}
+          tankerStock={userDispenser.tankerStock}
+          tankerName={userDispenser.tankerName}
         />
       )}
 

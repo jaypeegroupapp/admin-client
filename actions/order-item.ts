@@ -5,11 +5,10 @@ import { revalidatePath } from "next/cache";
 
 export async function completeOrderItemAction(
   itemId: string,
-  signature?: string
+  signature?: string,
 ) {
   try {
     const result = await completeOrderItem(itemId, signature);
-
     if (!result.success) {
       return { success: false, message: result.message };
     }
@@ -18,7 +17,8 @@ export async function completeOrderItemAction(
 
     return {
       success: true,
-      message: "Order item completed successfully.",
+      message: "Order completed successfully.",
+      data: result.data,
     };
   } catch (error) {
     console.error("❌ completeOrderItemAction error:", error);
