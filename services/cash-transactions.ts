@@ -12,7 +12,6 @@ export async function createCashTransactionService(
 ) {
   await connectDB();
 
-  // Ensure all ObjectId fields are properly converted
   const transactionData = {
     ...data,
     productId: data.productId
@@ -28,6 +27,7 @@ export async function createCashTransactionService(
       ? new mongoose.Types.ObjectId(data.completedById)
       : undefined,
     completedAt: data.completedAt || new Date(),
+    status: "completed",
   };
 
   const transaction = await CashTransaction.create(transactionData);

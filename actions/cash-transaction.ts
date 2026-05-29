@@ -1,27 +1,25 @@
-// src/actions/cash-transaction.ts
 "use server";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { cashTransactionFormSchema } from "@/validations/cash-transaction";
-import { createCashTransactionService } from "@/services/cash-transactions";
 import { getSession } from "@/lib/session";
+import { cashTransactionFormSchema } from "@/validations/cash-transaction";
 import { getProductByIdService } from "@/services/product";
 import { getDispenserByUserIdService } from "@/services/dispenser";
-import {
-  getCurrentAttendanceForUserService,
-  updateAttendanceTotalService,
-} from "@/services/dispenser-attendance";
-import { updateDispenserStockService } from "@/services/dispenser-stock-record";
+import { getCurrentAttendanceForUserService } from "@/services/dispenser-attendance";
+import { getTankerByDispenserIdService } from "@/services/tanker";
+import { createCashTransactionService } from "@/services/cash-transactions";
+import { updateTankerStockService } from "@/services/tanker-stock";
+import { updateDispenserTotalService } from "@/services/dispenser";
 import { createDispenserUsageService } from "@/services/dispenser-usage";
+import { updateAttendanceTotalService } from "@/services/dispenser-attendance";
+import { createTankerTransactionService } from "@/services/tanker-transaction";
 
-// src/actions/cash-transaction.ts (updated)
 export async function createCashTransactionAction(
   prevState: any,
   formData: FormData,
 ) {
   try {
-    // Get current user from session
     const session = (await getSession()) as any;
     if (!session?.user?.id) {
       return {
@@ -41,7 +39,6 @@ export async function createCashTransactionAction(
       };
     }
 
-    // Get product details
     const product = (await getProductByIdService(
       validated.data.productId,
     )) as any;
@@ -52,7 +49,6 @@ export async function createCashTransactionAction(
       };
     }
 
-    // Get dispenser assigned to user
     const dispenser = (await getDispenserByUserIdService(
       session.user.id,
     )) as any;
@@ -65,7 +61,6 @@ export async function createCashTransactionAction(
       };
     }
 
-    // Get active attendance
     const attendance = (await getCurrentAttendanceForUserService(
       session.user.id,
       dispenser._id.toString(),
@@ -81,19 +76,46 @@ export async function createCashTransactionAction(
       };
     }
 
-    // Check stock
-    if (dispenser.litres < validated.data.litresPurchased) {
+    // Get connected tanker
+    const tanker = (await getTankerByDispenserIdService(
+      dispenser._id.toString(),
+    )) as any;
+    if (!tanker) {
       return {
-        message: "Insufficient stock",
-        errors: { litresPurchased: [`Available stock: ${dispenser.litres}L`] },
+        message: "No tanker connected",
+        errors: {
+          global: ["No tanker connected to this dispenser."],
+        },
       };
     }
 
-    // Calculate balance after transaction
-    const balanceBefore = dispenser.litres;
-    const balanceAfter = dispenser.litres - validated.data.litresPurchased;
+    // Check tanker stock
+    if (tanker.stockLevel < validated.data.litresPurchased) {
+      return {
+        message: "Insufficient stock in tanker",
+        errors: {
+          litresPurchased: [`Available tanker stock: ${tanker.stockLevel}L`],
+        },
+      };
+    }
 
-    // Create transaction with dispenser info and completed status
+    const tankerBeforeStock = tanker.stockLevel;
+    const tankerAfterStock = tankerBeforeStock - validated.data.litresPurchased;
+    const meterBefore = dispenser.totalDispensed || 0;
+    const meterAfter = meterBefore + validated.data.litresPurchased;
+
+    // Extract attendant name from populated data
+    let attendantName = "Unknown Attendant";
+    if (attendance.attendantId) {
+      const attendant = attendance.attendantId;
+      if (attendant.userId) {
+        attendantName = attendant.userId.name || attendant.name;
+      } else {
+        attendantName = attendant.name;
+      }
+    }
+
+    // Create transaction
     const transaction = await createCashTransactionService({
       ...validated.data,
       grid: product.grid || 0,
@@ -103,32 +125,57 @@ export async function createCashTransactionAction(
       dispenserId: dispenser._id.toString(),
       attendanceId: attendance._id.toString(),
       completedById: session.user.id,
-      completedAt: (new Date()).toLocaleString(),
-      balanceBefore: balanceBefore,
-      balanceAfter: balanceAfter,
+      completedAt: new Date(),
+      balanceBefore: meterBefore,
+      balanceAfter: meterAfter,
     });
 
-    // Update dispenser stock
-    await updateDispenserStockService(dispenser._id.toString(), balanceAfter);
+    // Update tanker stock
+    await updateTankerStockService(tanker._id.toString(), tankerAfterStock);
 
-    // Create dispenser usage record with full metadata
+    // Update dispenser total dispensed (meter reading)
+    await updateDispenserTotalService(dispenser._id.toString(), meterAfter);
+
+    // Create tanker transaction record
+    await createTankerTransactionService({
+      tankerId: tanker._id.toString(),
+      type: "TRANSFER_OUT",
+      quantity: validated.data.litresPurchased,
+      beforeStock: tankerBeforeStock,
+      afterStock: tankerAfterStock,
+      details: {
+        dispenserId: dispenser._id.toString(),
+        dispenserName: dispenser.name,
+        cashTransactionId: transaction._id.toString(),
+        customerName: validated.data.companyName,
+        plateNumber: validated.data.plateNumber,
+        transactionType: "CASH_SALE",
+        attendantName: attendantName,
+      },
+      timestamp: new Date(),
+    });
+
+    // Create dispenser usage record
     await createDispenserUsageService({
       dispenserId: dispenser._id.toString(),
       litresDispensed: validated.data.litresPurchased,
       timestamp: new Date(),
       cashTransactionId: transaction._id.toString(),
       attendanceId: attendance._id.toString(),
-      balanceBefore: balanceBefore,
-      balanceAfter: balanceAfter,
+      balanceBefore: meterBefore,
+      balanceAfter: meterAfter,
       type: "SALE",
       metadata: {
         companyName: validated.data.companyName,
         plateNumber: validated.data.plateNumber,
         driverName: validated.data.driverName,
+        tankerId: tanker._id.toString(),
+        tankerName: tanker.name,
+        attendantName: attendantName,
       },
     });
 
-    // Update attendance total
+    // Update attendance total dispensed
     await updateAttendanceTotalService(
       attendance._id.toString(),
       validated.data.litresPurchased,
@@ -138,6 +185,7 @@ export async function createCashTransactionAction(
     return {
       message: "Failed to create transaction",
       errors: { global: [error.message] },
+      success: false,
     };
   }
 

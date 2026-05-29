@@ -1,4 +1,3 @@
-// src/components/(dashboard)/cash-transactions/form.tsx
 "use client";
 
 import {
@@ -17,15 +16,10 @@ import { cashTransactionFormSchema } from "@/validations/cash-transaction";
 import { cashTransactionInputFormData } from "@/constants/cash-transaction";
 import { createCashTransactionAction } from "@/actions/cash-transaction";
 import { getPublishedProducts } from "@/data/product";
-import { Package, AlertCircle, Droplet } from "lucide-react";
+import { Package, AlertCircle, Droplet, Fuel } from "lucide-react";
 
 const CashTransactionForm = ({ userDispenser }: { userDispenser?: any }) => {
-  type ActionState = {
-    message: string;
-    errors: Record<string, string | string[]>;
-  };
-
-  const initialState: ActionState = { message: "", errors: {} };
+  const initialState = { message: "", errors: {} };
   const [products, setProducts] = useState<any[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -90,8 +84,8 @@ const CashTransactionForm = ({ userDispenser }: { userDispenser?: any }) => {
   // Check if user has dispenser assigned and is logged in
   const canCreateTransaction =
     userDispenser?.dispenser && userDispenser?.attendance;
-  const hasEnoughStock =
-    canCreateTransaction && userDispenser.dispenser.litres >= litresPurchased;
+  const tankerStock = userDispenser?.tankerStock || 0;
+  const hasEnoughStock = canCreateTransaction && tankerStock >= litresPurchased;
 
   return (
     <motion.div
@@ -115,13 +109,25 @@ const CashTransactionForm = ({ userDispenser }: { userDispenser?: any }) => {
       )}
 
       {userDispenser && userDispenser.attendance && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-          <Droplet size={16} className="text-green-600" />
-          <div className="text-sm text-green-700">
-            <span className="font-medium">{userDispenser.dispenser.name}</span>{" "}
-            - Available Stock:{" "}
-            <span className="font-bold">
-              {userDispenser.dispenser.litres.toFixed(2)}L
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg space-y-2">
+          <div className="flex items-center gap-2">
+            <Droplet size={16} className="text-green-600" />
+            <span className="font-medium text-green-800">Dispenser:</span>
+            <span className="text-sm text-green-700">
+              {userDispenser.dispenser.name}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Fuel size={16} className="text-green-600" />
+            <span className="font-medium text-green-800">Tanker Stock:</span>
+            <span className="text-sm text-green-700 font-bold">
+              {tankerStock.toFixed(2)}L
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-green-800">Attendant:</span>
+            <span className="text-sm text-green-700">
+              {userDispenser.attendance.attendantName || "Unknown"}
             </span>
           </div>
         </div>
@@ -173,7 +179,6 @@ const CashTransactionForm = ({ userDispenser }: { userDispenser?: any }) => {
             errors={errors}
             stateError={state?.errors}
             isPending={!canCreateTransaction}
-            //disabled={!canCreateTransaction}
           />
         ))}
 
@@ -207,17 +212,16 @@ const CashTransactionForm = ({ userDispenser }: { userDispenser?: any }) => {
               </span>
             </div>
 
-            {/* Stock Warning */}
-            {userDispenser &&
-              litresPurchased > userDispenser.dispenser.litres && (
-                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded flex items-start gap-2">
-                  <AlertCircle size={14} className="text-red-600 mt-0.5" />
-                  <p className="text-xs text-red-700">
-                    Insufficient stock! Available:{" "}
-                    {userDispenser.dispenser.litres}L
-                  </p>
-                </div>
-              )}
+            {/* Stock Warning - using tanker stock */}
+            {userDispenser && litresPurchased > tankerStock && (
+              <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded flex items-start gap-2">
+                <AlertCircle size={14} className="text-red-600 mt-0.5" />
+                <p className="text-xs text-red-700">
+                  Insufficient tanker stock! Available: {tankerStock.toFixed(2)}
+                  L
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -231,11 +235,8 @@ const CashTransactionForm = ({ userDispenser }: { userDispenser?: any }) => {
 
         <SubmitButton
           name="Complete Cash Transaction"
-          // isPending={isPending}
-          isPending={
-            !canCreateTransaction ||
-            litresPurchased > (userDispenser?.dispenser?.litres || 0)
-          }
+          isPending={isPending}
+          // disabled={!canCreateTransaction || litresPurchased > tankerStock}
         />
       </form>
     </motion.div>

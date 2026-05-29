@@ -21,6 +21,9 @@ export async function createDispenserUsageService(data: {
     companyName?: string;
     plateNumber?: string;
     driverName?: string;
+    tankerId?: string;
+    tankerName?: string;
+    attendantName?: string;
   };
 }) {
   await connectDB();

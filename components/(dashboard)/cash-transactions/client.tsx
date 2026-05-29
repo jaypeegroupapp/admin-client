@@ -126,6 +126,8 @@ export function CashTransactionsClientPage({
         <DispenserInfoHeader
           dispenser={userDispenser.dispenser}
           attendance={userDispenser.attendance}
+          tankerStock={userDispenser.tankerStock}
+          tankerName={userDispenser.tankerName}
         />
       )}
 

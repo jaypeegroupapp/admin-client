@@ -163,3 +163,35 @@ export async function validateTankerInvoiceNumber(
 
   return true;
 }
+
+export async function updateTankerStockService(
+  tankerId: string,
+  newStockLevel: number,
+) {
+  await connectDB();
+
+  const tanker = await Tanker.findById(tankerId);
+  if (!tanker) {
+    throw new Error("Tanker not found");
+  }
+
+  // Ensure stock doesn't exceed capacity
+  if (newStockLevel > tanker.capacity) {
+    newStockLevel = tanker.capacity;
+  }
+
+  // Ensure stock doesn't go below 0
+  if (newStockLevel < 0) {
+    newStockLevel = 0;
+  }
+
+  return await Tanker.findByIdAndUpdate(
+    tankerId,
+    {
+      stockLevel: newStockLevel,
+      lastReading: newStockLevel,
+      lastReadingDate: new Date(),
+    },
+    { new: true },
+  ).lean();
+}

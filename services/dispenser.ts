@@ -78,3 +78,19 @@ export async function getDispenserByUserIdService(userId: string) {
 
   return dispenser;
 }
+
+export async function updateDispenserTotalService(
+  id: string,
+  totalDispensed: number,
+) {
+  await connectDB();
+  return await Dispenser.findByIdAndUpdate(
+    id,
+    {
+      totalDispensed: totalDispensed,
+      lastReading: totalDispensed,
+      lastReadingDate: new Date(),
+    },
+    { new: true },
+  ).lean();
+}

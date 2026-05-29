@@ -12,16 +12,16 @@ export interface ICashTransaction {
   plusDiscount: number;
   total?: number;
   status?: "pending" | "completed" | "cancelled";
-  
+
   // Dispenser tracking
   dispenserId?: string;
   attendanceId?: string;
   completedById?: string;
-  completedAt?: string;
+  completedAt?: Date | string;
   signature?: string;
   balanceBefore?: number;
   balanceAfter?: number;
-  
+
   createdAt?: string;
   updatedAt?: string;
 }
