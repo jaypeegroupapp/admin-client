@@ -411,8 +411,7 @@ export function AttendanceTab({
           open={showRemoveModal}
           onClose={() => setShowRemoveModal(false)}
           attendanceRecord={currentAttendance}
-          dispenserId={dispenserId}
-          currentBalance={dispenserLitres}
+          currentMeterReading={dispenserLitres}
           onSuccess={loadData}
         />
       )}
