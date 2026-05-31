@@ -9,7 +9,7 @@ import { EmptyDispensersState } from "./empty-state";
 interface ConnectedDispenser {
   id: string;
   name: string;
-  currentStock: number;
+  totalDispensed: number;
   isPublished: boolean;
 }
 
@@ -30,7 +30,7 @@ export function DispensersTab({
   const [modalKey, setModalKey] = useState(0);
 
   const totalConnectedStock = connectedDispensers.reduce(
-    (sum, d) => sum + d.currentStock,
+    (sum, d) => sum + d.totalDispensed,
     0,
   );
 

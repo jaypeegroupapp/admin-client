@@ -1,20 +1,20 @@
 "use client";
 
 interface StockIndicatorProps {
-  currentStock: number;
+  totalDispensed: number;
 }
 
-export function StockIndicator({ currentStock }: StockIndicatorProps) {
+export function StockIndicator({ totalDispensed }: StockIndicatorProps) {
   const getStockColor = () => {
-    if (currentStock <= 100) return "text-red-600";
-    if (currentStock <= 500) return "text-yellow-600";
+    if (totalDispensed <= 100) return "text-red-600";
+    if (totalDispensed <= 500) return "text-yellow-600";
     return "text-green-600";
   };
 
   return (
     <p className="text-sm text-gray-500">
       Current Stock:{" "}
-      <span className={`font-medium ${getStockColor()}`}>{currentStock}L</span>
+      <span className={`font-medium ${getStockColor()}`}>{totalDispensed}L</span>
     </p>
   );
 }

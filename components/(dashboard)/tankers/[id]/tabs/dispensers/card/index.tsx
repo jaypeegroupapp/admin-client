@@ -6,9 +6,10 @@ import { Fuel, ExternalLink, AlertCircle } from "lucide-react";
 import { TransferToDispenserModal } from "../transfer-modal";
 import { DisconnectDispenserModal } from "./disconnect-modal";
 import { StockIndicator } from "./stock-indicator";
+import { IDispenser } from "@/definitions/dispenser";
 
 interface DispenserCardProps {
-  dispenser: any;
+  dispenser: IDispenser;
   tankerId: string;
   tankerStock: number;
   onRefresh: () => void;
@@ -51,7 +52,7 @@ export function DispenserCard({
                 {dispenser.name}
                 <ExternalLink size={12} />
               </Link>
-              <StockIndicator currentStock={dispenser.currentStock} />
+              <StockIndicator totalDispensed={dispenser.totalDispensed} />
             </div>
           </div>
 
@@ -65,16 +66,16 @@ export function DispenserCard({
             >
               {dispenser.isPublished ? "Active" : "Inactive"}
             </span>
-            <button
+            {/* <button
               onClick={() => setShowDisconnectModal(true)}
               className="text-xs text-red-600 hover:text-red-700 px-2 py-1"
             >
               Disconnect
-            </button>
+            </button> */}
           </div>
         </div>
 
-        <div className="flex justify-end mt-3">
+        {/* <div className="flex justify-end mt-3">
           <button
             onClick={() => setShowTransferModal(true)}
             disabled={tankerStock <= 0}
@@ -86,7 +87,7 @@ export function DispenserCard({
           >
             Transfer Product
           </button>
-        </div>
+        </div> */}
 
         {tankerStock <= 0 && (
           <div className="flex items-center gap-2 mt-2 p-2 bg-yellow-50 rounded">
@@ -102,7 +103,7 @@ export function DispenserCard({
         open={showTransferModal}
         onClose={handleTransferSuccess}
         tankerId={tankerId}
-        dispenserId={dispenser.id}
+        dispenserId={dispenser.id!}
         dispenserName={dispenser.name}
         currentTankerStock={tankerStock}
       />
@@ -112,7 +113,7 @@ export function DispenserCard({
         onClose={() => setShowDisconnectModal(false)}
         onSuccess={handleDisconnectSuccess}
         tankerId={tankerId}
-        dispenserId={dispenser.id}
+        dispenserId={dispenser.id!}
         dispenserName={dispenser.name}
       />
     </>

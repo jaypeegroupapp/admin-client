@@ -10,7 +10,7 @@ import { HistoryTab } from "./history";
 interface ConnectedDispenser {
   id: string;
   name: string;
-  currentStock: number;
+  totalDispensed: number;
   isPublished: boolean;
 }
 

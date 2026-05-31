@@ -11,7 +11,7 @@ export async function getTankerDispensers(tankerId: string) {
     const mappedDispensers = result.map((dispenser: any) => ({
       id: dispenser._id.toString(),
       name: dispenser.name,
-      currentStock: dispenser.litres || 0,
+      totalDispensed: dispenser.totalDispensed || 0,
       isPublished: dispenser.isPublished || false,
     }));
     return { success: true, data: mappedDispensers };

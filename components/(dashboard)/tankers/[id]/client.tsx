@@ -15,7 +15,7 @@ import { DeleteTankerModal } from "./delete-modal";
 interface ConnectedDispenser {
   id: string;
   name: string;
-  currentStock: number;
+  totalDispensed: number;
   isPublished: boolean;
 }
 
