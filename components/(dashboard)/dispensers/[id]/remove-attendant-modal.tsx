@@ -1,4 +1,3 @@
-// src/components/(dashboard)/dispensers/[id]/remove-attendant-modal.tsx
 "use client";
 
 import { useState, useRef } from "react";
@@ -9,25 +8,23 @@ import { BaseModal } from "@/components/ui/base-modal";
 import { SubmitButton } from "@/components/ui/buttons";
 import InputValidated from "@/components/ui/input-validated";
 import { removeAttendantAction } from "@/actions/dispenser-attendance";
-import { AlertTriangle, CheckCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, TrendingUp } from "lucide-react";
 import { removeAttendantSchema } from "@/validations/dispenser-attendance";
 
 export function RemoveAttendantModal({
   open,
   onClose,
   attendanceRecord,
-  currentBalance,
-  dispenserId,
+  currentMeterReading,
   onSuccess,
 }: {
   open: boolean;
   onClose: () => void;
   attendanceRecord: any;
-  currentBalance: number;
-  dispenserId: string;
+  currentMeterReading: number;
   onSuccess?: () => void;
 }) {
-  const initialState = { message: "", errors: {} };
+  const initialState = { message: "", errors: {}, warnings: false };
   const [state, formAction, isPending] = useActionState(
     removeAttendantAction.bind(null, attendanceRecord.id),
     initialState,
@@ -43,40 +40,56 @@ export function RemoveAttendantModal({
   } = useForm({
     resolver: zodResolver(removeAttendantSchema),
     defaultValues: {
-      closingBalance: currentBalance.toFixed(2),
+      closingBalance: currentMeterReading.toFixed(2),
     },
   });
 
   const closingBalance = Number(watch("closingBalance")) || 0;
 
-  // Calculate expected and variance in real-time
-  const totalSold = attendanceRecord.totalDispensed || 0;
-  const expectedClosing = currentBalance;
-  const variance = Number(closingBalance) - expectedClosing;
+  // Calculate expected and variance (CORRECT FORMULA)
+  const totalDispensed = attendanceRecord.totalDispensed || 0;
+  const openingBalance = attendanceRecord.openingBalanceLitres || 0;
+
+  // Expected closing = opening balance + total dispensed (meter reading increases)
+  const expectedClosing = openingBalance + totalDispensed;
+  const variance = closingBalance - expectedClosing;
+
+  // Calculate variance percentage based on total dispensed
   const variancePercent =
-    expectedClosing > 0 ? (variance / expectedClosing) * 100 : 0;
+    totalDispensed > 0 ? (variance / totalDispensed) * 100 : 0;
+
+  const isFirstShift = openingBalance === 0 && totalDispensed > 0;
+  const isNewDispenser = currentMeterReading === 0 && totalDispensed === 0;
 
   const getVarianceStatus = () => {
-    if (Math.abs(variancePercent) < 0.1) {
+    if (isNewDispenser) {
+      return {
+        color: "text-gray-500",
+        bg: "bg-gray-50",
+        icon: TrendingUp,
+        text: "No activity - Shift ended with no transactions",
+      };
+    }
+    if (Math.abs(variance) < 0.1) {
       return {
         color: "text-green-600",
         bg: "bg-green-50",
         icon: CheckCircle,
-        text: "Exact match - No variance",
+        text: "✓ Exact match - Meter reading is correct",
       };
-    } else if (Math.abs(variancePercent) < 15) {
+    } else if (Math.abs(variancePercent) < 5) {
       return {
         color: "text-yellow-600",
         bg: "bg-yellow-50",
         icon: AlertTriangle,
-        text: "Small variance detected",
+        text: "⚠ Small variance detected - Please verify",
       };
     } else {
       return {
         color: "text-red-600",
         bg: "bg-red-50",
         icon: AlertTriangle,
-        text: "Large variance detected - Investigate",
+        text: "❗ Large variance detected - Investigation required",
       };
     }
   };
@@ -97,7 +110,7 @@ export function RemoveAttendantModal({
     <BaseModal open={open} onClose={onClose}>
       <div className="p-6 max-h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">
-          End Shift - {(attendanceRecord.userId as any)?.name}
+          End Shift - {attendanceRecord.attendantName}
         </h2>
 
         <form ref={formRef} onSubmit={onSubmit} className="space-y-4">
@@ -105,23 +118,37 @@ export function RemoveAttendantModal({
           <div className="bg-gray-50 p-4 rounded-lg space-y-3">
             <h3 className="text-sm font-medium text-gray-700">Shift Summary</h3>
 
+            {isFirstShift && (
+              <div className="p-2 bg-blue-100 rounded-lg mb-2">
+                <p className="text-xs text-blue-700">
+                  <strong>ℹ️ First Shift:</strong> This is the first shift on
+                  this dispenser. Starting meter reading was 0, which is correct
+                  for a new dispenser.
+                </p>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-xs text-gray-500">Opening Balance</p>
+                <p className="text-xs text-gray-500">Opening Meter</p>
                 <p className="text-lg font-semibold">
-                  {attendanceRecord.openingBalanceLitres.toFixed(2)}L
+                  {openingBalance.toLocaleString()}L
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Total Sold</p>
-                <p className="text-lg font-semibold text-red-600">
-                  -{totalSold}L
+                <p className="text-xs text-gray-500">Total Dispensed</p>
+                <p className="text-lg font-semibold text-green-600">
+                  +{totalDispensed.toLocaleString()}L
                 </p>
               </div>
               <div className="col-span-2 border-t border-gray-200 pt-2">
-                <p className="text-xs text-gray-500">Expected Closing</p>
-                <p className="text-lg font-semibold">
-                  {expectedClosing.toFixed(1)}L
+                <p className="text-xs text-gray-500">Expected Closing Meter</p>
+                <p className="text-lg font-semibold text-blue-600">
+                  {expectedClosing.toLocaleString()}L
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Opening + Dispensed = {openingBalance} + {totalDispensed} ={" "}
+                  {expectedClosing}L
                 </p>
               </div>
             </div>
@@ -130,7 +157,7 @@ export function RemoveAttendantModal({
           {/* Actual Reading Input */}
           <InputValidated
             name="closingBalance"
-            label="Actual Closing Reading (from dispenser)"
+            label="Actual Closing Meter Reading"
             type="number"
             step="0.1"
             min="0"
@@ -142,26 +169,25 @@ export function RemoveAttendantModal({
           />
 
           {/* Variance Calculation */}
-          {closingBalance > 0 && (
+          {closingBalance > 0 && !isNewDispenser && (
             <div className={`${varianceStatus.bg} p-4 rounded-lg space-y-2`}>
               <div className="flex items-start gap-2">
                 <VarianceIcon size={20} className={varianceStatus.color} />
-                <div>
-                  <p className={`text-sm font-medium ${varianceStatus.color}`}>
-                    {varianceStatus.text}
-                  </p>
-                </div>
+                <p className={`text-sm font-medium ${varianceStatus.color}`}>
+                  {varianceStatus.text}
+                </p>
               </div>
-
               <div className="grid grid-cols-2 gap-3 mt-2">
                 <div>
                   <p className="text-xs text-gray-500">Expected</p>
-                  <p className="font-medium">{expectedClosing.toFixed(1)}L</p>
+                  <p className="font-medium">
+                    {expectedClosing.toLocaleString()}L
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Actual</p>
                   <p className="font-medium">
-                    {Number(closingBalance).toFixed(1)}L
+                    {closingBalance.toLocaleString()}L
                   </p>
                 </div>
                 <div className="col-span-2 border-t border-gray-200 pt-2">
@@ -172,7 +198,7 @@ export function RemoveAttendantModal({
                     {variance > 0 ? "+" : ""}
                     {variance.toFixed(2)}L
                     <span className="text-sm ml-1">
-                      ({variancePercent.toFixed(1)}%)
+                      ({Math.abs(variancePercent).toFixed(1)}%)
                     </span>
                   </p>
                 </div>
@@ -180,15 +206,33 @@ export function RemoveAttendantModal({
             </div>
           )}
 
+          {/* Success message for first shift */}
+          {isFirstShift && closingBalance > 0 && Math.abs(variance) < 0.1 && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-700">
+                <strong>✓ Perfect!</strong> First shift completed successfully.
+                Meter reading correctly shows {closingBalance.toLocaleString()}L
+                after dispensing {totalDispensed.toLocaleString()}L.
+              </p>
+            </div>
+          )}
+
           {/* Notes */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700 mb-1">
-              Notes (Optional)
+              Notes{" "}
+              {Math.abs(variancePercent) >= 5 && (
+                <span className="text-red-500">(Required)</span>
+              )}
             </label>
             <textarea
               {...register("notes")}
-              rows={2}
-              placeholder="Add any notes about this shift ending..."
+              rows={3}
+              placeholder={
+                Math.abs(variancePercent) >= 5
+                  ? "Please explain the reason for the variance..."
+                  : "Add any notes about this shift (optional)..."
+              }
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
@@ -200,10 +244,7 @@ export function RemoveAttendantModal({
             </div>
           )}
 
-          <SubmitButton
-            name="End Shift & Record Closing"
-            isPending={isPending}
-          />
+          <SubmitButton name="End Shift" isPending={isPending} />
         </form>
       </div>
     </BaseModal>

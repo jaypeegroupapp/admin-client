@@ -57,32 +57,62 @@ export async function removeAttendantService(input: {
 
   const { attendanceRecordId, closingBalance, notes } = input;
 
-  // Get attendance record
+  // Get attendance record with populated data
   const attendanceRecord =
     await DispenserAttendanceRecord.findById(attendanceRecordId);
+
   if (!attendanceRecord) throw new Error("Attendance record not found");
 
-  // Calculate variance
-  const expectedClosing =
-    attendanceRecord.openingBalanceLitres - attendanceRecord.totalDispensed;
-  const variance = closingBalance - expectedClosing;
+  // Get the actual dispenser
+  const dispenser = await Dispenser.findById(attendanceRecord.dispenserId);
+
+  const openingBalance = attendanceRecord.openingBalanceLitres || 0;
+  const totalDispensed = attendanceRecord.totalDispensed || 0;
+
+  // CORRECT FORMULA: Meter reading increases as product is dispensed
+  // Expected closing = opening balance + total dispensed
+  const expectedClosing = openingBalance + totalDispensed;
+
+  // Calculate variance (difference between actual and expected meter reading)
+  let variance = closingBalance - expectedClosing;
+  let needsInvestigation = false;
+  let investigationNote = "";
+
+  // Check for variance that needs investigation (more than 5% of total dispensed or > 10L)
+  const varianceThreshold = Math.max(totalDispensed * 0.05, 10);
+  const isLargeVariance =
+    Math.abs(variance) > varianceThreshold && totalDispensed > 0;
+
+  // Special case: If opening balance was 0 and this is the first shift, variance might be acceptable
+  const isFirstShift = openingBalance === 0 && totalDispensed > 0;
+
+  if (isLargeVariance && !isFirstShift) {
+    needsInvestigation = true;
+    investigationNote = `Variance of ${variance.toFixed(2)}L detected between expected (${expectedClosing.toFixed(2)}L) and actual (${closingBalance.toFixed(2)}L) meter reading. `;
+  }
+
+  // Determine status
+  let status = "completed";
+  if (needsInvestigation) {
+    status = "reconciled";
+  }
+
+  // Combine notes
+  const finalNotes = [notes, investigationNote].filter(Boolean).join(" | ");
 
   // Update attendance record
   attendanceRecord.closingBalanceLitres = closingBalance;
   attendanceRecord.expectedClosing = expectedClosing;
   attendanceRecord.variance = variance;
   attendanceRecord.logoutTime = new Date();
-  attendanceRecord.status =
-    variance && Math.abs(variance) > 0.1 ? "completed" : "completed";
-  attendanceRecord.notes = notes
-    ? attendanceRecord.notes + " | " + notes
-    : attendanceRecord.notes;
+  attendanceRecord.status = status;
+  attendanceRecord.notes = finalNotes || attendanceRecord.notes;
   await attendanceRecord.save();
 
-  // Unassign dispenser
+  // Update dispenser with final meter reading
   await Dispenser.findByIdAndUpdate(attendanceRecord.dispenserId, {
     userId: null,
-    litres: closingBalance,
+    totalDispensed: closingBalance, // Update meter reading to closing balance
     lastReading: closingBalance,
     lastReadingDate: new Date(),
   });
@@ -90,6 +120,10 @@ export async function removeAttendantService(input: {
   return {
     ...attendanceRecord.toObject(),
     dispenserId: attendanceRecord.dispenserId.toString(),
+    needsInvestigation,
+    isLargeVariance,
+    expectedClosing,
+    variance,
   };
 }
 
