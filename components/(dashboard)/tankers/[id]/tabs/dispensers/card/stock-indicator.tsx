@@ -13,7 +13,7 @@ export function StockIndicator({ totalDispensed }: StockIndicatorProps) {
 
   return (
     <p className="text-sm text-gray-500">
-      Current Stock:{" "}
+      Total Dispensed:{" "}
       <span className={`font-medium ${getStockColor()}`}>{totalDispensed}L</span>
     </p>
   );
