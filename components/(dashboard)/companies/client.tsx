@@ -65,7 +65,7 @@ export function CompanyClientPage({ initialCompanies }: Props) {
 
       {/* MODAL */}
       <CompanyModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <CompanyForm />
+        <CompanyForm onClose={() => setIsModalOpen(false)} />
       </CompanyModal>
     </motion.div>
   );

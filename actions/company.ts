@@ -1,11 +1,17 @@
 "use server";
 
 import { discountFormSchema } from "@/validations/company";
-import { updateCompanyDiscountAmountService } from "@/services/company";
+import {
+  deleteCompanyService,
+  getCompanyByIdService,
+  updateCompanyDiscountAmountService,
+  updateCompanyService,
+} from "@/services/company";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { companyFormSchema } from "@/validations/company";
 import { createCompanyService } from "@/services/company";
+import { ICompany } from "@/definitions/company";
 
 export async function updateOrderDiscountAction(
   companyId: string,
@@ -40,7 +46,8 @@ export async function updateOrderDiscountAction(
   redirect(`/companies/${companyId}`);
 }
 
-export async function registerCompanyAction(
+export async function createCompanyAction(
+  companyId: string,
   prevState: any,
   formData: FormData,
 ) {
@@ -53,47 +60,41 @@ export async function registerCompanyAction(
         errors: validated.error.flatten().fieldErrors,
       };
     }
-    const {
-      name,
-      registrationNumber,
-      contactEmail,
-      contactPhone,
-      billingAddress,
-      vatNumber,
-      invoiceFile,
-    } = validated.data;
-    console.log("invoiceFile", invoiceFile);
 
-    /* let fileId = "";
+    const data = validated.data as ICompany;
 
-    if (invoiceFile && invoiceFile.size > 0) {
-      const fileFormData = new FormData();
-      fileFormData.append("file", invoiceFile);
-      const uploadData = await uploadDoc(fileFormData);
-
-      if (!uploadData.success) {
-        console.log("uploadData", uploadData);
-        return { message: uploadData.message, errors: {} };
+    if (companyId) {
+      const existingCompany = await getCompanyByIdService(companyId);
+      if (!existingCompany) {
+        return {
+          message: "Company not found",
+          errors: { global: "Invalid company ID" },
+        };
       }
-
-      fileId = uploadData.filename || "";
-    } */
-
-    await createCompanyService({
-      name,
-      registrationNumber,
-      contactEmail,
-      contactPhone,
-      billingAddress,
-      vatNumber,
-    });
+      await updateCompanyService(companyId, data);
+    } else {
+      await createCompanyService(data);
+    }
   } catch (error: any) {
-    console.error("❌ registerCompanyAction error:", error);
+    console.error("❌ createCompanyAction error:", error);
     return {
-      message: "Failed to save company details",
-      errors: { global: [error.message] },
+      message: "Failed to create or update company",
+      errors: { global: error.message },
     };
   }
 
-  redirect("/companies");
+  let url = companyId ? `/companies/${companyId}` : "/companies";
+  revalidatePath(url);
+  redirect(url);
+}
+
+export async function deleteCompanyAction(companyId: string) {
+  try {
+    await deleteCompanyService(companyId);
+    revalidatePath("/companies");
+    return { success: true, message: "Company deleted successfully." };
+  } catch (error: any) {
+    console.error("❌ deleteCompanyAction error:", error);
+    return { success: false, message: "Failed to delete company." };
+  }
 }
