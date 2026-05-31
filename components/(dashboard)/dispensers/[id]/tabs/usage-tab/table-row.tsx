@@ -1,9 +1,15 @@
-// src/components/(dashboard)/dispensers/[id]/usage-table-row.tsx
 "use client";
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ShoppingCart, Banknote, Truck, User, Package } from "lucide-react";
+import {
+  ShoppingCart,
+  Banknote,
+  Truck,
+  User,
+  Package,
+  Fuel,
+} from "lucide-react";
 import { getStockRemainingPercentage, getTransactionType } from "@/lib/usage";
 
 export function UsageTableRow({ record }: { record: any }) {
@@ -44,6 +50,15 @@ export function UsageTableRow({ record }: { record: any }) {
       </td>
 
       <td className="px-4 py-3">
+        {/* Tanker Info */}
+        {record.tankerName && (
+          <p className="flex items-center gap-1 text-xs text-gray-500 mb-1">
+            <Fuel size={10} />
+            Tanker: {record.tankerName}
+          </p>
+        )}
+
+        {/* Order or Cash Transaction Details */}
         {record.cashTransactionId ? (
           <div className="text-sm">
             {record.metadata?.companyName && (
@@ -80,7 +95,7 @@ export function UsageTableRow({ record }: { record: any }) {
 
       <td className="px-4 py-3 whitespace-nowrap">
         {record.balanceBefore && record.balanceAfter && (
-          <div className="w-24">
+          <div className="w-32">
             <div className="flex justify-between text-xs mb-1">
               <span className="text-gray-500">
                 {record.balanceAfter.toFixed(0)}L

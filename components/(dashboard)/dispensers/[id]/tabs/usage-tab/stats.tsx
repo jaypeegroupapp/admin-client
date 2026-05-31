@@ -1,4 +1,3 @@
-// src/components/(dashboard)/dispensers/[id]/usage-stats.tsx
 "use client";
 
 interface UsageStatsProps {
@@ -18,7 +17,9 @@ export function UsageStats({
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       <div className="bg-gray-50 p-3 rounded-lg">
         <p className="text-xs text-gray-500">Total Dispensed</p>
-        <p className="text-lg font-semibold text-gray-800">{totalLitres}L</p>
+        <p className="text-lg font-semibold text-gray-800">
+          {totalLitres.toLocaleString()}L
+        </p>
       </div>
       <div className="bg-blue-50 p-3 rounded-lg">
         <p className="text-xs text-blue-600">Orders</p>

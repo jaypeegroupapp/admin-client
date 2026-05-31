@@ -1,5 +1,5 @@
-// src/data/dispenser-usage.ts
 "use server";
+
 import {
   getDispenserUsageHistoryPaginatedService,
   getDispenserUsageHistoryService,
@@ -47,11 +47,11 @@ export async function getDispenserUsageHistoryPaginated(
     };
   }
 }
+
 export async function getDispenserUsageHistory(dispenserId: string) {
   try {
     const usage = await getDispenserUsageHistoryService(dispenserId);
     const arr = Array.isArray(usage) ? usage.map(mapDispenserUsage) : [];
-    // console.log({ arr });
     return arr;
   } catch (err) {
     console.error("❌ getDispenserUsageHistory error:", err);
@@ -65,16 +65,16 @@ function mapDispenserUsage(doc: any): any {
   let attendantStaffName = null;
 
   if (doc.attendanceId) {
-    // Try to get from attendantId -> userId path
     if (doc.attendanceId.attendantId?.userId) {
       attendantName = doc.attendanceId.attendantId.userId.name;
       attendantStaffName = doc.attendanceId.attendantId.name;
-    }
-    // Fallback to direct userId
-    else if (doc.attendanceId.userId) {
+    } else if (doc.attendanceId.userId) {
       attendantName = doc.attendanceId.userId.name;
     }
   }
+
+  // Extract metadata
+  const metadata = doc.metadata || {};
 
   return {
     id: doc._id.toString(),
@@ -99,6 +99,10 @@ function mapDispenserUsage(doc: any): any {
         }
       : null,
 
+    // Tanker info from metadata
+    tankerId: metadata.tankerId,
+    tankerName: metadata.tankerName,
+
     // Attendance info
     attendanceId:
       doc.attendanceId?._id?.toString() || doc.attendanceId?.toString(),
@@ -107,25 +111,13 @@ function mapDispenserUsage(doc: any): any {
     attendanceLoginTime: doc.attendanceId?.loginTime?.toISOString(),
     attendanceLogoutTime: doc.attendanceId?.logoutTime?.toISOString(),
 
-    // Balance tracking
+    // Balance tracking (meter readings)
     balanceBefore: doc.balanceBefore,
     balanceAfter: doc.balanceAfter,
 
     // Type and metadata
     type: doc.type,
-    metadata: doc.metadata || {},
+    metadata: metadata,
     createdAt: doc.createdAt?.toISOString(),
   };
 }
-
-/* 
-function mapDispenserUsage(doc: any): any {
-  return {
-    id: doc._id.toString(),
-    dispenserId: doc.dispenserId.toString(),
-    litresDispensed: doc.litresDispensed,
-    timestamp: doc.timestamp?.toISOString(),
-    orderId: doc.orderId?.toString(),
-    createdAt: doc.createdAt?.toISOString(),
-  };
-} */

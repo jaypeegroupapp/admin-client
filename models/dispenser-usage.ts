@@ -1,4 +1,3 @@
-// src/models/dispenser-usage.ts
 import { IDispenserUsage } from "@/definitions/dispenser-usage";
 import mongoose, { Schema, Document } from "mongoose";
 import CashTransaction from "./cash-transactions";
@@ -35,7 +34,7 @@ const DispenserUsageSchema = new Schema<DispenserUsageDocument>(
       ref: DispenserAttendanceRecord.modelName,
     },
 
-    // Balance tracking
+    // Balance tracking (meter readings)
     balanceBefore: { type: Number, min: 0 },
     balanceAfter: { type: Number, min: 0 },
 
@@ -47,11 +46,14 @@ const DispenserUsageSchema = new Schema<DispenserUsageDocument>(
       required: true,
     },
 
-    // Metadata
+    // Metadata with tanker fields
     metadata: {
       companyName: String,
       plateNumber: String,
       driverName: String,
+      tankerId: String, // Tanker that supplied the product
+      tankerName: String, // Name of the tanker
+      attendantName: String, // Attendant who fulfilled the sale
     },
   },
   { timestamps: true },
@@ -62,6 +64,7 @@ DispenserUsageSchema.index({ dispenserId: 1, timestamp: -1 });
 DispenserUsageSchema.index({ cashTransactionId: 1 });
 DispenserUsageSchema.index({ orderItemId: 1 });
 DispenserUsageSchema.index({ attendanceId: 1 });
+DispenserUsageSchema.index({ "metadata.tankerId": 1 });
 
 const DispenserUsage =
   mongoose.connection.models.DispenserUsage ||

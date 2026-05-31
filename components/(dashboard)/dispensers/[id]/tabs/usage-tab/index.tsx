@@ -1,4 +1,3 @@
-// src/components/(dashboard)/dispensers/[id]/usage-tab.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -19,14 +18,6 @@ import { Pagination } from "@/components/ui/pagination";
 export type ViewMode = "card" | "table";
 export type TransactionFilter = "all" | "orders" | "cash";
 
-interface PaginatedData {
-  data: any[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
-
 export function UsageTab({ dispenserId }: { dispenserId: string }) {
   const [usage, setUsage] = useState<any[]>([]);
   const [filter, setFilter] = useState<TransactionFilter>("all");
@@ -38,6 +29,7 @@ export function UsageTab({ dispenserId }: { dispenserId: string }) {
     totalCount: 0,
     totalPages: 0,
   });
+  const [counts, setCounts] = useState({ all: 0, orders: 0, cash: 0 });
 
   const loadUsage = async (page: number = 0) => {
     setLoading(true);
@@ -60,15 +52,49 @@ export function UsageTab({ dispenserId }: { dispenserId: string }) {
     setLoading(false);
   };
 
+  const loadCounts = async () => {
+    // Load all records to get accurate counts
+    const allRes = await getDispenserUsageHistoryPaginated(
+      dispenserId,
+      0,
+      1,
+      "all",
+    );
+    const ordersRes = await getDispenserUsageHistoryPaginated(
+      dispenserId,
+      0,
+      1,
+      "orders",
+    );
+    const cashRes = await getDispenserUsageHistoryPaginated(
+      dispenserId,
+      0,
+      1,
+      "cash",
+    );
+
+    setCounts({
+      all: allRes?.totalCount || 0,
+      orders: ordersRes?.totalCount || 0,
+      cash: cashRes?.totalCount || 0,
+    });
+  };
+
   useEffect(() => {
     loadUsage(0);
+    loadCounts();
   }, [dispenserId, filter]);
 
   const handlePageChange = (newPage: number) => {
     loadUsage(newPage);
   };
 
-  // Calculate totals from all data (not just current page)
+  const handleFilterChange = (newFilter: TransactionFilter) => {
+    setFilter(newFilter);
+    setPagination((prev) => ({ ...prev, page: 0 }));
+  };
+
+  // Calculate totals from current page
   const totalLitres = usage.reduce((sum, r) => sum + r.litresDispensed, 0);
   const orderCount = usage.filter((r) => r.orderId).length;
   const cashCount = usage.filter((r) => r.cashTransactionId).length;
@@ -90,12 +116,8 @@ export function UsageTab({ dispenserId }: { dispenserId: string }) {
           {/* Filter Buttons */}
           <UsageFilters
             filter={filter}
-            onFilterChange={setFilter}
-            counts={{
-              all: pagination.totalCount,
-              orders: 0,
-              cash: 0,
-            }}
+            onFilterChange={handleFilterChange}
+            counts={counts}
           />
 
           {/* View Toggle */}

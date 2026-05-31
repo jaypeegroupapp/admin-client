@@ -1,8 +1,7 @@
-// src/components/(dashboard)/dispensers/[id]/usage-filters.tsx
 "use client";
 
 import { ShoppingCart, Banknote } from "lucide-react";
-import { TransactionFilter } from ".";
+import { TransactionFilter } from "./";
 
 interface UsageFiltersProps {
   filter: TransactionFilter;

@@ -1,4 +1,3 @@
-// src/components/(dashboard)/dispensers/[id]/usage-card.tsx
 "use client";
 
 import { getStockRemainingPercentage, getTransactionType } from "@/lib/usage";
@@ -11,6 +10,7 @@ import {
   TrendingDown,
   Package,
   Droplet,
+  Fuel,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -25,7 +25,6 @@ export function UsageCard({ record }: { record: any }) {
   return (
     <div className="p-4 bg-white">
       <div className="flex items-start justify-between">
-        {/* Left side - Main info */}
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <div className={`p-1.5 rounded-full ${type.bgColor}`}>
@@ -39,8 +38,8 @@ export function UsageCard({ record }: { record: any }) {
             {record.balanceBefore && record.balanceAfter && (
               <span className="text-xs text-gray-400 flex items-center gap-1">
                 <TrendingDown size={12} className="text-red-400" />
-                {record.balanceBefore.toFixed(2)}L →{" "}
-                {record.balanceAfter.toFixed(2)}L
+                Meter: {record.balanceBefore.toFixed(0)}L →{" "}
+                {record.balanceAfter.toFixed(0)}L
               </span>
             )}
           </div>
@@ -58,6 +57,16 @@ export function UsageCard({ record }: { record: any }) {
             })}{" "}
             at {new Date(record.timestamp).toLocaleTimeString("en-ZA")}
           </p>
+
+          {/* Tanker Info */}
+          {record.tankerName && (
+            <div className="mt-2 space-y-1 bg-blue-50 p-2 rounded">
+              <p className="text-xs text-gray-600 flex items-center gap-1">
+                <Fuel size={12} className="text-gray-400" />
+                Tanker: {record.tankerName}
+              </p>
+            </div>
+          )}
 
           {/* Cash Transaction Details */}
           {record.cashTransactionId && (
@@ -80,26 +89,6 @@ export function UsageCard({ record }: { record: any }) {
                   Driver: {record.metadata.driverName}
                 </p>
               )}
-              {/* Attendant info */}
-              {record.attendantStaffName && (
-                <div className="text-xs text-gray-500 flex items-center gap-1 border-t border-gray-100 pt-1 mt-1">
-                  <User size={12} className="text-gray-400" />
-                  <span>
-                    Attendant:{" "}
-                    <span className="font-medium text-gray-700">
-                      {record.attendantStaffName}
-                    </span>
-                  </span>
-                  {record.attendanceLoginTime && (
-                    <span className="text-gray-400 ml-2">
-                      •{" "}
-                      {new Date(
-                        record.attendanceLoginTime,
-                      ).toLocaleTimeString()}
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
           )}
 
@@ -115,29 +104,35 @@ export function UsageCard({ record }: { record: any }) {
               </Link>
             </div>
           )}
+
+          {/* Attendant info */}
+          {record.attendantStaffName && (
+            <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
+              <User size={12} className="text-gray-400" />
+              <span>
+                Attendant:{" "}
+                <span className="font-medium text-gray-700">
+                  {record.attendantStaffName}
+                </span>
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Right side - Amount badge */}
         <div className="flex flex-col items-end gap-2">
           <span
             className={`px-3 py-1 text-sm font-semibold rounded-full ${type.bgColor} ${type.textColor}`}
           >
             {record.litresDispensed}L
           </span>
-          {record.attendanceId && (
-            <span className="text-xs text-gray-400 flex items-center gap-1">
-              <User size={10} />
-              Shift
-            </span>
-          )}
         </div>
       </div>
 
-      {/* Balance timeline visualization */}
+      {/* Meter progress visualization */}
       {record.balanceBefore && record.balanceAfter && (
         <div className="mt-3 pt-2 border-t border-gray-100">
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-gray-500">Stock:</span>
+            <span className="text-gray-500">Meter Reading:</span>
             <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full bg-blue-500 rounded-full"
@@ -147,7 +142,7 @@ export function UsageCard({ record }: { record: any }) {
               />
             </div>
             <span className="text-gray-700 font-medium">
-              {record.balanceAfter.toFixed(2)}L remaining
+              {record.balanceAfter.toFixed(0)}L
             </span>
           </div>
         </div>

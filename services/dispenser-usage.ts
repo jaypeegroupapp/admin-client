@@ -202,7 +202,7 @@ export async function getDispenserUsageHistoryPaginatedService(
   // Get total count for pagination
   const totalCount = await DispenserUsage.countDocuments(baseFilter);
 
-  // Get paginated data
+  // Get paginated data with full population
   const data = await DispenserUsage.find(baseFilter)
     .populate({
       path: "cashTransactionId",
@@ -238,8 +238,9 @@ export async function getDispenserUsageHistoryPaginatedService(
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  // Transform data
+  // Transform data with tanker metadata
   const transformedData = data.map((record: any) => {
+    // Add cash transaction metadata
     if (record.cashTransactionId) {
       record.metadata = {
         ...record.metadata,
@@ -248,6 +249,13 @@ export async function getDispenserUsageHistoryPaginatedService(
         driverName: record.cashTransactionId.driverName,
       };
     }
+
+    // Ensure tanker metadata is preserved
+    if (record.metadata) {
+      record.tankerName = record.metadata.tankerName;
+      record.tankerId = record.metadata.tankerId;
+    }
+
     return record;
   });
 

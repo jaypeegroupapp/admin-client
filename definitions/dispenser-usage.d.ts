@@ -21,11 +21,13 @@ export interface IDispenserUsage {
 
   // Metadata for additional context
   metadata?: {
-    companyName?: string;
-    plateNumber?: string;
-    driverName?: string;
+    companyName: String;
+    plateNumber: String;
+    driverName: String;
+    tankerId: String; // Add this
+    tankerName: String; // Add this
+    attendantName: String; // Add this
   };
-
   createdAt?: string;
   updatedAt?: string;
 }
