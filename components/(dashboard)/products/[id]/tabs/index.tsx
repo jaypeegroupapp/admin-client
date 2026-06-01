@@ -4,26 +4,28 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Info, Fuel, ShoppingCart } from "lucide-react";
 import { TankersTab } from "./tankers";
 import { OrdersTab } from "./orders";
-import { useEffect, useState } from "react";
-import { getOrdersByProductId } from "@/data/order";
 
 interface Props {
   productId: string;
   activeTab: "info" | "tankers" | "orders";
   onTabChange: (tab: "info" | "tankers" | "orders") => void;
+  totalOrderQuantity: number;
+  tankerTotalStock: number;
+  pendingOrderQuantity: number;
+  acceptedOrderQuantity: number;
+  orders: any[];
 }
 
-export function ProductTabs({ productId, activeTab, onTabChange }: Props) {
-  const [orders, setOrders] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (activeTab === "orders") {
-      getOrdersByProductId(productId).then((res: any) => {
-        setOrders(res || []);
-      });
-    }
-  }, [activeTab, productId]);
-
+export function ProductTabs({
+  productId,
+  activeTab,
+  onTabChange,
+  totalOrderQuantity,
+  tankerTotalStock,
+  pendingOrderQuantity,
+  acceptedOrderQuantity,
+  orders,
+}: Props) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
       {/* Tabs Navigation */}
@@ -115,7 +117,22 @@ export function ProductTabs({ productId, activeTab, onTabChange }: Props) {
         )}
 
         {/* Orders */}
-        {activeTab === "orders" && <OrdersTab orders={orders} />}
+        {activeTab === "orders" && (
+          <motion.div
+            key="orders"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <OrdersTab
+              orders={orders}
+              pendingOrderQuantity={pendingOrderQuantity}
+              acceptedOrderQuantity={acceptedOrderQuantity}
+              tankerTotalStock={tankerTotalStock}
+            />
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

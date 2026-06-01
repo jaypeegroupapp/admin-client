@@ -16,11 +16,17 @@ export function ProductDetailsClient({
   totalOrderQuantity,
   tankerTotalStock,
   tankerTotalCapacity,
+  pendingOrderQuantity,
+  acceptedOrderQuantity,
+  orders,
 }: {
   product: IProduct;
   totalOrderQuantity: number;
   tankerTotalStock: number;
   tankerTotalCapacity: number;
+  pendingOrderQuantity: number;
+  acceptedOrderQuantity: number;
+  orders: any[];
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"info" | "tankers" | "orders">(
@@ -56,6 +62,11 @@ export function ProductDetailsClient({
           productId={product.id!}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          totalOrderQuantity={totalOrderQuantity}
+          tankerTotalStock={tankerTotalStock}
+          pendingOrderQuantity={pendingOrderQuantity}
+          acceptedOrderQuantity={acceptedOrderQuantity}
+          orders={orders}
         />
       </motion.div>
 

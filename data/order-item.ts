@@ -2,6 +2,8 @@
 import {
   getAllOrderItemsService,
   getOrderItemsByOrderIdService,
+  getOrderQuantitiesByProductService,
+  getOrdersByProductService,
   getTotalQuantityForProductService,
 } from "@/services/order-item";
 
@@ -15,7 +17,7 @@ export async function getOrderItems(
   search = "",
   status = "all",
   fromDate = "",
-  toDate = ""
+  toDate = "",
 ) {
   try {
     const { data, totalCount, stats } = await getOrderItemsService(
@@ -24,7 +26,7 @@ export async function getOrderItems(
       search,
       status,
       fromDate,
-      toDate
+      toDate,
     );
 
     return {
@@ -88,5 +90,29 @@ export async function getTotalQuantityForProduct(productId: string) {
   } catch (err) {
     console.error("❌ getOrderItemsByOrderId error:", err);
     return 0;
+  }
+}
+
+export async function getOrderQuantitiesByProduct(productId: string) {
+  try {
+    const result = await getOrderQuantitiesByProductService(productId);
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error("❌ getOrderQuantitiesByProduct error:", error);
+    return {
+      success: false,
+      data: { pending: 0, accepted: 0, completed: 0, cancelled: 0 },
+      message: error?.message,
+    };
+  }
+}
+
+export async function getOrdersByProduct(productId: string) {
+  try {
+    const result = await getOrdersByProductService(productId);
+    return result;
+  } catch (error: any) {
+    console.error("❌ getOrdersByProduct error:", error);
+    return [];
   }
 }

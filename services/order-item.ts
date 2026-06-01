@@ -515,3 +515,102 @@ export async function completeOrderItem(itemId: string, signature?: string) {
     };
   }
 }
+
+export async function getOrderQuantitiesByProductService(productId: string) {
+  await connectDB();
+
+  const result = await OrderItem.aggregate([
+    {
+      $lookup: {
+        from: "orders",
+        localField: "orderId",
+        foreignField: "_id",
+        as: "order",
+      },
+    },
+    { $unwind: "$order" },
+
+    // Filter by productId
+    {
+      $match: {
+        "order.productId": new mongoose.Types.ObjectId(productId),
+      },
+    },
+
+    // Group by order status
+    {
+      $group: {
+        _id: "$order.status",
+        totalQuantity: { $sum: "$quantity" },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const quantities = {
+    pending: 0,
+    accepted: 0,
+    completed: 0,
+    cancelled: 0,
+  };
+
+  result.forEach((item: any) => {
+    if (item._id === "pending") {
+      quantities.pending = item.totalQuantity;
+    }
+    if (item._id === "accepted") {
+      quantities.accepted = item.totalQuantity;
+    }
+    if (item._id === "completed") {
+      quantities.completed = item.totalQuantity;
+    }
+    if (item._id === "cancelled") {
+      quantities.cancelled = item.totalQuantity;
+    }
+  });
+
+  return quantities;
+}
+
+export async function getOrdersByProductService(productId: string) {
+  await connectDB();
+
+  const orderItems = await OrderItem.aggregate([
+    {
+      $lookup: {
+        from: "orders",
+        localField: "orderId",
+        foreignField: "_id",
+        as: "order",
+      },
+    },
+    { $unwind: "$order" },
+
+    // Filter by productId
+    {
+      $match: {
+        "order.productId": new mongoose.Types.ObjectId(productId),
+      },
+    },
+
+    // Sort by newest first
+    { $sort: { "order.createdAt": -1 } },
+
+    // Project the fields we need
+    {
+      $project: {
+        _id: "$_id",
+        status: "$order.status",
+        quantity: 1,
+        createdAt: "$order.createdAt",
+      },
+    },
+  ]);
+
+  return orderItems.map((oi) => ({
+    id: oi._id.toString(),
+    status: oi.status,
+    quantity: oi.quantity,
+    createdAt: oi.createdAt,
+  }));
+}
