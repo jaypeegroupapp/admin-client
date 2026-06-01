@@ -6,6 +6,7 @@ import {
   getTotalStockByProductIdService,
   getTankerByDispenserIdService,
   updateTankerStockService,
+  getTankersByProductService,
 } from "@/services/tanker";
 import { ITanker } from "@/definitions/tanker";
 
@@ -81,22 +82,21 @@ export async function updateTankerStock(
   }
 }
 
-/* export async function getTankersForProduct(productId: string) {
+export async function getTankersByProduct(productId: string) {
   try {
-    await connectDB();
-    const tankers = await Tanker.find({
-      productId: new Types.ObjectId(productId),
-      isPublished: true,
-      stockLevel: { $gt: 0 },
-    }).lean();
+    const result = await getTankersByProductService(productId);
 
-    const mappedTankers = tankers.map(mapTanker);
-    return { success: true, data: mappedTankers };
+    const tankers = Array.isArray(result) ? result.map(mapTanker) : [];
+    return { success: true, data: tankers };
   } catch (error: any) {
-    console.error("❌ getTankersForProduct error:", error);
-    return { success: false, data: [], message: error.message };
+    console.error("❌ getTankersByProduct error:", error);
+    return {
+      success: false,
+      message: error?.message ?? "Unable to fetch tankers for product",
+      data: [],
+    };
   }
-} */
+}
 
 function mapTanker(doc: any): ITanker {
   return {

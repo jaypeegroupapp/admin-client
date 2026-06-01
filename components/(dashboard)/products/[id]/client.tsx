@@ -23,8 +23,8 @@ export function ProductDetailsClient({
   tankerTotalCapacity: number;
 }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"info" | "inventory" | "orders">(
-    "inventory",
+  const [activeTab, setActiveTab] = useState<"info" | "tankers" | "orders">(
+    "tankers",
   );
 
   const [isEditOpen, setIsEditOpen] = useState(false);

@@ -111,3 +111,14 @@ export async function getTankerByDispenserIdService(dispenserId: string) {
   const tanker = await Tanker.findById(connection.tankerId).lean();
   return tanker;
 }
+
+export async function getTankersByProductService(productId: string) {
+  await connectDB();
+  return await Tanker.find({
+    productId: new Types.ObjectId(productId),
+  })
+    .populate("productId", "name description grid")
+    .populate("userId", "name email")
+    .sort({ createdAt: -1 })
+    .lean();
+}
