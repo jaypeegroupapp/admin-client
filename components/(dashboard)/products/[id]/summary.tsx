@@ -163,7 +163,7 @@ export function ProductSummary({
         </div>
 
         {/* Progress Bar Container */}
-        <div className="relative w-full h-6 bg-gray-200 rounded-lg overflow-hidden">
+        <div className="relative w-full h-4 bg-gray-200 rounded-lg overflow-hidden">
           {/* Current Stock Fill */}
           <div
             className={`absolute left-0 top-0 h-full rounded-l-lg transition-all ${
