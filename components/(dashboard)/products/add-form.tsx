@@ -37,7 +37,9 @@ export default function ProductAddForm({
     defaultValues: {
       name: product?.name || "",
       description: product?.description || "",
-      grid: product?.grid || "",
+      grid: product?.grid || 0,
+      discount: product?.discount || 0,
+      minStockThreshold: product?.minStockThreshold || 1000,
     },
   });
 
@@ -72,22 +74,6 @@ export default function ProductAddForm({
             stateError={state?.errors}
           />
         ))}
-
-        {/* Show grid ONLY when editing an existing product */}
-        {productId && (
-          <InputValidated
-            name="grid"
-            label="Grid"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="Enter grid"
-            register={register}
-            errors={errors}
-            isPending={isPending}
-            stateError={state?.errors}
-          />
-        )}
 
         <SubmitButton
           name={productId ? "Update Product" : "Add Product"}

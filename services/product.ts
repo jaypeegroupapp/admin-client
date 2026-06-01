@@ -1,18 +1,12 @@
-// src/services/product.services.ts
 import Product from "@/models/product";
+import Tanker from "@/models/tanker";
 import { IProduct } from "@/definitions/product";
 import { connectDB } from "@/lib/db";
+import { Types } from "mongoose";
 
 export async function getAllProductsService() {
   await connectDB();
   return await Product.find().sort({ createdAt: -1 }).lean();
-}
-
-export async function getAllPublishedProductsService() {
-  await connectDB();
-  return await Product.find({ isPublished: true })
-    .sort({ createdAt: -1 })
-    .lean();
 }
 
 export async function getProductByIdService(id: string) {
@@ -44,4 +38,31 @@ export async function updateProductPublishStatusService(
 ) {
   await connectDB();
   return await Product.findByIdAndUpdate(id, { isPublished }, { new: true });
+}
+
+export async function getTotalProductStockFromTankersService(
+  productId: string,
+) {
+  await connectDB();
+
+  const result = await Tanker.aggregate([
+    {
+      $match: {
+        productId: new Types.ObjectId(productId),
+        isPublished: true,
+      },
+    },
+    {
+      $group: {
+        _id: "$productId",
+        totalStock: { $sum: "$stockLevel" },
+        totalCapacity: { $sum: "$capacity" },
+      },
+    },
+  ]);
+
+  return {
+    totalStock: result[0]?.totalStock || 0,
+    totalCapacity: result[0]?.totalCapacity || 0,
+  };
 }

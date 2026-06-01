@@ -14,9 +14,13 @@ import { DeleteProductModal } from "./delete-modal";
 export function ProductDetailsClient({
   product,
   totalOrderQuantity,
+  tankerTotalStock,
+  tankerTotalCapacity,
 }: {
   product: IProduct;
   totalOrderQuantity: number;
+  tankerTotalStock: number;
+  tankerTotalCapacity: number;
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"info" | "inventory" | "orders">(
@@ -44,6 +48,8 @@ export function ProductDetailsClient({
         <ProductSummary
           product={product}
           totalOrderQuantity={totalOrderQuantity}
+          tankerTotalStock={tankerTotalStock}
+          tankerTotalCapacity={tankerTotalCapacity}
         />
 
         <ProductTabs
@@ -53,18 +59,18 @@ export function ProductDetailsClient({
         />
       </motion.div>
 
-      {/* 🟦 EDIT PRODUCT */}
+      {/* EDIT PRODUCT */}
       <ProductModal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)}>
         <ProductAddForm
           product={product}
           onClose={() => {
             setIsEditOpen(false);
-            router.refresh(); // refresh product details
+            router.refresh();
           }}
         />
       </ProductModal>
 
-      {/* 🟥 DELETE PRODUCT */}
+      {/* DELETE PRODUCT */}
       <DeleteProductModal
         open={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}

@@ -1,6 +1,9 @@
 import { ProductDetailsClient } from "@/components/(dashboard)/products/[id]/client";
 import { getTotalQuantityForProduct } from "@/data/order-item";
-import { getProductById } from "@/data/product";
+import {
+  getProductById,
+  getTotalProductStockFromTankers,
+} from "@/data/product";
 import { notFound } from "next/navigation";
 
 export default async function ProductDetailsPage({
@@ -11,6 +14,7 @@ export default async function ProductDetailsPage({
   const { id } = await params;
   const product = await getProductById(id);
   const totalOrderQuantity = await getTotalQuantityForProduct(id);
+  const tankerData = await getTotalProductStockFromTankers(id);
 
   if (!product?.success || !product.data) return notFound();
 
@@ -19,6 +23,8 @@ export default async function ProductDetailsPage({
       <ProductDetailsClient
         product={product.data}
         totalOrderQuantity={totalOrderQuantity}
+        tankerTotalStock={tankerData.totalStock}
+        tankerTotalCapacity={tankerData.totalCapacity}
       />
     </div>
   );

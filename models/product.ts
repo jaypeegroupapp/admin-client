@@ -15,6 +15,7 @@ const ProductSchema = new Schema<ProductDocument>(
     grid: { type: Number, default: 0, min: 0 },
     discount: { type: Number, default: 0, min: 0 },
     stock: { type: Number, default: 0, min: 0 },
+    minStockThreshold: { type: Number, default: 1000, min: 0 }, // Minimum threshold in litres
     isPublished: { type: Boolean, default: false },
   },
   { timestamps: true },
