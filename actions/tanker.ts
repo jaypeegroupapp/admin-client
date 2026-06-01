@@ -21,9 +21,6 @@ export async function createTankerAction(
     const rawData = {
       name: formData.get("name"),
       productId: formData.get("productId"),
-      stockLevel: formData.get("stockLevel")
-        ? Number(formData.get("stockLevel"))
-        : 0,
       capacity: formData.get("capacity") ? Number(formData.get("capacity")) : 0,
       isPublished: formData.get("isPublished") === "true",
       userId: formData.get("userId") || undefined,

@@ -52,7 +52,6 @@ export default function TankerAddForm({
     resolver: zodResolver(tankerFormSchema),
     defaultValues: {
       name: tanker?.name || "",
-      stockLevel: tanker?.stockLevel || 0,
       capacity: tanker?.capacity || 1,
       isPublished: tanker?.isPublished || false,
     },
