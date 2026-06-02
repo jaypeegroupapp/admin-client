@@ -6,6 +6,7 @@ import {
   getInvoiceOrdersService,
   getOrdersByMineService,
   getMineInvoiceOrdersService,
+  getAvailableStockForProductService,
 } from "@/services/order";
 import { mapOrder } from "./mapper";
 
@@ -103,10 +104,11 @@ export async function getOrderById(id: string) {
     }));
 
     return {
-      id: order._id?.toString(),
+      id: order.id,
       orderNumber:
         order.orderNumber || order._id?.toString().slice(-8).toUpperCase(),
       companyName: order.company?.name || order.companyId?.name,
+      productId: order.productId?.toString(),
       productName: order.product?.name || order.productId?.name,
       totalAmount: order.totalAmount,
       status: order.status,
@@ -168,5 +170,16 @@ export async function getMineInvoiceOrders(invoiceId: string) {
   } catch (err) {
     console.error("❌ getInvoiceOrders error:", err);
     return [];
+  }
+}
+
+export async function getAvailableStockForProduct(productId: string) {
+  try {
+    const result = await getAvailableStockForProductService(productId);
+
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error("❌ getAvailableStockForProduct error:", error);
+    return { success: false, message: error.message, data: null };
   }
 }

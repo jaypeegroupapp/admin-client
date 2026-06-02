@@ -2,27 +2,43 @@
 
 import { completeMineOrderWithInvoice } from "@/services/mine-invoice";
 import { completeOrderWithInvoice } from "@/services/company-invoice";
-import {
-  acceptOrderWithTransaction,
-  declineOrderService,
-} from "@/services/order";
+import { acceptOrderService, declineOrderService } from "@/services/order";
+import { revalidatePath } from "next/cache";
 
 // ---------------- ACCEPT ORDER ----------------
 export async function acceptOrderAction(orderId: string, quantity: number) {
   try {
-    const result = await acceptOrderWithTransaction(orderId, quantity);
+    await acceptOrderService(orderId, quantity);
 
-    if (!result.success) {
-      return { success: false, message: result.message };
-    }
+    revalidatePath(`/orders/${orderId}`);
+    revalidatePath("/orders");
 
-    return { success: true };
-  } catch (error) {
+    return { success: true, message: "Order accepted successfully" };
+  } catch (error: any) {
     console.error("❌ acceptOrderAction error:", error);
-    return { success: false, message: "Failed to accept order." };
+    return {
+      success: false,
+      message: error.message || "Failed to accept order.",
+    };
   }
 }
 
+export async function declineOrderAction(orderId: string, reason: string) {
+  try {
+    const order = await declineOrderService(orderId, reason);
+
+    revalidatePath(`/orders/${orderId}`);
+    revalidatePath("/orders");
+
+    return { success: true, message: "Order declined successfully" };
+  } catch (error: any) {
+    console.error("❌ declineOrderAction error:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to decline order.",
+    };
+  }
+}
 // /actions/order.ts
 export async function completeOrderAction(orderId: string) {
   try {
@@ -57,7 +73,7 @@ export async function completeMineOrderAction(orderId: string) {
 // /actions/order.ts
 export async function completeOrderWithSiignatureAction(
   orderId: string,
-  signature: string
+  signature: string,
 ) {
   try {
     const result = await completeOrderWithInvoice(orderId);
@@ -70,18 +86,5 @@ export async function completeOrderWithSiignatureAction(
   } catch (error) {
     console.error("❌ completeOrderAction error:", error);
     return { success: false, message: "Failed to complete order." };
-  }
-}
-
-// ---------------- DECLINE ORDER ----------------
-export async function declineOrderAction(orderId: string, reason: string) {
-  try {
-    const order = await declineOrderService(orderId, reason);
-    if (!order) return { success: false, message: "Order not found." };
-
-    return { success: true };
-  } catch (error) {
-    console.error("❌ declineOrderAction error:", error);
-    return { success: false, message: "Failed to decline order." };
   }
 }

@@ -3,7 +3,6 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { IOrder } from "@/definitions/order";
 import { OrderHeader } from "./header";
 import { OrderSummary } from "./summary";
 import { OrderItemsList } from "./item-list";

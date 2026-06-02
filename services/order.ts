@@ -6,8 +6,7 @@ import OrderItem from "@/models/order-item";
 import { Types } from "mongoose";
 import { CreateOrderInput } from "@/definitions/order";
 import mongoose from "mongoose";
-import Product from "@/models/product";
-import StockMovement from "@/models/stock-movement";
+import Tanker from "@/models/tanker";
 
 /**
  * ✅ Get all Orders for the logged-in user
@@ -400,96 +399,57 @@ export async function updateCollectionDateService(
   return { success: true, message: "Collection date updated successfully" };
 }
 
-export async function acceptOrderWithTransaction(
-  orderId: string,
-  quantity: number,
-) {
+export async function acceptOrderService(orderId: string, quantity: number) {
   await connectDB();
 
-  const session = await mongoose.startSession();
-
-  try {
-    session.startTransaction();
-
-    // 1️⃣ Get the order
-    const order = await Order.findById(orderId).session(session);
-
-    if (!order) {
-      await session.abortTransaction();
-      return { success: false, message: "Order not found." };
-    }
-
-    if (order.status !== "pending") {
-      await session.abortTransaction();
-      return { success: false, message: "Order already processed." };
-    }
-
-    // 2️⃣ Get the product
-    const product = await Product.findById(order.productId).session(session);
-
-    if (!product) {
-      await session.abortTransaction();
-      return { success: false, message: "Product not found." };
-    }
-
-    if (product.stock < quantity) {
-      await session.abortTransaction();
-      return { success: false, message: "Not enough stock available." };
-    }
-
-    await OrderItem.updateMany(
-      { orderId }, // find all linked to the order
-      { $set: { status: "accepted" } },
-      { session },
-    );
-
-    // 3️⃣ Update Order → accepted
-    order.status = "accepted";
-    await order.save({ session });
-
-    // 4️⃣ Deduct stock
-    product.stock -= quantity;
-    await product.save({ session });
-
-    // 5️⃣ Record stock movement (🆕 Added)
-    await StockMovement.create(
-      [
-        {
-          productId: product._id,
-          type: "OUT",
-          quantity: quantity,
-          purchasePrice: product.purchasePrice,
-          gridAtPurchase: product.grid,
-          reason: `Order accepted: ${order._id}`,
-        },
-      ],
-      { session },
-    );
-
-    // 6️⃣ Commit transaction
-    await session.commitTransaction();
-    session.endSession();
-
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Transaction failed:", error);
-
-    await session.abortTransaction();
-    session.endSession();
-
-    return { success: false, message: "Transaction failed." };
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new Error("Order not found");
   }
+
+  if (order.status !== "pending") {
+    throw new Error("Order already processed");
+  }
+
+  // Check available stock before accepting
+  const stockInfo = await getAvailableStockForProductService(
+    order.productId.toString(),
+  );
+
+  if (stockInfo.availableStock < quantity) {
+    throw new Error(
+      `Insufficient stock. Available: ${stockInfo.availableStock}L, Required: ${quantity}L. Shortfall: ${quantity - stockInfo.availableStock}L.`,
+    );
+  }
+
+  // Update Order Items to accepted
+  await OrderItem.updateMany({ orderId }, { $set: { status: "accepted" } });
+
+  // Update Order to accepted
+  order.status = "accepted";
+  await order.save();
+
+  return order;
 }
 
 export async function declineOrderService(orderId: string, reason: string) {
   await connectDB();
-  return await Order.findByIdAndUpdate(
-    orderId,
-    { status: "declined", declineReason: reason },
-    { new: true },
-  ).lean();
-}
 
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  if (order.status !== "pending") {
+    throw new Error("Cannot decline order that is already processed");
+  }
+
+  order.status = "cancelled";
+  order.reason = reason;
+  await order.save();
+
+  return order;
+}
 // data/services/invoice-orders.service.ts
 export async function getInvoiceOrdersService(invoiceId: string) {
   await connectDB();
@@ -589,4 +549,62 @@ export async function getMineInvoiceOrdersService(invoiceId: string) {
   ]);
 
   return results;
+}
+
+export async function getAvailableStockForProductService(productId: string) {
+  await connectDB();
+
+  // Get total tanker stock for this product
+  const tankerStockResult = await Tanker.aggregate([
+    {
+      $match: {
+        productId: new Types.ObjectId(productId),
+        isPublished: true,
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalStock: { $sum: "$stockLevel" },
+      },
+    },
+  ]);
+
+  const totalTankerStock = tankerStockResult[0]?.totalStock || 0;
+
+  // Get total accepted order quantity for this product
+  const acceptedOrdersResult = await Order.aggregate([
+    {
+      $match: {
+        productId: new Types.ObjectId(productId),
+        status: "accepted",
+      },
+    },
+    {
+      $lookup: {
+        from: "orderitems",
+        localField: "_id",
+        foreignField: "orderId",
+        as: "items",
+      },
+    },
+    { $unwind: "$items" },
+    {
+      $group: {
+        _id: null,
+        totalAccepted: { $sum: "$items.quantity" },
+      },
+    },
+  ]);
+
+  const totalAccepted = acceptedOrdersResult[0]?.totalAccepted || 0;
+
+  // Available stock = physical stock - reserved (accepted orders)
+  const availableStock = totalTankerStock - totalAccepted;
+
+  return {
+    totalTankerStock,
+    totalAccepted,
+    availableStock: Math.max(0, availableStock),
+  };
 }
