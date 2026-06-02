@@ -36,7 +36,6 @@ export default async function ProductDetailsPage({
     }
   });
 
-  console.log({ quantities });
   if (!product?.success || !product.data) return notFound();
 
   return (
