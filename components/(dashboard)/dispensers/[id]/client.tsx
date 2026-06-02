@@ -22,9 +22,9 @@ export function DispenserDetailsClient({
   product: IProduct | null;
 }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<
-    "info" | "attendance" | "usage" | "transfers" | "settings"
-  >("info");
+  const [activeTab, setActiveTab] = useState<"info" | "attendance" | "usage">(
+    "info",
+  );
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);

@@ -1,22 +1,18 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Info, Users, Droplet, ArrowLeftRight, Settings } from "lucide-react";
+import { Info, Users, Droplet } from "lucide-react";
 
 // Tab components
 import { InfoTab } from "./info-tab";
 import { AttendanceTab } from "./attendance-tab";
 import { UsageTab } from "./usage-tab";
-import { TransfersTab } from "./transfers-tab";
-import { SettingsTab } from "./settings-tab";
 
 interface Props {
   dispenserId: string;
   totalDispensed: number;
-  activeTab: "info" | "attendance" | "usage" | "transfers" | "settings";
-  onTabChange: (
-    tab: "info" | "attendance" | "usage" | "transfers" | "settings",
-  ) => void;
+  activeTab: "info" | "attendance" | "usage";
+  onTabChange: (tab: "info" | "attendance" | "usage") => void;
 }
 
 export function DispenserTabs({
@@ -64,30 +60,6 @@ export function DispenserTabs({
           <Droplet size={16} />
           Usage History
         </button>
-
-        <button
-          onClick={() => onTabChange("transfers")}
-          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap transition-all ${
-            activeTab === "transfers"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          <ArrowLeftRight size={16} />
-          Tanker Transfers
-        </button>
-
-        <button
-          onClick={() => onTabChange("settings")}
-          className={`pb-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap transition-all ${
-            activeTab === "settings"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          <Settings size={16} />
-          Settings
-        </button>
       </div>
 
       {/* Tab Content */}
@@ -128,33 +100,6 @@ export function DispenserTabs({
             transition={{ duration: 0.3 }}
           >
             <UsageTab dispenserId={dispenserId} />
-          </motion.div>
-        )}
-
-        {activeTab === "transfers" && (
-          <motion.div
-            key="transfers"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <TransfersTab
-              dispenserId={dispenserId}
-              totalDispensed={totalDispensed}
-            />
-          </motion.div>
-        )}
-
-        {activeTab === "settings" && (
-          <motion.div
-            key="settings"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <SettingsTab dispenserId={dispenserId} />
           </motion.div>
         )}
       </AnimatePresence>
