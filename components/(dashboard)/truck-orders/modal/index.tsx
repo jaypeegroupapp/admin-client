@@ -89,6 +89,7 @@ export function OrderItemDetailModal({
     setCompletedData(null);
     setMessage("");
     setSignature(null);
+    onClose();
     router.refresh();
   };
 
