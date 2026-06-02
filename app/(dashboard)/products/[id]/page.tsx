@@ -1,6 +1,7 @@
 import { ProductDetailsClient } from "@/components/(dashboard)/products/[id]/client";
 import {
   getTotalQuantityForProduct,
+  getOrderQuantitiesByProduct,
   getOrdersByProduct,
 } from "@/data/order-item";
 import {
@@ -17,24 +18,9 @@ export default async function ProductDetailsPage({
   const { id } = await params;
   const product = await getProductById(id);
   const totalOrderQuantity = await getTotalQuantityForProduct(id);
+  const orderQuantities = await getOrderQuantitiesByProduct(id);
   const orders = await getOrdersByProduct(id);
   const tankerData = await getTotalProductStockFromTankers(id);
-
-  const quantities = {
-    pending: 0,
-    accepted: 0,
-    completed: 0,
-    cancelled: 0,
-  };
-
-  orders.forEach((item: any) => {
-    if (item.status === "pending") {
-      quantities.pending += item.quantity;
-    }
-    if (item.status === "accepted") {
-      quantities.accepted += item.quantity;
-    }
-  });
 
   if (!product?.success || !product.data) return notFound();
 
@@ -45,8 +31,8 @@ export default async function ProductDetailsPage({
         totalOrderQuantity={totalOrderQuantity}
         tankerTotalStock={tankerData.totalStock}
         tankerTotalCapacity={tankerData.totalCapacity}
-        pendingOrderQuantity={quantities.pending}
-        acceptedOrderQuantity={quantities.accepted}
+        pendingOrderQuantity={orderQuantities.data.pending}
+        acceptedOrderQuantity={orderQuantities.data.accepted}
         orders={orders}
       />
     </div>

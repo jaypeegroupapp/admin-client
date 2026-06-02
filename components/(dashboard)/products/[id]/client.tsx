@@ -56,17 +56,18 @@ export function ProductDetailsClient({
           totalOrderQuantity={totalOrderQuantity}
           tankerTotalStock={tankerTotalStock}
           tankerTotalCapacity={tankerTotalCapacity}
+          acceptedOrderQuantity={acceptedOrderQuantity}
         />
 
         <ProductTabs
           productId={product.id!}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          orders={orders}
           totalOrderQuantity={totalOrderQuantity}
           tankerTotalStock={tankerTotalStock}
           pendingOrderQuantity={pendingOrderQuantity}
           acceptedOrderQuantity={acceptedOrderQuantity}
-          orders={orders}
         />
       </motion.div>
 
