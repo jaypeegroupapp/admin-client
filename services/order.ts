@@ -245,6 +245,7 @@ export async function getOrderByIdService(id: string) {
     invoiceId: order.invoiceId?._id?.toString(),
     invoice: order.invoiceId,
     purchasePrice: order.purchasePrice,
+    sellingPrice: order.sellingPrice,
     grid: order.grid,
     totalAmount: order.totalAmount,
     collectionDate: order.collectionDate,

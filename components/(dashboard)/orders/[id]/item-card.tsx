@@ -11,7 +11,13 @@ import {
 } from "lucide-react";
 import { OrderItemStatusBadge } from "./item-status-badge";
 
-export function OrderItemCard({ item }: { item: any }) {
+export function OrderItemCard({
+  item,
+  sellingPrice,
+}: {
+  item: any;
+  sellingPrice: number;
+}) {
   return (
     <div className="p-6 hover:bg-gray-50 transition">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
@@ -61,7 +67,7 @@ export function OrderItemCard({ item }: { item: any }) {
         </div>
 
         {/* Right side - Quantity and Price */}
-        <OrderItemPriceInfo item={item} />
+        <OrderItemPriceInfo item={item} sellingPrice={sellingPrice} />
       </div>
 
       {/* Status Timeline */}
@@ -105,7 +111,14 @@ function OrderItemCompletionInfo({ item }: { item: any }) {
 }
 
 // Sub-component for price info
-function OrderItemPriceInfo({ item }: { item: any }) {
+function OrderItemPriceInfo({
+  item,
+  sellingPrice,
+}: {
+  item: any;
+  sellingPrice: number;
+}) {
+  const totalPrice = item.quantity * sellingPrice;
   return (
     <div className="text-right">
       <div className="mb-2">
@@ -115,13 +128,13 @@ function OrderItemPriceInfo({ item }: { item: any }) {
       <div>
         <p className="text-xs text-gray-500">Price per Litre</p>
         <p className="text-lg font-semibold text-gray-800">
-          R {item.price.toFixed(2)}
+          R {sellingPrice.toFixed(2)}
         </p>
       </div>
       <div className="mt-2 pt-2 border-t border-gray-200">
         <p className="text-xs text-gray-500">Total</p>
         <p className="text-base font-bold text-green-600">
-          R {(item.quantity * item.price).toFixed(2)}
+          R {totalPrice.toFixed(2)}
         </p>
       </div>
     </div>

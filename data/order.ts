@@ -111,6 +111,7 @@ export async function getOrderById(id: string) {
       productId: order.productId?.toString(),
       productName: order.product?.name || order.productId?.name,
       totalAmount: order.totalAmount,
+      sellingPrice: order.sellingPrice,
       status: order.status,
       createdAt: order.createdAt,
       items: items,

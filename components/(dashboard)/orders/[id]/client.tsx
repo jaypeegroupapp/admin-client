@@ -19,7 +19,10 @@ export function OrderDetailsClient({ order }: { order: any }) {
     >
       <OrderHeader order={order} onBack={() => router.back()} />
       <OrderSummary order={order} />
-      <OrderItemsList items={order.items || []} />
+      <OrderItemsList
+        sellingPrice={order.sellingPrice}
+        items={order.items || []}
+      />
     </motion.div>
   );
 }

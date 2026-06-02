@@ -6,10 +6,16 @@ import { Package } from "lucide-react";
 import { OrderItemCard } from "./item-card";
 import { OrderItemsSummary } from "./items-summary";
 
-export function OrderItemsList({ items }: { items: any[] }) {
+export function OrderItemsList({
+  sellingPrice,
+  items,
+}: {
+  sellingPrice: number;
+  items: any[];
+}) {
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalAmount = items.reduce(
-    (sum, item) => sum + item.quantity * item.price,
+    (sum, item) => sum + item.quantity * sellingPrice,
     0,
   );
 
@@ -42,7 +48,11 @@ export function OrderItemsList({ items }: { items: any[] }) {
 
       <div className="divide-y divide-gray-200">
         {items.map((item) => (
-          <OrderItemCard key={item.id} item={item} />
+          <OrderItemCard
+            key={item.id}
+            item={item}
+            sellingPrice={sellingPrice}
+          />
         ))}
       </div>
 
