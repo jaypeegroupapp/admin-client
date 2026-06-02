@@ -30,11 +30,6 @@ export default async function OrdersPage({
   // Get current user's dispenser assignment
   const userDispenser = await getCurrentUserDispenser();
 
-  const dispenserId =
-    userDispenser && userDispenser.success && userDispenser.data?.dispenser.id
-      ? userDispenser.data.dispenser.id
-      : undefined;
-
   const { data, totalCount, stats } = await getOrderItems(
     page,
     pageSize,
