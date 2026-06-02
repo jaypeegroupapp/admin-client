@@ -103,10 +103,12 @@ export function StockProgressBar({
 
         {/* Total Capacity Label - grey like the background */}
         <div className="text-center flex-1">
-          <div className="w-3 h-3 bg-gray-400 rounded-sm mx-auto mb-1"></div>
-          <p className="font-semibold text-gray-700">
-            {tankerTotalCapacity.toLocaleString()}L
-          </p>
+          <div className="flex items-center justify-center gap-1">
+            <div className="w-3 h-3 bg-orange-500 rounded-sm"></div>
+            <p className="font-semibold text-gray-700">
+              {tankerTotalCapacity.toLocaleString()}L
+            </p>
+          </div>
           <p className="text-gray-500">Total Capacity</p>
         </div>
       </div>
