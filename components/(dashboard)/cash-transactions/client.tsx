@@ -132,12 +132,6 @@ export function CashTransactionsClientPage({
       )}
 
       <div className="flex flex-col lg:flex-row items-end gap-4">
-        <CashTransactionTabs
-          activeTab={activeTab}
-          onChange={handleTabChange}
-          counts={stats}
-        />
-
         <CashTransactionFilter
           initialValue={filterText}
           onFilterChange={setFilterText}
