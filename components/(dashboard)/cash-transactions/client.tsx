@@ -17,7 +17,7 @@ import DateFilter from "@/components/ui/date-filter";
 import { Pagination } from "@/components/ui/pagination";
 import CashTransactionForm from "./form";
 import CashTransactionFormModal from "@/components/ui/modal";
-import { DispenserInfoHeader } from "@/components/ui/dispenser-info";
+import { DispenserInfoHeader } from "./dispenser-info-header";
 
 interface Props {
   initialItems: ICashTransactionAggregated[];
