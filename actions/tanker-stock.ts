@@ -13,15 +13,16 @@ export async function restockTankerAction(
     const rawData = {
       quantityAdded: formData.get("quantityAdded"),
       actualMeterReading: formData.get("actualMeterReading"),
+      manualDippingReading: formData.get("manualDippingReading"),
       beforeStock: formData.get("beforeStock"),
-      supplierName: formData.get("supplierName") || undefined,
-      invoiceNumber: formData.get("invoiceNumber") || undefined,
-      invoiceUnitPrice: formData.get("invoiceUnitPrice") || undefined,
-      invoiceDate: formData.get("invoiceDate") || undefined,
-      gridAtPurchase: formData.get("gridAtPurchase") || undefined,
+      supplierName: formData.get("supplierName"),
+      invoiceNumber: formData.get("invoiceNumber"),
+      invoiceUnitPrice: formData.get("invoiceUnitPrice"),
+      invoiceDate: formData.get("invoiceDate"),
+      gridAtPurchase: formData.get("gridAtPurchase"),
       discount: formData.get("discount") || 0,
       notes: formData.get("notes") || undefined,
-      restockDate: formData.get("restockDate") || undefined,
+      restockDate: formData.get("restockDate"),
     };
 
     const validated = restockTankerSchema.safeParse(rawData);
@@ -40,6 +41,7 @@ export async function restockTankerAction(
       tankerId,
       data.quantityAdded,
       data.actualMeterReading,
+      data.manualDippingReading,
       data.beforeStock ? Number(data.beforeStock) : undefined,
       data.supplierName,
       data.invoiceNumber,

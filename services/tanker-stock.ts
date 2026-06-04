@@ -42,6 +42,7 @@ export async function restockTankerService(
   tankerId: string,
   quantityAdded: number,
   actualMeterReading: number,
+  manualDippingReading: number,
   beforeStock?: number,
   supplierName?: string,
   invoiceNumber?: string,
@@ -71,15 +72,26 @@ export async function restockTankerService(
     );
   }
 
-  // Calculate variance
-  const variance = actualMeterReading - expectedClosingBalance;
-  const variancePercentage =
-    expectedClosingBalance > 0 ? (variance / expectedClosingBalance) * 100 : 0;
+  // Calculate meter variance
+  const meterVariance = actualMeterReading - expectedClosingBalance;
+  const meterVariancePercentage =
+    expectedClosingBalance > 0
+      ? (meterVariance / expectedClosingBalance) * 100
+      : 0;
 
-  // Determine status (5% tolerance)
+  // Calculate dipping variance
+  const dippingVariance = manualDippingReading - expectedClosingBalance;
+  const dippingVariancePercentage =
+    expectedClosingBalance > 0
+      ? (dippingVariance / expectedClosingBalance) * 100
+      : 0;
+
+  // Determine status (5% tolerance on meter reading)
   const tolerance = 5;
   const status =
-    Math.abs(variancePercentage) <= tolerance ? "completed" : "discrepancy";
+    Math.abs(meterVariancePercentage) <= tolerance
+      ? "completed"
+      : "discrepancy";
 
   // Update tanker stock with actual meter reading
   tanker.stockLevel = actualMeterReading;
@@ -93,7 +105,7 @@ export async function restockTankerService(
   const potentialRevenue = quantityAdded * (gridAtPurchase || 0);
   const profit = potentialRevenue - discountedTotal;
 
-  // Record restock with all details
+  // Record restock with all details including manual dipping reading
   await TankerRestock.create({
     tankerId: new Types.ObjectId(tankerId),
     quantityAdded,
@@ -101,8 +113,11 @@ export async function restockTankerService(
     afterStock: actualMeterReading,
     expectedClosingBalance,
     actualMeterReading,
-    variance,
-    variancePercentage,
+    meterVariance,
+    meterVariancePercentage,
+    manualDippingReading,
+    dippingVariance,
+    dippingVariancePercentage,
     status,
     supplierName: supplierName || undefined,
     invoiceNumber: invoiceNumber || undefined,
@@ -124,8 +139,11 @@ export async function restockTankerService(
     details: {
       expectedClosingBalance,
       actualMeterReading,
-      variance,
-      variancePercentage,
+      meterVariance,
+      meterVariancePercentage,
+      manualDippingReading,
+      dippingVariance,
+      dippingVariancePercentage,
       status,
       supplierName: supplierName || undefined,
       invoiceNumber: invoiceNumber || undefined,
@@ -143,7 +161,6 @@ export async function restockTankerService(
 
   return tanker;
 }
-
 export async function validateTankerInvoiceNumber(
   invoiceNumber: string,
   tankerId: string,

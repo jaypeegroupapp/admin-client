@@ -9,8 +9,14 @@ const TankerRestockSchema = new Schema<ITankerRestock>(
     afterStock: { type: Number, required: true, min: 0 },
     expectedClosingBalance: { type: Number, required: true, min: 0 },
     actualMeterReading: { type: Number, required: true, min: 0 },
-    variance: { type: Number, required: true },
-    variancePercentage: { type: Number, required: true, default: 0 },
+    meterVariance: { type: Number, required: true },
+    meterVariancePercentage: { type: Number, required: true, default: 0 },
+
+    // Manual dipping reading fields
+    manualDippingReading: { type: Number, required: true, min: 0 },
+    dippingVariance: { type: Number, required: true },
+    dippingVariancePercentage: { type: Number, required: true, default: 0 },
+
     status: {
       type: String,
       enum: ["completed", "discrepancy"],
@@ -18,18 +24,18 @@ const TankerRestockSchema = new Schema<ITankerRestock>(
     },
 
     // Supplier invoice details
-    supplierName: { type: String, trim: true },
-    invoiceNumber: { type: String, trim: true, sparse: true },
-    invoiceUnitPrice: { type: Number, min: 0 },
-    invoiceDate: { type: Date },
+    supplierName: { type: String, trim: true, required: true },
+    invoiceNumber: { type: String, trim: true, sparse: true, required: true },
+    invoiceUnitPrice: { type: Number, min: 0, required: true },
+    invoiceDate: { type: Date, required: true },
 
     // Pricing details
-    gridAtPurchase: { type: Number, min: 0 },
+    gridAtPurchase: { type: Number, min: 0, required: true },
     discount: { type: Number, default: 0, min: 0, max: 100 },
 
     // Other fields
     notes: { type: String },
-    restockDate: { type: Date, default: Date.now },
+    restockDate: { type: Date, default: Date.now, required: true },
     recordedBy: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true },

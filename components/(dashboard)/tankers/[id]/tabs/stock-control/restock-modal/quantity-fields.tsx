@@ -47,6 +47,18 @@ export function RestockQuantityFields({
         isPending={isPending}
         stateError={stateError}
       />
+      <InputValidated
+        name="manualDippingReading"
+        label="Manual Dipping Reading After Restock (Litres)"
+        type="number"
+        step="0.1"
+        min="0"
+        placeholder="Enter manual dipping reading"
+        register={register}
+        errors={errors}
+        isPending={isPending}
+        stateError={stateError}
+      />
     </div>
   );
 }

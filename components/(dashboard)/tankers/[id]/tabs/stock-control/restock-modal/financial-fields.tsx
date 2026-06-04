@@ -1,7 +1,7 @@
 "use client";
 
 import InputValidated from "@/components/ui/input-validated";
-import { restockInputFormData } from "@/validations/tanker-stock";
+import { financialFormData } from "@/validations/tanker-stock";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 
 interface FinancialFieldsProps {
@@ -20,10 +20,10 @@ export function FinancialFields({
   return (
     <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 space-y-4">
       <h3 className="text-sm font-medium text-gray-700">
-        Purchase Invoice Details
+        Purchase Invoice Details (Required)
       </h3>
 
-      {restockInputFormData.map((input) => (
+      {financialFormData.map((input) => (
         <InputValidated
           key={input.name}
           {...input}

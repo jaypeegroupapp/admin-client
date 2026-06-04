@@ -9,13 +9,15 @@ interface PreviewProps {
   currentStock: number;
   capacity: number;
   actualMeterReading: number;
+  manualDippingReading: number;
   expectedClosing: number;
-  variance: number;
-  variancePercent: string;
+  meterVariance: number;
+  meterVariancePercent: string;
+  dippingVariance: number;
+  dippingVariancePercent: string;
   invoiceUnitPrice: number;
   gridAtPurchase: number;
   discount: number;
-  showFinancialFields: boolean;
 }
 
 export function RestockPreview({
@@ -23,13 +25,15 @@ export function RestockPreview({
   currentStock,
   capacity,
   actualMeterReading,
+  manualDippingReading,
   expectedClosing,
-  variance,
-  variancePercent,
+  meterVariance,
+  meterVariancePercent,
+  dippingVariance,
+  dippingVariancePercent,
   invoiceUnitPrice,
   gridAtPurchase,
   discount,
-  showFinancialFields,
 }: PreviewProps) {
   if (quantityAdded === 0) return null;
 
@@ -48,18 +52,19 @@ export function RestockPreview({
         quantityAdded={quantityAdded}
         expectedClosing={expectedClosing}
         actualMeterReading={actualMeterReading}
-        variance={variance}
-        variancePercent={variancePercent}
+        meterVariance={meterVariance}
+        meterVariancePercent={meterVariancePercent}
+        manualDippingReading={manualDippingReading}
+        dippingVariance={dippingVariance}
+        dippingVariancePercent={dippingVariancePercent}
       />
 
-      {showFinancialFields && invoiceUnitPrice > 0 && (
-        <FinancialPreview
-          quantityAdded={quantityAdded}
-          invoiceUnitPrice={invoiceUnitPrice}
-          gridAtPurchase={gridAtPurchase}
-          discount={discount}
-        />
-      )}
+      <FinancialPreview
+        quantityAdded={quantityAdded}
+        invoiceUnitPrice={invoiceUnitPrice}
+        gridAtPurchase={gridAtPurchase}
+        discount={discount}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useActionState, startTransition } from "react";
@@ -10,7 +10,6 @@ import { restockTankerAction } from "@/actions/tanker-stock";
 import { restockTankerSchema } from "@/validations/tanker-stock";
 import { CurrentStockDisplay } from "./current-stock-display";
 import { RestockQuantityFields } from "./quantity-fields";
-import { FinancialFieldsToggle } from "./financial-fields-toggle";
 import { FinancialFields } from "./financial-fields";
 import { RestockDateField } from "./date-field";
 import { RestockNotesField } from "./notes-field";
@@ -36,7 +35,6 @@ export function RestockTankerModal({
   );
 
   const formRef = useRef<HTMLFormElement>(null);
-  const [showFinancialFields, setShowFinancialFields] = useState(true);
 
   const {
     register,
@@ -48,6 +46,11 @@ export function RestockTankerModal({
     defaultValues: {
       quantityAdded: 0,
       actualMeterReading: currentStock,
+      manualDippingReading: currentStock,
+      supplierName: "",
+      invoiceNumber: "",
+      invoiceUnitPrice: 0,
+      gridAtPurchase: 0,
       discount: 0,
       restockDate: new Date().toISOString().split("T")[0],
     },
@@ -55,14 +58,22 @@ export function RestockTankerModal({
 
   const quantityAdded = Number(watch("quantityAdded")) || 0;
   const actualMeterReading = Number(watch("actualMeterReading")) || 0;
+  const manualDippingReading = Number(watch("manualDippingReading")) || 0;
   const invoiceUnitPrice = Number(watch("invoiceUnitPrice")) || 0;
   const gridAtPurchase = Number(watch("gridAtPurchase")) || 0;
   const discount = Number(watch("discount")) || 0;
 
   const expectedClosing = currentStock + quantityAdded;
-  const variance = actualMeterReading - expectedClosing;
-  const variancePercent =
-    expectedClosing > 0 ? ((variance / expectedClosing) * 100).toFixed(1) : "0";
+  const meterVariance = actualMeterReading - expectedClosing;
+  const meterVariancePercent =
+    expectedClosing > 0
+      ? ((meterVariance / expectedClosing) * 100).toFixed(1)
+      : "0";
+  const dippingVariance = manualDippingReading - expectedClosing;
+  const dippingVariancePercent =
+    expectedClosing > 0
+      ? ((dippingVariance / expectedClosing) * 100).toFixed(1)
+      : "0";
 
   const onSubmit = handleSubmit(() => {
     const formData = new FormData(formRef.current!);
@@ -95,19 +106,12 @@ export function RestockTankerModal({
             stateError={state?.errors}
           />
 
-          <FinancialFieldsToggle
-            show={showFinancialFields}
-            onToggle={setShowFinancialFields}
+          <FinancialFields
+            register={register}
+            errors={errors}
+            isPending={isPending}
+            stateError={state?.errors}
           />
-
-          {showFinancialFields && (
-            <FinancialFields
-              register={register}
-              errors={errors}
-              isPending={isPending}
-              stateError={state?.errors}
-            />
-          )}
 
           <RestockDateField
             register={register}
@@ -127,13 +131,15 @@ export function RestockTankerModal({
             currentStock={currentStock}
             capacity={capacity}
             actualMeterReading={actualMeterReading}
+            manualDippingReading={manualDippingReading}
             expectedClosing={expectedClosing}
-            variance={variance}
-            variancePercent={variancePercent}
+            meterVariance={meterVariance}
+            meterVariancePercent={meterVariancePercent}
+            dippingVariance={dippingVariance}
+            dippingVariancePercent={dippingVariancePercent}
             invoiceUnitPrice={invoiceUnitPrice}
             gridAtPurchase={gridAtPurchase}
             discount={discount}
-            showFinancialFields={showFinancialFields}
           />
 
           {state?.message && !state.success && (

@@ -7,18 +7,24 @@ export interface ITankerRestock {
   afterStock: number;
   expectedClosingBalance: number;
   actualMeterReading: number;
-  variance: number;
-  variancePercentage: number;
+  meterVariance: number;
+  meterVariancePercentage: number;
+
+  // Manual dipping reading fields
+  manualDippingReading: number;
+  dippingVariance: number;
+  dippingVariancePercentage: number;
+
   status: "completed" | "discrepancy";
 
-  // Supplier invoice details
-  supplierName?: string;
-  invoiceNumber?: string;
-  invoiceUnitPrice?: number;
-  invoiceDate?: Date;
+  // Supplier invoice details (all required)
+  supplierName: string;
+  invoiceNumber: string;
+  invoiceUnitPrice: number;
+  invoiceDate: Date;
 
-  // Pricing details
-  gridAtPurchase?: number;
+  // Pricing details (all required)
+  gridAtPurchase: number;
   discount: number;
 
   // Other fields
