@@ -18,7 +18,7 @@ export function FinancialFields({
   stateError,
 }: FinancialFieldsProps) {
   return (
-    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 space-y-4">
+    <div className="space-y-4">
       <h3 className="text-sm font-medium text-gray-700">
         Purchase Invoice Details (Required)
       </h3>

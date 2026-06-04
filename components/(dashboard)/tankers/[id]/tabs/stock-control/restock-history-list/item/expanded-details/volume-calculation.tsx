@@ -48,7 +48,9 @@ export function VolumeCalculationSection({
         {/* Meter Reading Variance */}
         <div className="bg-white p-2 rounded border border-gray-200">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600 font-medium">Meter Reading:</span>
+            <span className="text-gray-600 font-medium">
+              ATG Meter Reading:
+            </span>
             <span className="font-medium">{record.actualMeterReading}L</span>
           </div>
           <div className="flex justify-between text-sm mt-1">

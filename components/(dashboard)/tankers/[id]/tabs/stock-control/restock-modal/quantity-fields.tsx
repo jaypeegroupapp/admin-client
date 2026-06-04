@@ -1,6 +1,7 @@
 "use client";
 
 import InputValidated from "@/components/ui/input-validated";
+import { quantityFormData } from "@/validations/tanker-stock";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 
 interface QuantityFieldsProps {
@@ -22,43 +23,16 @@ export function RestockQuantityFields({
         Restock Details
       </h3>
 
-      <InputValidated
-        name="quantityAdded"
-        label="Quantity Added (Litres)"
-        type="number"
-        step="0.1"
-        min="0.1"
-        placeholder="Enter litres added"
-        register={register}
-        errors={errors}
-        isPending={isPending}
-        stateError={stateError}
-      />
-
-      <InputValidated
-        name="actualMeterReading"
-        label="Actual Meter Reading After Restock"
-        type="number"
-        step="0.1"
-        min="0"
-        placeholder="Enter meter reading"
-        register={register}
-        errors={errors}
-        isPending={isPending}
-        stateError={stateError}
-      />
-      <InputValidated
-        name="manualDippingReading"
-        label="Manual Dipping Reading After Restock (Litres)"
-        type="number"
-        step="0.1"
-        min="0"
-        placeholder="Enter manual dipping reading"
-        register={register}
-        errors={errors}
-        isPending={isPending}
-        stateError={stateError}
-      />
+      {quantityFormData.map((input) => (
+        <InputValidated
+          key={input.name}
+          {...input}
+          register={register}
+          errors={errors}
+          isPending={isPending}
+          stateError={stateError}
+        />
+      ))}
     </div>
   );
 }

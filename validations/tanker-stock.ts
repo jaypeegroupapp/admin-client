@@ -63,7 +63,7 @@ export const financialFormData = [
   },
   {
     name: "gridAtPurchase",
-    label: "Grid Selling Price (R)",
+    label: "Grid (R)",
     type: "number",
     step: "0.01",
     min: "0.01",
@@ -72,7 +72,7 @@ export const financialFormData = [
   },
   {
     name: "discount",
-    label: "Discount (%)",
+    label: "Discount (R)",
     type: "number",
     step: "0.1",
     min: "0",
@@ -84,6 +84,35 @@ export const financialFormData = [
     label: "Invoice Date",
     type: "date",
     placeholder: "Select invoice date",
+    required: true,
+  },
+];
+export const quantityFormData = [
+  {
+    name: "quantityAdded",
+    label: "Quantity Added (L)",
+    placeholder: "Enter quantity added",
+    type: "number",
+    step: "0.1",
+    min: "0.1",
+    required: true,
+  },
+  {
+    name: "actualMeterReading",
+    label: "ATG Meter Reading (L)",
+    placeholder: "Enter actual meter reading",
+    type: "number",
+    step: "0.1",
+    min: "0",
+    required: true,
+  },
+  {
+    name: "manualDippingReading",
+    label: "Manual Dipping Reading (L)",
+    placeholder: "Enter manual dipping reading",
+    type: "number",
+    step: "0.1",
+    min: "0",
     required: true,
   },
 ];
