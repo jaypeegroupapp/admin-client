@@ -80,7 +80,13 @@ export async function getCashTransactionsService(
       .populate("dispenserId", "name")
       .populate("productId", "name")
       .populate("completedById", "name")
-      .populate("attendanceId")
+      .populate({
+        path: "attendanceId",
+        populate: {
+          path: "attendantId",
+          select: "name",
+        },
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(pageSize)

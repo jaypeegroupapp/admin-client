@@ -39,7 +39,6 @@ export default async function CashTransactionsPage({
     fromDate,
     toDate,
   );
-
   return (
     <CashTransactionsClientPage
       initialItems={data}

@@ -162,6 +162,6 @@ export function cashTransactionMap(doc: any): ICashTransactionAggregated {
     status: doc.status,
     createdAt: doc.createdAt?.toISOString(),
     dispenserName: doc.dispenserId?.name,
-    attendantName: doc.completedById?.name,
+    attendantName: doc.attendanceId?.attendantId?.name,
   };
 }
