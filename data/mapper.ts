@@ -7,33 +7,39 @@ import { IRole } from "@/definitions/role";
 import { IDispenser } from "@/definitions/dispenser";
 import { ICashTransactionAggregated } from "@/definitions/cash-transactions";
 
-export function orderItemMap(i: any): IOrderItemAggregated {
+export function orderItemMap(doc: any): IOrderItemAggregated {
   return {
-    id: i._id?.toString(),
-    orderId: i.orderId?.toString(),
+    id: doc._id.toString(),
+    orderId: doc.orderId?.toString(),
+    orderNumber: doc.order?.orderNumber,
+    productId: doc.product?._id?.toString(),
+    productName: doc.product?.name,
+    companyId: doc.companyId?._id?.toString(),
+    companyName: doc.company?.name,
+    truckId: doc.truck?._id?.toString(),
+    plateNumber: doc.truck?.plateNumber,
+    make: doc.truck?.make,
+    model: doc.truck?.model,
+    year: doc.truck?.year,
+    quantity: doc.quantity,
+    status: doc.status,
+    signature: doc.signature,
+    createdAt: doc.createdAt?.toISOString(),
+    updatedAt: doc.updatedAt?.toISOString(),
+    completedAt: doc.updatedAt?.toISOString(),
 
-    productId: i.order?.productId?.toString() || null,
-    companyId: i.order?.companyId?.toString() || null,
-
-    quantity: i.quantity,
-    status: i.status || "pending",
-    signature: i.signature || undefined,
-
-    /** TRUCK DETAILS */
-    truckId: i.truckId?.toString(),
-    plateNumber: i.truck?.plateNumber || "",
-    make: i.truck?.make || "",
-    model: i.truck?.model || "",
-    year: i.truck?.year || null,
-
-    /** COMPANY */
-    companyName: i.company?.name || null,
-
-    /** PRODUCT */
-    productName: i.product?.name || null,
+    // Dispenser and fulfillment info
+    dispenserId:
+      doc.dispenserId?._id?.toString() || doc.dispenserId?.toString(),
+    dispenserName: doc.dispenserId?.name,
+    attendanceId:
+      doc.attendanceId?._id?.toString() || doc.attendanceId?.toString(),
+    attendantName: doc.attendanceId?.attendantId?.name,
+    meterReading: doc.balanceAfter || doc.attendanceId?.totalDispensed,
+    tankerName: doc.tankerName || "Unknown",
+    tankerStockLevel: doc.tankerStockLevel || 0,
   };
 }
-
 export function mapCompanyCredit(doc: any) {
   return {
     id: doc._id.toString(),

@@ -16,9 +16,12 @@ export function ActionButtons({
   onSubmit,
   onPrint,
 }: any) {
-  if (isCompleted) {
+  // Show print button for completed orders even if modal was reopened
+  const showPrintButton = status === "completed" || isCompleted;
+
+  if (showPrintButton) {
     return (
-      <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+      <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 print:border-gray-300">
         <button
           onClick={onClose}
           className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition print:hidden"

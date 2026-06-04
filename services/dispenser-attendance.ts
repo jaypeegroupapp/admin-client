@@ -215,7 +215,9 @@ export async function getCurrentAttendanceForUserService(
     userId: new Types.ObjectId(userId),
     dispenserId: new Types.ObjectId(dispenserId),
     status: "active",
-  }).lean();
+  })
+    .populate("attendantId", "name email")
+    .lean();
 
   return attendance;
 }

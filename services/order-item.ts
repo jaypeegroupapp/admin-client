@@ -133,6 +133,7 @@ export async function getOrderItemsService(
         stats[key as keyof typeof stats] = s.count;
     }
   });
+  // console.log("🚀 Fetched order items:", { data, totalCount, stats });
 
   return { data, totalCount, stats };
 }
@@ -613,4 +614,27 @@ export async function getOrdersByProductService(productId: string) {
     quantity: oi.quantity,
     createdAt: oi.createdAt,
   }));
+}
+
+export async function getOrderItemByIdService(orderItemId: string) {
+  await connectDB();
+
+  return await OrderItem.findById(orderItemId)
+    .populate({
+      path: "orderId",
+      populate: [
+        { path: "productId", select: "name" },
+        { path: "companyId", select: "name" },
+      ],
+    })
+    .populate("truckId", "plateNumber make model year")
+    .populate("dispenserId", "name")
+    .populate({
+      path: "attendanceId",
+      populate: {
+        path: "attendantId",
+        select: "name",
+      },
+    })
+    .lean();
 }

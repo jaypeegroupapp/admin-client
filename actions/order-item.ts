@@ -13,8 +13,6 @@ export async function completeOrderItemAction(
       return { success: false, message: result.message };
     }
 
-    // revalidatePath("/truck-orders");
-
     return {
       success: true,
       message: "Order completed successfully.",

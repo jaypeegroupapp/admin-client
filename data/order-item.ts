@@ -1,6 +1,7 @@
 "use server";
 import {
   getAllOrderItemsService,
+  getOrderItemByIdService,
   getOrderItemsByOrderIdService,
   getOrderQuantitiesByProductService,
   getOrdersByProductService,
@@ -114,5 +115,17 @@ export async function getOrdersByProduct(productId: string) {
   } catch (error: any) {
     console.error("❌ getOrdersByProduct error:", error);
     return [];
+  }
+}
+
+export async function getOrderItemById(orderItemId: string) {
+  try {
+    const result = await getOrderItemByIdService(orderItemId);
+    if (!result) return null;
+
+    return orderItemMap(result);
+  } catch (error) {
+    console.error("❌ getOrderItemById error:", error);
+    return null;
   }
 }

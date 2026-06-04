@@ -18,20 +18,39 @@ export interface IOrderItem {
 export interface IOrderItemAggregated {
   id: string;
   orderId: string;
-  productId?: string;
-  companyId?: string;
-  quantity: number;
-  status: string;
-  signature?: string | undefined;
+  orderNumber?: string;
+  productId: string;
+  productName?: string;
+  companyId: string;
+  companyName?: string;
   truckId: string;
   plateNumber: string;
   make?: string;
   model?: string;
   year?: number;
-  companyName?: string;
-  productName?: string;
-}
+  quantity: number;
+  status: "pending" | "accepted" | "completed" | "cancelled";
+  signature?: string;
+  createdAt: string;
+  updatedAt?: string;
+  completedAt?: string;
 
+  // Dispenser and fulfillment info
+  dispenserId?: string;
+  dispenserName?: string;
+  attendanceId?: string;
+  attendantName?: string;
+  meterReading?: number;
+  tankerStockLevel?: number;
+  tankerName?: string;
+
+  // Metadata
+  metadata?: {
+    tankerName?: string;
+    tankerId?: string;
+    attendantName?: string;
+  };
+}
 export type OrderItemTab =
   | "All"
   | "Pending"

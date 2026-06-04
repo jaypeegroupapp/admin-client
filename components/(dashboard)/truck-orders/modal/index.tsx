@@ -1,19 +1,20 @@
 "use client";
 
+import { useRef, useState, useTransition, useEffect } from "react";
 import { BaseModal } from "@/components/ui/base-modal";
-import { useRef, useState, useTransition } from "react";
 import { IOrderItemAggregated } from "@/definitions/order-item";
 import { useRouter } from "next/navigation";
 import { completeOrderItemAction } from "@/actions/order-item";
+import { getOrderItemById } from "@/data/order-item";
 import { ModalHeader } from "./header";
-import { TruckInfoCard } from "./truck-info-card";
+import { TruckInfoCard } from "./cards/truck-info";
 import { ProductQuantityCard } from "./cards/product-quantity";
 import { CompanyCard } from "./cards/company";
 import { StatusPinCard } from "./cards/status-pin";
-import { TankerDispenserInfo } from "./tanker-dispenser-info";
 import { SignatureSection } from "./signature-section";
 import { MessageDisplay } from "./message-display";
 import { ActionButtons } from "./action-buttons";
+import { CompletedOrderSummary } from "./completed-order-summary";
 
 export function OrderItemDetailModal({
   open,
@@ -30,27 +31,46 @@ export function OrderItemDetailModal({
   const [signature, setSignature] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [completedData, setCompletedData] = useState<any>(null);
+  const [isCompleted, setIsCompleted] = useState(item.status === "completed");
+  const [fullOrderItem, setFullOrderItem] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // Fetch full order item data when modal opens
+  useEffect(() => {
+    if (open && isCompleted) {
+      fetchFullOrderItem();
+    }
+  }, [open, isCompleted]);
+
+  const fetchFullOrderItem = async () => {
+    setLoading(true);
+    try {
+      const result = await getOrderItemById(item.id);
+      console.log({ result });
+      if (result) {
+        setFullOrderItem(result);
+      }
+    } catch (error) {
+      console.error("Failed to fetch order item details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const tankerStock = userDispenser?.tankerStock || 0;
-  const tankerName = userDispenser?.tankerName || "Unknown";
-  const totalDispensed = userDispenser?.dispenser?.totalDispensed || 0;
+  // const tankerName = userDispenser?.tankerName || "Unknown";
+  // const totalDispensed = userDispenser?.dispenser?.totalDispensed || 0;
   const insufficientStock = tankerStock < item.quantity;
   const hasAttendance = !!userDispenser?.attendance;
   const hasDispenser = !!userDispenser?.dispenser;
-  const attendantName =
-    userDispenser?.dispenser?.attendanceName ||
-    userDispenser?.attendance?.attendantName ||
-    "Unknown Attendant";
+  // const attendantName = userDispenser?.attendance?.name;
 
   const canFulfill =
     item.status === "accepted" &&
     hasDispenser &&
     hasAttendance &&
     !insufficientStock;
-
   const hasExistingSignature = Boolean(item.signature);
 
   const handleClear = () => {
@@ -69,7 +89,8 @@ export function OrderItemDetailModal({
       if (result.success) {
         setMessage("✅ Order completed successfully!");
         setIsCompleted(true);
-        setCompletedData({
+        setFullOrderItem({
+          ...fullOrderItem,
           ...result.data,
           completedAt: new Date().toISOString(),
         });
@@ -86,25 +107,21 @@ export function OrderItemDetailModal({
 
   const handleClose = () => {
     setIsCompleted(false);
-    setCompletedData(null);
     setMessage("");
     setSignature(null);
     onClose();
     router.refresh();
   };
 
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-ZA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
-  };
+  if (loading) {
+    return (
+      <BaseModal open={open} onClose={handleClose}>
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </BaseModal>
+    );
+  }
 
   return (
     <BaseModal open={open} onClose={handleClose}>
@@ -119,24 +136,8 @@ export function OrderItemDetailModal({
           orderItemNumber={item.id?.slice(-6).toUpperCase()}
         />
 
-        {item.status === "accepted" && !isCompleted && (
-          <TankerDispenserInfo
-            tankerName={tankerName}
-            tankerStock={tankerStock}
-            totalDispensed={totalDispensed}
-            insufficientStock={insufficientStock}
-            hasAttendance={hasAttendance}
-            hasDispenser={hasDispenser}
-            canFulfill={canFulfill}
-            attendance={userDispenser?.attendance}
-            dispenserName={userDispenser?.dispenser?.name}
-            attendantName={attendantName}
-            quantity={item.quantity}
-          />
-        )}
-
-        {(item.status === "accepted" || hasExistingSignature) &&
-          !isCompleted && (
+        {!isCompleted &&
+          (item.status === "accepted" || hasExistingSignature) && (
             <SignatureSection
               hasExistingSignature={hasExistingSignature}
               existingSignature={item.signature}
@@ -148,80 +149,14 @@ export function OrderItemDetailModal({
             />
           )}
 
-        {isCompleted && completedData && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 print:bg-white print:border print:border-gray-300">
-            <h3 className="font-semibold text-green-800 mb-3 text-lg">
-              ✅ Order Completed
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="grid grid-cols-2 gap-2">
-                <p>
-                  <span className="text-gray-600">Dispenser:</span>
-                </p>
-                <p className="font-medium">{completedData.dispenserName}</p>
-
-                <p>
-                  <span className="text-gray-600">Tanker:</span>
-                </p>
-                <p className="font-medium">{completedData.tankerName}</p>
-
-                <p>
-                  <span className="text-gray-600">Litres Sold:</span>
-                </p>
-                <p className="font-medium text-blue-600">
-                  {completedData.litresSold}L
-                </p>
-
-                <p>
-                  <span className="text-gray-600">Tanker Remaining:</span>
-                </p>
-                <p className="font-medium">
-                  {completedData.tankerRemainingStock}L
-                </p>
-
-                <p>
-                  <span className="text-gray-600">Meter Reading:</span>
-                </p>
-                <p className="font-medium">
-                  {completedData.meterReading.toLocaleString()}L
-                </p>
-
-                <p>
-                  <span className="text-gray-600">Station Attendant:</span>
-                </p>
-                <p className="font-medium">{completedData.attendantName}</p>
-
-                <p>
-                  <span className="text-gray-600">Shift Started:</span>
-                </p>
-                <p className="font-medium">
-                  {completedData.loginTime
-                    ? new Date(completedData.loginTime).toLocaleString()
-                    : "N/A"}
-                </p>
-
-                <p>
-                  <span className="text-gray-600">Opening Meter:</span>
-                </p>
-                <p className="font-medium">
-                  {completedData.openingBalance?.toLocaleString() || 0}L
-                </p>
-
-                <p>
-                  <span className="text-gray-600">Completed At:</span>
-                </p>
-                <p className="font-medium">
-                  {formatDateTime(completedData.completedAt)}
-                </p>
-              </div>
-            </div>
-          </div>
+        {isCompleted && fullOrderItem && (
+          <CompletedOrderSummary completedData={fullOrderItem} />
         )}
 
         <MessageDisplay message={message} />
 
         <ActionButtons
-          status={item.status}
+          status={isCompleted ? "completed" : item.status}
           hasExistingSignature={hasExistingSignature}
           isCompleted={isCompleted}
           isPending={isPending}

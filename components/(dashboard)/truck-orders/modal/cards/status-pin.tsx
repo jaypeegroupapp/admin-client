@@ -9,7 +9,7 @@ export function StatusPinCard({
 }) {
   return (
     <div className="grid grid-cols-2 gap-3">
-      <div className="bg-gray-50 p-3 rounded-lg">
+      <div className="bg-gray-50 p-3 rounded-lg print:bg-white print:border print:border-gray-300">
         <p className="text-xs text-gray-500">Status</p>
         <span
           className={`inline-block mt-1 px-2 py-1 text-xs font-semibold rounded-full capitalize ${
@@ -26,7 +26,7 @@ export function StatusPinCard({
         </span>
       </div>
       {item.status === "accepted" && (
-        <div className="bg-gray-50 p-3 rounded-lg">
+        <div className="bg-gray-50 p-3 rounded-lg print:bg-white print:border print:border-gray-300">
           <p className="text-xs text-gray-500">PIN / Reference</p>
           <p className="font-mono font-bold text-sm mt-1">{orderItemNumber}</p>
         </div>

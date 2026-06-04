@@ -73,7 +73,6 @@ export async function getCurrentUserDispenser() {
     const tanker = (await getTankerByDispenserIdService(
       dispenser._id.toString(),
     )) as ITanker | null;
-
     if (tanker) {
       tankerStock = tanker.stockLevel;
       tankerName = tanker.name;
@@ -91,6 +90,7 @@ export async function getCurrentUserDispenser() {
               openingBalance: attendance.openingBalanceLitres,
               loginTime: attendance.loginTime,
               totalDispensed: attendance.totalDispensed || 0,
+              name: attendance.attendantId.name || "Unknown Attendant",
             }
           : null,
       },

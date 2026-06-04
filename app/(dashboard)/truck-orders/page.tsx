@@ -29,7 +29,7 @@ export default async function OrdersPage({
 
   // Get current user's dispenser assignment
   const userDispenser = await getCurrentUserDispenser();
-
+  // console.log("🚀 Current user dispenser:", userDispenser);
   const { data, totalCount, stats } = await getOrderItems(
     page,
     pageSize,
