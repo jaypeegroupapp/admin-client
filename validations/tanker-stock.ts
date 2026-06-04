@@ -28,8 +28,7 @@ export const restockTankerSchema = z.object({
     .min(0.01, "Grid selling price must be greater than 0"),
   discount: z.coerce
     .number()
-    .min(0, "Discount must be 0 or greater")
-    .max(100, "Discount cannot exceed 100%")
+    .min(0, "Discount amount must be 0 or greater")
     .default(0),
 
   // Other fields
@@ -63,7 +62,7 @@ export const financialFormData = [
   },
   {
     name: "gridAtPurchase",
-    label: "Grid (R)",
+    label: "Grid Selling Price (R)",
     type: "number",
     step: "0.01",
     min: "0.01",
@@ -72,12 +71,11 @@ export const financialFormData = [
   },
   {
     name: "discount",
-    label: "Discount (R)",
+    label: "Discount Amount (R)",
     type: "number",
-    step: "0.1",
+    step: "0.01",
     min: "0",
-    max: "100",
-    placeholder: "Enter discount percentage",
+    placeholder: "Enter discount amount in Rands",
   },
   {
     name: "invoiceDate",
@@ -87,6 +85,7 @@ export const financialFormData = [
     required: true,
   },
 ];
+
 export const quantityFormData = [
   {
     name: "quantityAdded",

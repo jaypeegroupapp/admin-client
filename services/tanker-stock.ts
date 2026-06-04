@@ -49,26 +49,22 @@ export async function restockTankerService(
   invoiceUnitPrice?: number,
   invoiceDate?: Date,
   gridAtPurchase?: number,
-  discount?: number,
+  discountAmount?: number,
   notes?: string,
   restockDate?: Date,
 ) {
   await connectDB();
 
-  // Get tanker
   const tanker = await Tanker.findById(tankerId);
-  if (!tanker) {
-    throw new Error("Tanker not found");
-  }
+  if (!tanker) throw new Error("Tanker not found");
 
   const openingBalance =
     beforeStock !== undefined ? beforeStock : tanker.stockLevel;
   const expectedClosingBalance = openingBalance + quantityAdded;
 
-  // Check capacity
   if (expectedClosingBalance > tanker.capacity) {
     throw new Error(
-      `Restock would exceed tanker capacity of ${tanker.capacity}L. Expected: ${expectedClosingBalance}L`,
+      `Restock would exceed tanker capacity of ${tanker.capacity}L`,
     );
   }
 
@@ -86,26 +82,21 @@ export async function restockTankerService(
       ? (dippingVariance / expectedClosingBalance) * 100
       : 0;
 
-  // Determine status (5% tolerance on meter reading)
   const tolerance = 5;
   const status =
     Math.abs(meterVariancePercentage) <= tolerance
       ? "completed"
       : "discrepancy";
 
-  // Update tanker stock with actual meter reading
   tanker.stockLevel = actualMeterReading;
   await tanker.save();
 
-  // Calculate financial metrics
-  const totalCost = quantityAdded * (invoiceUnitPrice || 0);
-  const discountedTotal = discount
-    ? totalCost * (1 - discount / 100)
-    : totalCost;
+  const subtotal = quantityAdded * (invoiceUnitPrice || 0);
+  const discountAmountValue = discountAmount || 0;
+  const totalCost = Math.max(0, subtotal - discountAmountValue);
   const potentialRevenue = quantityAdded * (gridAtPurchase || 0);
-  const profit = potentialRevenue - discountedTotal;
+  const profit = potentialRevenue - totalCost;
 
-  // Record restock with all details including manual dipping reading
   await TankerRestock.create({
     tankerId: new Types.ObjectId(tankerId),
     quantityAdded,
@@ -124,12 +115,11 @@ export async function restockTankerService(
     invoiceUnitPrice: invoiceUnitPrice || undefined,
     invoiceDate: invoiceDate || undefined,
     gridAtPurchase: gridAtPurchase || undefined,
-    discount: discount || 0,
+    discount: discountAmountValue,
     notes: notes || undefined,
     restockDate: restockDate || new Date(),
   });
 
-  // Record transaction with details
   await TankerTransaction.create({
     tankerId: new Types.ObjectId(tankerId),
     type: "RESTOCK",
@@ -150,8 +140,9 @@ export async function restockTankerService(
       invoiceUnitPrice: invoiceUnitPrice || undefined,
       invoiceDate: invoiceDate || undefined,
       gridAtPurchase: gridAtPurchase || undefined,
-      discount: discount || 0,
-      totalCost: discountedTotal,
+      discount: discountAmountValue,
+      subtotal,
+      totalCost,
       potentialRevenue,
       profit,
       notes: notes || undefined,
@@ -161,6 +152,7 @@ export async function restockTankerService(
 
   return tanker;
 }
+
 export async function validateTankerInvoiceNumber(
   invoiceNumber: string,
   tankerId: string,

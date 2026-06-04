@@ -13,10 +13,9 @@ export function FinancialPreview({
   gridAtPurchase,
   discount,
 }: FinancialPreviewProps) {
-  const totalCost = quantityAdded * invoiceUnitPrice;
-  const discountedTotal =
-    discount > 0 ? totalCost * (1 - discount / 100) : totalCost;
-  const savings = totalCost - discountedTotal;
+  const subtotal = quantityAdded * invoiceUnitPrice;
+  const discountedTotal = subtotal - discount;
+  const savings = discount;
   const potentialRevenue = quantityAdded * gridAtPurchase;
   const profit = potentialRevenue - discountedTotal;
   const profitMargin =
@@ -33,18 +32,20 @@ export function FinancialPreview({
           <span className="font-medium">R{invoiceUnitPrice.toFixed(2)}/L</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Total Cost:</span>
-          <span className="font-medium">R{totalCost.toFixed(2)}</span>
+          <span className="text-gray-600">Subtotal:</span>
+          <span className="font-medium">R{subtotal.toFixed(2)}</span>
         </div>
 
         {discount > 0 && (
           <>
             <div className="flex justify-between">
-              <span className="text-gray-600">Discount:</span>
-              <span className="font-medium text-green-600">{discount}%</span>
+              <span className="text-gray-600">Discount Amount:</span>
+              <span className="font-medium text-green-600">
+                -R{discount.toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Discounted Total:</span>
+              <span className="text-gray-600">Total Cost:</span>
               <span className="font-medium text-green-600">
                 R{discountedTotal.toFixed(2)}
               </span>
@@ -56,6 +57,13 @@ export function FinancialPreview({
               </span>
             </div>
           </>
+        )}
+
+        {!discount && (
+          <div className="flex justify-between">
+            <span className="text-gray-600">Total Cost:</span>
+            <span className="font-medium">R{subtotal.toFixed(2)}</span>
+          </div>
         )}
 
         {gridAtPurchase > 0 && (
