@@ -16,7 +16,13 @@ export function RestockHistoryItem({
   isExpanded,
   onToggle,
 }: RestockHistoryItemProps) {
-  const getVarianceColor = (variance: number) => {
+  const getMeterVarianceColor = (variance: number) => {
+    if (Math.abs(variance) < 0.1) return "text-green-600";
+    if (Math.abs(variance) < 1) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const getDippingVarianceColor = (variance: number) => {
     if (Math.abs(variance) < 0.1) return "text-green-600";
     if (Math.abs(variance) < 1) return "text-yellow-600";
     return "text-red-600";
@@ -43,15 +49,27 @@ export function RestockHistoryItem({
 
             <RestockItemHeader record={record} />
 
-            {record.variance && record.variance !== 0 && (
-              <span
-                className={`text-sm font-medium ${getVarianceColor(record.variance)}`}
-              >
-                <span className="text-gray-500">Var:</span>{" "}
-                {record.variance > 0 ? "+" : ""}
-                {record.variance.toFixed(1)}L
-              </span>
-            )}
+            {record.meterVariance !== undefined &&
+              record.meterVariance !== 0 && (
+                <span
+                  className={`text-sm font-medium ${getMeterVarianceColor(record.meterVariance)}`}
+                >
+                  <span className="text-gray-500">Meter Var:</span>{" "}
+                  {record.meterVariance > 0 ? "+" : ""}
+                  {record.meterVariance.toFixed(1)}L
+                </span>
+              )}
+
+            {record.dippingVariance !== undefined &&
+              record.dippingVariance !== 0 && (
+                <span
+                  className={`text-sm font-medium ${getDippingVarianceColor(record.dippingVariance)}`}
+                >
+                  <span className="text-gray-500">Dip Var:</span>{" "}
+                  {record.dippingVariance > 0 ? "+" : ""}
+                  {record.dippingVariance.toFixed(1)}L
+                </span>
+              )}
           </div>
 
           {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}

@@ -36,12 +36,24 @@ export function StockControlTab({
     loadData();
   }, [tankerId]);
 
+  // Calculate total from records
+  const totalCost = stockRecords.reduce(
+    (sum, r) => sum + r.quantityAdded * (r.invoiceUnitPrice || 0),
+    0,
+  );
+  const totalPotentialRevenue = stockRecords.reduce(
+    (sum, r) => sum + r.quantityAdded * (r.gridAtPurchase || 0),
+    0,
+  );
+
   return (
     <>
       <AnalyticsCards
         currentStock={currentStock}
         capacity={capacity}
         analytics={analytics}
+        totalCost={totalCost}
+        totalPotentialRevenue={totalPotentialRevenue}
       />
 
       <div className="flex justify-between items-center mb-4">

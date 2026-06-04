@@ -16,8 +16,11 @@ export async function getTankerStockHistory(tankerId: string) {
       afterStock: record.afterStock,
       expectedClosingBalance: record.expectedClosingBalance,
       actualMeterReading: record.actualMeterReading,
-      variance: record.variance,
-      variancePercentage: record.variancePercentage,
+      meterVariance: record.meterVariance,
+      meterVariancePercentage: record.meterVariancePercentage,
+      manualDippingReading: record.manualDippingReading,
+      dippingVariance: record.dippingVariance,
+      dippingVariancePercentage: record.dippingVariancePercentage,
       status: record.status,
       supplierName: record.supplierName,
       invoiceNumber: record.invoiceNumber,
@@ -36,6 +39,7 @@ export async function getTankerStockHistory(tankerId: string) {
     return [];
   }
 }
+
 export async function getTankerStockAnalytics(tankerId: string) {
   try {
     return await getTankerStockAnalyticsService(tankerId);
