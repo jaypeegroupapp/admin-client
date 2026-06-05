@@ -22,7 +22,7 @@ export const fillDispenserInputFormData = [
   },
   {
     name: "gridAtPurchase",
-    label: "Grid Selling Price (R)",
+    label: "Grid (R)",
     type: "number",
     step: "0.01",
     min: "0",

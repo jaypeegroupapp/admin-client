@@ -1,7 +1,7 @@
 "use client";
 
 import InputValidated from "@/components/ui/input-validated";
-import { financialFormData } from "@/validations/tanker-stock";
+import { financialFormData } from "@/constants/tanker-stock";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 
 interface FinancialFieldsProps {

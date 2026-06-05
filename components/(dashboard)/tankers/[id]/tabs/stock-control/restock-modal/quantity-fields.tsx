@@ -1,7 +1,7 @@
 "use client";
 
 import InputValidated from "@/components/ui/input-validated";
-import { quantityFormData } from "@/validations/tanker-stock";
+import { quantityFormData } from "@/constants/tanker-stock";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 
 interface QuantityFieldsProps {
