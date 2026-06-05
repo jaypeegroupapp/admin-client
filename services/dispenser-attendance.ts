@@ -60,7 +60,6 @@ export async function removeAttendantService(input: {
   // Get attendance record with populated data
   const attendanceRecord =
     await DispenserAttendanceRecord.findById(attendanceRecordId);
-
   if (!attendanceRecord) throw new Error("Attendance record not found");
 
   // Get the actual dispenser
@@ -72,33 +71,34 @@ export async function removeAttendantService(input: {
   // CORRECT FORMULA: Meter reading increases as product is dispensed
   // Expected closing = opening balance + total dispensed
   const expectedClosing = openingBalance + totalDispensed;
-
   // Calculate variance (difference between actual and expected meter reading)
-  let variance = closingBalance - expectedClosing;
-  let needsInvestigation = false;
-  let investigationNote = "";
+  const variance = closingBalance - expectedClosing;
+  const variancePercentage =
+    expectedClosing > 0
+      ? (variance / expectedClosing) * 100
+      : totalDispensed > 0
+        ? (variance / totalDispensed) * 100
+        : 0;
 
-  // Check for variance that needs investigation (more than 5% of total dispensed or > 10L)
-  const varianceThreshold = Math.max(totalDispensed * 0.05, 10);
-  const isLargeVariance =
-    Math.abs(variance) > varianceThreshold && totalDispensed > 0;
-
-  // Special case: If opening balance was 0 and this is the first shift, variance might be acceptable
+  // Determine status based on variance (5% tolerance)
+  const tolerance = 5;
   const isFirstShift = openingBalance === 0 && totalDispensed > 0;
-
-  if (isLargeVariance && !isFirstShift) {
-    needsInvestigation = true;
-    investigationNote = `Variance of ${variance.toFixed(2)}L detected between expected (${expectedClosing.toFixed(2)}L) and actual (${closingBalance.toFixed(2)}L) meter reading. `;
-  }
-
-  // Determine status
   let status = "completed";
-  if (needsInvestigation) {
+
+  // For first shift, be more lenient
+  if (!isFirstShift && Math.abs(variancePercentage) > tolerance) {
+    status = "reconciled";
+  } else if (Math.abs(variancePercentage) > tolerance * 2) {
     status = "reconciled";
   }
 
   // Combine notes
-  const finalNotes = [notes, investigationNote].filter(Boolean).join(" | ");
+  const finalNotes = [
+    notes,
+    isFirstShift ? "First shift on this dispenser" : null,
+  ]
+    .filter(Boolean)
+    .join(" | ");
 
   // Update attendance record
   attendanceRecord.closingBalanceLitres = closingBalance;
@@ -112,7 +112,7 @@ export async function removeAttendantService(input: {
   // Update dispenser with final meter reading
   await Dispenser.findByIdAndUpdate(attendanceRecord.dispenserId, {
     userId: null,
-    totalDispensed: closingBalance, // Update meter reading to closing balance
+    totalDispensed: closingBalance,
     lastReading: closingBalance,
     lastReadingDate: new Date(),
   });
@@ -120,10 +120,10 @@ export async function removeAttendantService(input: {
   return {
     ...attendanceRecord.toObject(),
     dispenserId: attendanceRecord.dispenserId.toString(),
-    needsInvestigation,
-    isLargeVariance,
     expectedClosing,
     variance,
+    variancePercentage,
+    isFirstShift,
   };
 }
 
