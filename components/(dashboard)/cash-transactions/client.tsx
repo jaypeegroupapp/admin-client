@@ -17,7 +17,7 @@ import DateFilter from "@/components/ui/date-filter";
 import { Pagination } from "@/components/ui/pagination";
 import CashTransactionForm from "./form";
 import CashTransactionFormModal from "@/components/ui/modal";
-import { DispenserInfoHeader } from "./dispenser-info-header";
+import { DispenserInfoHeader } from "@/components/ui/dispenser-info";
 
 interface Props {
   initialItems: ICashTransactionAggregated[];
@@ -128,6 +128,7 @@ export function CashTransactionsClientPage({
           attendance={userDispenser.attendance}
           tankerStock={userDispenser.tankerStock}
           tankerName={userDispenser.tankerName}
+          showAvailableStock={true} // Show available stock calculation
         />
       )}
 

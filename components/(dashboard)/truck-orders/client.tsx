@@ -98,6 +98,7 @@ export function OrderItemsClientPage({
           attendance={userDispenser.attendance}
           tankerStock={userDispenser.tankerStock}
           tankerName={userDispenser.tankerName}
+          showAvailableStock={false} // Show tanker stock directly
         />
       )}
 
