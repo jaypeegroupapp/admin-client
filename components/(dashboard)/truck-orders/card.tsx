@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Truck, Factory, PackageCheck, AlertCircle } from "lucide-react";
+import { Truck, Factory, PackageCheck, AlertCircle, UserX } from "lucide-react";
 import { IOrderItemAggregated } from "@/definitions/order-item";
 import { OrderItemDetailModal } from "./modal";
 
@@ -16,13 +16,23 @@ export default function OrderItemCard({
   const [open, setOpen] = useState(false);
 
   const tankerStock = userDispenser?.tankerStock || 0;
+  const hasDispenser = !!userDispenser?.dispenser;
+  const hasAttendance = !!userDispenser?.attendance;
+  const hasTanker = !!userDispenser?.tankerName;
+
   const canFulfill =
     item.status === "accepted" &&
-    userDispenser?.dispenser &&
-    userDispenser?.attendance &&
+    hasDispenser &&
+    hasAttendance &&
+    hasTanker &&
     tankerStock >= item.quantity;
 
-  const insufficientStock = tankerStock < item.quantity;
+  const insufficientStock = hasTanker && tankerStock < item.quantity;
+  const noDispenser = !hasDispenser && item.status === "accepted";
+  const noAttendance =
+    hasDispenser && !hasAttendance && item.status === "accepted";
+  const noTanker =
+    hasDispenser && hasAttendance && !hasTanker && item.status === "accepted";
 
   return (
     <>
@@ -72,13 +82,39 @@ export default function OrderItemCard({
           Quantity: <span className="font-semibold">{item.quantity}L</span>
         </div>
 
-        {item.status === "accepted" && insufficientStock && (
-          <div className="mt-2 text-xs text-red-600 bg-red-50 p-1.5 rounded text-center flex items-center justify-center gap-1">
-            <AlertCircle size={12} />
-            ⚠️ Insufficient tanker stock (Available: {tankerStock.toFixed(1)}L)
+        {/* No Dispenser Warning */}
+        {item.status === "accepted" && noDispenser && (
+          <div className="mt-2 text-xs text-orange-600 bg-orange-50 p-1.5 rounded text-center flex items-center justify-center gap-1">
+            <UserX size={12} />
+            ⚠️ No dispenser assigned to you
           </div>
         )}
 
+        {/* No Active Shift Warning */}
+        {item.status === "accepted" && noAttendance && (
+          <div className="mt-2 text-xs text-yellow-600 bg-yellow-50 p-1.5 rounded text-center flex items-center justify-center gap-1">
+            <AlertCircle size={12} />
+            ⚠️ No active shift - Please log in
+          </div>
+        )}
+
+        {/* No Tanker Connected Warning */}
+        {item.status === "accepted" && noTanker && (
+          <div className="mt-2 text-xs text-orange-600 bg-orange-50 p-1.5 rounded text-center flex items-center justify-center gap-1">
+            <AlertCircle size={12} />
+            ⚠️ No tanker connected to dispenser
+          </div>
+        )}
+
+        {/* Insufficient Stock Warning */}
+        {item.status === "accepted" && insufficientStock && (
+          <div className="mt-2 text-xs text-red-600 bg-red-50 p-1.5 rounded text-center flex items-center justify-center gap-1">
+            <AlertCircle size={12} />
+            ⚠️ Insufficient stock (Available: {tankerStock.toFixed(1)}L)
+          </div>
+        )}
+
+        {/* Ready to Fulfill */}
         {item.status === "accepted" && canFulfill && (
           <div className="mt-2 text-xs text-green-600 bg-green-100 p-1.5 rounded text-center">
             ✓ Ready to fulfill

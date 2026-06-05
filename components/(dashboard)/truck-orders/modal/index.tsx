@@ -15,6 +15,7 @@ import { SignatureSection } from "./signature-section";
 import { MessageDisplay } from "./message-display";
 import { ActionButtons } from "./action-buttons";
 import { CompletedOrderSummary } from "./completed-order-summary";
+import { TankerDispenserInfo } from "./tanker-dispenser-info";
 
 export function OrderItemDetailModal({
   open,
@@ -36,7 +37,7 @@ export function OrderItemDetailModal({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Fetch full order item data when modal opens
+  // Fetch full order item data when modal opens for completed orders
   useEffect(() => {
     if (open && isCompleted) {
       fetchFullOrderItem();
@@ -47,7 +48,6 @@ export function OrderItemDetailModal({
     setLoading(true);
     try {
       const result = await getOrderItemById(item.id);
-      console.log({ result });
       if (result) {
         setFullOrderItem(result);
       }
@@ -58,19 +58,37 @@ export function OrderItemDetailModal({
     }
   };
 
+  // Check various conditions
   const tankerStock = userDispenser?.tankerStock || 0;
-  // const tankerName = userDispenser?.tankerName || "Unknown";
-  // const totalDispensed = userDispenser?.dispenser?.totalDispensed || 0;
-  const insufficientStock = tankerStock < item.quantity;
-  const hasAttendance = !!userDispenser?.attendance;
+  const tankerName = userDispenser?.tankerName || "";
+  const totalDispensed = userDispenser?.dispenser?.totalDispensed || 0;
   const hasDispenser = !!userDispenser?.dispenser;
-  // const attendantName = userDispenser?.attendance?.name;
+  const hasAttendance = !!userDispenser?.attendance;
+  const hasTanker = !!tankerName;
+
+  const insufficientStock = hasTanker && tankerStock < item.quantity;
+  const noDispenser =
+    !hasDispenser && item.status === "accepted" && !isCompleted;
+  const noAttendance =
+    hasDispenser &&
+    !hasAttendance &&
+    item.status === "accepted" &&
+    !isCompleted;
+  const noTanker =
+    hasDispenser &&
+    hasAttendance &&
+    !hasTanker &&
+    item.status === "accepted" &&
+    !isCompleted;
 
   const canFulfill =
     item.status === "accepted" &&
+    !isCompleted &&
     hasDispenser &&
     hasAttendance &&
+    hasTanker &&
     !insufficientStock;
+
   const hasExistingSignature = Boolean(item.signature);
 
   const handleClear = () => {
@@ -136,6 +154,28 @@ export function OrderItemDetailModal({
           orderItemNumber={item.id?.slice(-6).toUpperCase()}
         />
 
+        {/* Show Tanker/Dispenser Info for accepted orders not completed */}
+        {!isCompleted && item.status === "accepted" && (
+          <TankerDispenserInfo
+            tankerName={tankerName}
+            tankerStock={tankerStock}
+            totalDispensed={totalDispensed}
+            insufficientStock={insufficientStock}
+            hasAttendance={hasAttendance}
+            hasDispenser={hasDispenser}
+            hasTanker={hasTanker}
+            canFulfill={canFulfill}
+            noDispenser={noDispenser}
+            noAttendance={noAttendance}
+            noTanker={noTanker}
+            attendance={userDispenser?.attendance}
+            dispenserName={userDispenser?.dispenser?.name}
+            attendantName={userDispenser?.attendance?.attendantName}
+            quantity={item.quantity}
+          />
+        )}
+
+        {/* Signature Section */}
         {!isCompleted &&
           (item.status === "accepted" || hasExistingSignature) && (
             <SignatureSection
@@ -149,6 +189,7 @@ export function OrderItemDetailModal({
             />
           )}
 
+        {/* Completed Order Summary */}
         {isCompleted && fullOrderItem && (
           <CompletedOrderSummary completedData={fullOrderItem} />
         )}
