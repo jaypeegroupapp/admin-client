@@ -18,10 +18,16 @@ export function AttendanceHistoryItem({
   isExpanded,
   onToggle,
 }: AttendanceHistoryItemProps) {
+  // CORRECT FORMULA: Expected closing = opening + dispensed
+  const expectedClosing =
+    (record.openingBalanceLitres || 0) + (record.totalDispensed || 0);
+  const variance = record.variance || 0;
   const variancePercent =
-    record.variance && record.expectedClosing && record.expectedClosing > 0
-      ? (record.variance / record.expectedClosing) * 100
-      : 0;
+    expectedClosing > 0
+      ? (variance / expectedClosing) * 100
+      : (record.totalDispensed || 0) > 0
+        ? (variance / (record.totalDispensed || 0)) * 100
+        : 0;
 
   return (
     <motion.div
@@ -51,12 +57,12 @@ export function AttendanceHistoryItem({
               <Droplet size={14} className="text-gray-400" />
               <span className="text-sm">
                 <span className="text-gray-500">Dispensed:</span>{" "}
-                <span className="font-medium">
-                  {(record.totalDispensed || 0).toLocaleString()}L
+                <span className="font-medium text-green-600">
+                  +{(record.totalDispensed || 0).toLocaleString()}L
                 </span>
               </span>
             </div>
-            {record.variance !== undefined && (
+            {variance !== 0 && (
               <VarianceBadge variancePercent={variancePercent} />
             )}
           </div>
