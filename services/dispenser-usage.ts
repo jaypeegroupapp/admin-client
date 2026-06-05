@@ -362,3 +362,40 @@ export async function getDispenserUsageStatsService(
     }
   );
 }
+
+export async function getDispenserUsageTotalsService(
+  dispenserId: string,
+  filter: string = "all",
+) {
+  await connectDB();
+
+  const baseFilter: any = {
+    dispenserId: new mongoose.Types.ObjectId(dispenserId),
+  };
+
+  // Add type filter for totals
+  if (filter === "orders") {
+    baseFilter.orderId = { $exists: true, $ne: null };
+    baseFilter.type = "SALE";
+  } else if (filter === "cash") {
+    baseFilter.cashTransactionId = { $exists: true, $ne: null };
+    baseFilter.type = "SALE";
+  }
+
+  // Aggregate to get total litres and transaction count
+  const result = await DispenserUsage.aggregate([
+    { $match: baseFilter },
+    {
+      $group: {
+        _id: null,
+        totalLitres: { $sum: "$litresDispensed" },
+        transactionCount: { $sum: 1 },
+      },
+    },
+  ]);
+
+  return {
+    totalLitres: result[0]?.totalLitres || 0,
+    transactionCount: result[0]?.transactionCount || 0,
+  };
+}

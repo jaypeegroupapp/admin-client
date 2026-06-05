@@ -4,6 +4,7 @@ import {
   getDispenserUsageHistoryPaginatedService,
   getDispenserUsageHistoryService,
   getTotalDispenserUsageService,
+  getDispenserUsageTotalsService,
 } from "@/services/dispenser-usage";
 
 export async function getTotalDispenserUsage(dispenserId: string) {
@@ -45,6 +46,19 @@ export async function getDispenserUsageHistoryPaginated(
       pageSize: 10,
       totalPages: 0,
     };
+  }
+}
+
+export async function getDispenserUsageTotals(
+  dispenserId: string,
+  filter: string = "all",
+) {
+  try {
+    const result = await getDispenserUsageTotalsService(dispenserId, filter);
+    return result;
+  } catch (err) {
+    console.error("❌ getDispenserUsageTotals error:", err);
+    return { totalLitres: 0, transactionCount: 0 };
   }
 }
 

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Droplet, LayoutGrid, Table } from "lucide-react";
 import {
-  getDispenserUsageHistory,
   getDispenserUsageHistoryPaginated,
+  getDispenserUsageTotals,
 } from "@/data/dispenser-usage";
 import { UsageStats } from "./stats";
 import { UsageFilters } from "./filters";
@@ -30,6 +29,11 @@ export function UsageTab({ dispenserId }: { dispenserId: string }) {
     totalPages: 0,
   });
   const [counts, setCounts] = useState({ all: 0, orders: 0, cash: 0 });
+  const [totals, setTotals] = useState({
+    totalLitres: 0,
+    orderCount: 0,
+    cashCount: 0,
+  });
 
   const loadUsage = async (page: number = 0) => {
     setLoading(true);
@@ -52,37 +56,28 @@ export function UsageTab({ dispenserId }: { dispenserId: string }) {
     setLoading(false);
   };
 
-  const loadCounts = async () => {
-    // Load all records to get accurate counts
-    const allRes = await getDispenserUsageHistoryPaginated(
-      dispenserId,
-      0,
-      1,
-      "all",
-    );
-    const ordersRes = await getDispenserUsageHistoryPaginated(
-      dispenserId,
-      0,
-      1,
-      "orders",
-    );
-    const cashRes = await getDispenserUsageHistoryPaginated(
-      dispenserId,
-      0,
-      1,
-      "cash",
-    );
+  const loadTotals = async () => {
+    // Get accurate totals from the database (not paginated)
+    const allTotals = await getDispenserUsageTotals(dispenserId, "all");
+    const ordersTotals = await getDispenserUsageTotals(dispenserId, "orders");
+    const cashTotals = await getDispenserUsageTotals(dispenserId, "cash");
 
     setCounts({
-      all: allRes?.totalCount || 0,
-      orders: ordersRes?.totalCount || 0,
-      cash: cashRes?.totalCount || 0,
+      all: allTotals.transactionCount,
+      orders: ordersTotals.transactionCount,
+      cash: cashTotals.transactionCount,
+    });
+
+    setTotals({
+      totalLitres: allTotals.totalLitres,
+      orderCount: ordersTotals.transactionCount,
+      cashCount: cashTotals.transactionCount,
     });
   };
 
   useEffect(() => {
     loadUsage(0);
-    loadCounts();
+    loadTotals();
   }, [dispenserId, filter]);
 
   const handlePageChange = (newPage: number) => {
@@ -93,11 +88,6 @@ export function UsageTab({ dispenserId }: { dispenserId: string }) {
     setFilter(newFilter);
     setPagination((prev) => ({ ...prev, page: 0 }));
   };
-
-  // Calculate totals from current page
-  const totalLitres = usage.reduce((sum, r) => sum + r.litresDispensed, 0);
-  const orderCount = usage.filter((r) => r.orderId).length;
-  const cashCount = usage.filter((r) => r.cashTransactionId).length;
 
   if (loading && usage.length === 0) {
     return <UsageLoadingState />;
@@ -148,12 +138,12 @@ export function UsageTab({ dispenserId }: { dispenserId: string }) {
         </div>
       </div>
 
-      {/* Summary Stats */}
+      {/* Summary Stats - Using totals from database */}
       {pagination.totalCount > 0 && (
         <UsageStats
-          totalLitres={totalLitres}
-          orderCount={orderCount}
-          cashCount={cashCount}
+          totalLitres={totals.totalLitres}
+          orderCount={totals.orderCount}
+          cashCount={totals.cashCount}
           transactionCount={pagination.totalCount}
         />
       )}
