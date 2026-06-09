@@ -33,8 +33,8 @@ export default function DashboardLayoutClient({
         onMouseEnter={() => setSidebarHovered(true)}
         onMouseLeave={() => setSidebarHovered(false)}
       >
-        {/* Logo */}
-        <div className="flex items-center justify-center h-16 border-b border-border relative">
+        {/* Logo - Fixed at top */}
+        <div className="flex items-center justify-center h-16 border-b border-border relative shrink-0">
           <div className={clsx("relative transition-all duration-300 w-32")}>
             <Image
               src="/logo.png"
@@ -47,65 +47,68 @@ export default function DashboardLayoutClient({
           </div>
         </div>
 
-        <nav className="flex-1 mt-4 space-y-1">
-          {mainNav.map((item) => {
-            const Icon = ICONS[item.icon];
+        {/* Scrollable Navigation Area - Invisible Scrollbar */}
+        <div className="flex-1 overflow-y-auto scrollbar-none">
+          <nav className="mt-4 space-y-1 px-2">
+            {mainNav.map((item) => {
+              const Icon = ICONS[item.icon];
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={clsx(
-                  "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                  pathname === item.href
-                    ? "bg-active font-medium"
-                    : "hover:bg-hover",
-                )}
-              >
-                <Icon size={20} className="text-text shrink-0" />
-                <span
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
                   className={clsx(
-                    "transition-opacity duration-200 text-sm whitespace-nowrap",
-                    sidebarHovered ? "opacity-100" : "opacity-0",
+                    "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                    pathname === item.href
+                      ? "bg-active font-medium"
+                      : "hover:bg-hover",
                   )}
                 >
-                  {item.name}
-                </span>
-              </Link>
-            );
-          })}
-
-          {otherNav.length > 0 && (
-            <div className="space-y-1">
-              {otherNav.map((item) => {
-                const Icon = ICONS[item.icon];
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
+                  <Icon size={20} className="text-text shrink-0" />
+                  <span
                     className={clsx(
-                      "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                      pathname === item.href
-                        ? "bg-active font-medium"
-                        : "hover:bg-hover",
+                      "transition-opacity duration-200 text-sm whitespace-nowrap",
+                      sidebarHovered ? "opacity-100" : "opacity-0",
                     )}
                   >
-                    <Icon size={20} className="text-text shrink-0" />
-                    <span
+                    {item.name}
+                  </span>
+                </Link>
+              );
+            })}
+
+            {otherNav.length > 0 && (
+              <div className="pt-4 mt-4 border-t border-border">
+                {otherNav.map((item) => {
+                  const Icon = ICONS[item.icon];
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
                       className={clsx(
-                        "transition-opacity duration-200 text-sm whitespace-nowrap",
-                        sidebarHovered ? "opacity-100" : "opacity-0",
+                        "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                        pathname === item.href
+                          ? "bg-active font-medium"
+                          : "hover:bg-hover",
                       )}
                     >
-                      {item.name}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </nav>
+                      <Icon size={20} className="text-text shrink-0" />
+                      <span
+                        className={clsx(
+                          "transition-opacity duration-200 text-sm whitespace-nowrap",
+                          sidebarHovered ? "opacity-100" : "opacity-0",
+                        )}
+                      >
+                        {item.name}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </nav>
+        </div>
       </aside>
 
       {/* Overlay */}
@@ -117,11 +120,11 @@ export default function DashboardLayoutClient({
       )}
 
       {/* Main */}
-      <main className="flex-1 md:ml-20 p-4">{children}</main>
+      <main className="flex-1 md:ml-20 p-4 overflow-x-auto">{children}</main>
 
       {/* Mobile Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2">
-        {mainNav.map((item) => {
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 z-50">
+        {mainNav.slice(0, 4).map((item) => {
           const Icon = ICONS[item.icon];
           const isActive = pathname === item.href;
 
