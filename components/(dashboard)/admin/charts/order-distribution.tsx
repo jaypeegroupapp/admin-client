@@ -74,12 +74,10 @@ export function OrderDistributionChart({
               cx="50%"
               cy="50%"
               innerRadius={60}
-              outerRadius={100}
+              outerRadius={80}
               paddingAngle={5}
               dataKey="value"
-              label={({ name, percent }) =>
-                `${name}: ${((percent || 0) * 100).toFixed(0)}%`
-              }
+              label={({ percent }) => `${((percent || 0) * 100).toFixed(0)}%`}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
