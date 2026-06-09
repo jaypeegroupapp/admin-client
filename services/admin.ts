@@ -7,6 +7,30 @@ import CashTransaction from "@/models/cash-transactions";
 import DispenserUsage from "@/models/dispenser-usage";
 import { Types } from "mongoose";
 
+function toPlainObject(doc: any): any {
+  if (!doc) return null;
+
+  const plain: any = {};
+
+  for (const key of Object.keys(doc)) {
+    const value = doc[key];
+
+    if (value instanceof Types.ObjectId) {
+      plain[key] = value.toString();
+    } else if (value instanceof Date) {
+      plain[key] = value.toISOString();
+    } else if (Array.isArray(value)) {
+      plain[key] = value.map((v) => toPlainObject(v));
+    } else if (value && typeof value === "object" && !Buffer.isBuffer(value)) {
+      plain[key] = toPlainObject(value);
+    } else {
+      plain[key] = value;
+    }
+  }
+
+  return plain;
+}
+
 export async function getAdminDashboardDataService() {
   await connectDB();
 
@@ -49,6 +73,7 @@ export async function getAdminDashboardDataService() {
     },
   ]);
 
+  // Today's Sales from Cash Transactions
   const todayCash = await CashTransaction.aggregate([
     {
       $match: {
@@ -76,7 +101,6 @@ export async function getAdminDashboardDataService() {
       $group: {
         _id: "$status",
         count: { $sum: 1 },
-        totalLitres: { $sum: "$totalAmount" },
       },
     },
   ]);
@@ -89,23 +113,31 @@ export async function getAdminDashboardDataService() {
     orderStatusCounts.find((o) => o._id === "completed")?.count || 0;
 
   // Recent Transactions
-  const recentTransactions = await DispenserUsage.find()
+  const recentTransactionsRaw = await DispenserUsage.find()
     .sort({ timestamp: -1 })
     .limit(10)
     .populate("dispenserId", "name")
     .populate("attendanceId", "attendantId")
     .lean();
 
+  const recentTransactions = recentTransactionsRaw.map((tx) =>
+    toPlainObject(tx),
+  );
+
   // Pending Orders List
-  const pendingOrdersList = await Order.find({ status: "pending" })
+  const pendingOrdersRaw = await Order.find({ status: "pending" })
     .sort({ createdAt: -1 })
     .limit(10)
     .populate("companyId", "name")
     .populate("productId", "name")
     .lean();
 
+  const pendingOrdersList = pendingOrdersRaw.map((order) =>
+    toPlainObject(order),
+  );
+
   // Stock by Product
-  const stockByProduct = await Tanker.aggregate([
+  const stockByProductRaw = await Tanker.aggregate([
     { $match: { isPublished: true } },
     {
       $group: {
@@ -125,6 +157,14 @@ export async function getAdminDashboardDataService() {
     { $unwind: "$product" },
   ]);
 
+  const stockByProduct = stockByProductRaw.map((item) => ({
+    _id: item._id ? item._id.toString() : null,
+    totalStock: item.totalStock,
+    totalCapacity: item.totalCapacity,
+    product: item.product ? toPlainObject(item.product) : null,
+  }));
+
+  // Return plain objects
   return {
     stock: {
       totalStock,

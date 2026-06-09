@@ -1,6 +1,6 @@
 "use client";
 
-import { Droplet, Truck, Banknote } from "lucide-react";
+import { Droplet, Banknote } from "lucide-react";
 
 interface RecentTransactionsProps {
   transactions: any[];
@@ -13,43 +13,52 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
     return <Droplet size={14} className="text-blue-500" />;
   };
 
+  if (!transactions || transactions.length === 0) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h3 className="text-sm font-medium text-gray-700 mb-4">
+          Recent Transactions
+        </h3>
+        <p className="text-sm text-gray-500 text-center py-8">
+          No recent transactions
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
       <h3 className="text-sm font-medium text-gray-700 mb-4">
         Recent Transactions
       </h3>
       <div className="space-y-3 max-h-96 overflow-y-auto">
-        {transactions.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-8">
-            No recent transactions
-          </p>
-        ) : (
-          transactions.map((tx) => (
-            <div
-              key={tx._id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
-                  {getTransactionIcon(tx.type)}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    {tx.litresDispensed}L dispensed
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {tx.dispenserId?.name || "Unknown dispenser"}
-                  </p>
-                </div>
+        {transactions.map((tx) => (
+          <div
+            key={tx.id || tx._id}
+            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+                {getTransactionIcon(tx.type)}
               </div>
-              <div className="text-right">
+              <div>
+                <p className="text-sm font-medium text-gray-800">
+                  {tx.litresDispensed}L dispensed
+                </p>
                 <p className="text-xs text-gray-500">
-                  {new Date(tx.timestamp).toLocaleTimeString()}
+                  {tx.dispenserId?.name || "Unknown dispenser"}
                 </p>
               </div>
             </div>
-          ))
-        )}
+            <div className="text-right">
+              <p className="text-xs text-gray-500">
+                {tx.timestamp
+                  ? new Date(tx.timestamp).toLocaleTimeString()
+                  : "N/A"}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

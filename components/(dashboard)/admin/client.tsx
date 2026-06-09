@@ -17,15 +17,15 @@ interface AdminDashboardClientProps {
 export function AdminDashboardClient({
   initialData,
 }: AdminDashboardClientProps) {
-  const data = initialData?.data;
-
-  if (!data) {
+  if (!initialData?.success || !initialData.data) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
+
+  const data = initialData.data;
 
   return (
     <motion.div
@@ -43,21 +43,26 @@ export function AdminDashboardClient({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SalesTrendChart />
-        <StockLevelsChart stockByProduct={data.stock.stockByProduct} />
+        <StockLevelsChart stockByProduct={data.stock?.stockByProduct || []} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <PendingOrdersTable orders={data.pendingOrdersList} />
+          <PendingOrdersTable orders={data.pendingOrdersList || []} />
         </div>
         <div>
-          <OrderDistributionChart orders={data.orders} />
+          <OrderDistributionChart
+            orders={data.orders || { pending: 0, accepted: 0, completed: 0 }}
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentTransactions transactions={data.recentTransactions} />
-        <AlertsList stock={data.stock} orders={data.orders} />
+        <RecentTransactions transactions={data.recentTransactions || []} />
+        <AlertsList
+          stock={data.stock || { lowStockCount: 0, utilizationPercentage: 0 }}
+          orders={data.orders || { pending: 0 }}
+        />
       </div>
     </motion.div>
   );
