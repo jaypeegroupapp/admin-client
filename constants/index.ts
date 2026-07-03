@@ -43,7 +43,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     section: "main",
   },
   {
-    name: "Orders By Truck",
+    name: "Dispense Fuel",
     href: "/truck-orders",
     action: "read",
     resource: "truck-order",
