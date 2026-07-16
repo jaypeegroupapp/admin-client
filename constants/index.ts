@@ -4,6 +4,7 @@ export type IconKey =
   | "truckOrders"
   | "cashTransactions"
   | "returns"
+  | "waitingList"
   | "companies"
   | "companyInvoices"
   | "mineInvoices"
@@ -41,6 +42,14 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     action: "read",
     resource: "order",
     icon: "orders",
+    section: "main",
+  },
+  {
+    name: "Waiting List",
+    href: "/waiting-list",
+    action: "read",
+    resource: "order",
+    icon: "waitingList",
     section: "main",
   },
   {

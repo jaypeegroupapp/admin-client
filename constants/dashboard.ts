@@ -16,6 +16,7 @@ import {
   Droplet,
   Fuel,
   Undo2,
+  ClipboardList,
 } from "lucide-react";
 
 export const months = [
@@ -39,6 +40,7 @@ export const ICONS = {
   truckOrders: Truck,
   cashTransactions: Banknote,
   returns: Undo2,
+  waitingList: ClipboardList,
   companies: Building2,
   companyInvoices: FileText,
   mineInvoices: WalletMinimal,
