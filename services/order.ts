@@ -32,6 +32,8 @@ export async function getOrdersService(
     // STATUS FILTER
     if (status !== "all") {
       match.status = status.toLowerCase();
+    } else {
+      match.status = { $ne: "pending" };
     }
 
     // DATE RANGE FILTER
