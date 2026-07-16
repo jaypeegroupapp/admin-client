@@ -6,6 +6,7 @@ import {
   getOrderQuantitiesByProductService,
   getOrdersByProductService,
   getTotalQuantityForProductService,
+  processReturnRefundService
 } from "@/services/order-item";
 
 // data/order-item.ts
@@ -127,5 +128,19 @@ export async function getOrderItemById(orderItemId: string) {
   } catch (error) {
     console.error("❌ getOrderItemById error:", error);
     return null;
+  }
+}
+
+export async function processReturnRefund(
+  itemId: string,
+  processRefund: boolean,
+  restoreStock: boolean
+) {
+  try {
+    const result = await processReturnRefundService(itemId, processRefund, restoreStock);
+    return result;
+  } catch (error: any) {
+    console.error("❌ processReturnRefund error:", error);
+    return { success: false, message: error.message };
   }
 }

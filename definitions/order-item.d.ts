@@ -3,25 +3,35 @@ import { Types } from "mongoose";
 export interface IOrderItem {
   id?: string;
   orderId: Types.ObjectId | string;
-  productId: Types.ObjectId | string;
   truckId: Types.ObjectId | string;
+  productId: Types.ObjectId | string;
   quantity: number;
   price: number;
-  status: "pending" | "accepted" | "completed" | "cancelled";
+  status: "pending" | "accepted" | "completed" | "cancelled" | "returned" | "closed";
   signature?: string;
-  dispenserId?: Types.ObjectId | string; // Add this
-  attendanceId?: Types.ObjectId | string; // Add this
+  dispenserId?: Types.ObjectId | string;
+  attendanceId?: Types.ObjectId | string;
+  // Return fields
+  isReturned?: boolean;
+  returnedAt?: Date;
+  returnedReason?: string;
+  returnedBy?: Types.ObjectId | string;
+  // Closed fields (simplified)
+  closedAt?: Date;
+  closedBy?: Types.ObjectId | string;
   createdAt?: string;
   updatedAt?: string;
 }
+
+// src/definitions/order-item.ts
 
 export interface IOrderItemAggregated {
   id: string;
   orderId: string;
   orderNumber?: string;
-  productId: string;
+  productId?: string;
   productName?: string;
-  companyId: string;
+  companyId?: string;
   companyName?: string;
   truckId: string;
   plateNumber: string;
@@ -29,28 +39,32 @@ export interface IOrderItemAggregated {
   model?: string;
   year?: number;
   quantity: number;
-  status: "pending" | "accepted" | "completed" | "cancelled";
+  status: string;
   signature?: string;
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
   completedAt?: string;
 
-  // Dispenser and fulfillment info
+  // Return fields
+  isReturned?: boolean;
+  returnedAt?: string;
+  returnedReason?: string;
+  returnedBy?: string;
+
+  // Closed fields (simplified)
+  closedAt?: string;
+  closedBy?: string;
+
+  // Dispenser fields
   dispenserId?: string;
   dispenserName?: string;
   attendanceId?: string;
   attendantName?: string;
   meterReading?: number;
-  tankerStockLevel?: number;
   tankerName?: string;
-
-  // Metadata
-  metadata?: {
-    tankerName?: string;
-    tankerId?: string;
-    attendantName?: string;
-  };
+  tankerStockLevel?: number;
 }
+
 export type OrderItemTab =
   | "All"
   | "Pending"

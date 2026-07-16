@@ -1,0 +1,118 @@
+// src/components/(dashboard)/returns/client.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
+import { IOrderItemAggregated } from "@/definitions/order-item";
+
+import { RefundsHeader } from "./header";
+import RefundsFilter from "./filter";
+import RefundsList from "./list";
+import { RefundsTabs, RefundTab } from "./tabs";
+import DateFilter from "@/components/ui/date-filter";
+import { Pagination } from "@/components/ui/pagination";
+
+export function RefundsClientPage({
+    initialItems,
+    totalCount,
+    currentPage,
+    pageSize,
+    search,
+    status,
+    stats,
+    fromDate,
+    toDate,
+}: any) {
+    const router = useRouter();
+    const params = useSearchParams();
+
+    const [items, setItems] = useState(initialItems);
+    const [filterText, setFilterText] = useState(search || "");
+    const [debouncedSearch, setDebouncedSearch] = useState(filterText);
+
+    const [from, setFrom] = useState(fromDate);
+    const [to, setTo] = useState(toDate);
+
+    const [activeTab, setActiveTab] = useState<RefundTab>(
+        (status === "all"
+            ? "All"
+            : status.charAt(0).toUpperCase() + status.slice(1)) as RefundTab,
+    );
+
+    const pageCount = Math.ceil(totalCount / pageSize);
+
+    useEffect(() => setItems(initialItems), [initialItems]);
+
+    useEffect(() => {
+        const t = setTimeout(() => setDebouncedSearch(filterText), 300);
+        return () => clearTimeout(t);
+    }, [filterText]);
+
+    useEffect(() => {
+        const q = new URLSearchParams(params.toString());
+        q.set("search", debouncedSearch);
+        q.set("page", "0");
+        router.push(`?${q.toString()}`);
+    }, [debouncedSearch]);
+
+    const handleDateChange = (f: string, t: string) => {
+        setFrom(f);
+        setTo(t);
+        const q = new URLSearchParams(params.toString());
+        f ? q.set("fromDate", f) : q.delete("fromDate");
+        t ? q.set("toDate", t) : q.delete("toDate");
+        q.set("page", "0");
+        router.push(`?${q.toString()}`);
+    };
+
+    const handleTabChange = (tab: RefundTab) => {
+        setActiveTab(tab);
+        const q = new URLSearchParams(params.toString());
+        q.set("status", tab === "All" ? "all" : tab.toLowerCase());
+        q.set("page", "0");
+        router.push(`?${q.toString()}`);
+    };
+
+    const handlePageChange = (p: number) => {
+        const q = new URLSearchParams(params.toString());
+        q.set("page", String(p));
+        q.set("pageSize", String(pageSize));
+        router.push(`?${q.toString()}`);
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="space-y-6"
+        >
+            <RefundsHeader />
+
+            <div className="flex flex-col lg:flex-row items-end gap-4">
+                <RefundsTabs
+                    activeTab={activeTab}
+                    onChange={handleTabChange}
+                    counts={stats}
+                />
+
+                <RefundsFilter
+                    initialValue={filterText}
+                    onFilterChange={setFilterText}
+                />
+
+                <DateFilter from={from} to={to} onChange={handleDateChange} />
+            </div>
+
+            <RefundsList initialItems={items} />
+
+            <Pagination
+                currentPage={currentPage}
+                pageCount={pageCount}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+            />
+        </motion.div>
+    );
+}

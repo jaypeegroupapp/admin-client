@@ -10,6 +10,7 @@ import Order from "@/models/order";
 import TankerTransaction from "@/models/tanker-transaction";
 import Tanker from "@/models/tanker";
 import TankerDispenser from "@/models/tanker-dispenser";
+import Product from "@/models/product";
 
 export async function getOrderItemsService(
   page = 0,
@@ -517,10 +518,17 @@ export async function completeOrderItem(itemId: string, signature?: string) {
   }
 }
 
+// src/services/order-item.ts
 export async function getOrderQuantitiesByProductService(productId: string) {
   await connectDB();
 
   const result = await OrderItem.aggregate([
+    {
+      $match: {
+        // Exclude returned items from being counted
+        status: { $ne: "returned" },
+      },
+    },
     {
       $lookup: {
         from: "orders",
@@ -532,11 +540,6 @@ export async function getOrderQuantitiesByProductService(productId: string) {
     { $unwind: "$order" },
 
     // Filter by productId
-    {
-      $match: {
-        "order.productId": new mongoose.Types.ObjectId(productId),
-      },
-    },
 
     // Group by order status
     {
@@ -553,20 +556,21 @@ export async function getOrderQuantitiesByProductService(productId: string) {
     accepted: 0,
     completed: 0,
     cancelled: 0,
+    // Add closed to the totals
+    closed: 0,
   };
 
   result.forEach((item: any) => {
     if (item._id === "pending") {
       quantities.pending = item.totalQuantity;
-    }
-    if (item._id === "accepted") {
+    } else if (item._id === "accepted") {
       quantities.accepted = item.totalQuantity;
-    }
-    if (item._id === "completed") {
+    } else if (item._id === "completed") {
       quantities.completed = item.totalQuantity;
-    }
-    if (item._id === "cancelled") {
+    } else if (item._id === "cancelled") {
       quantities.cancelled = item.totalQuantity;
+    } else if (item._id === "closed") {
+      quantities.closed = item.totalQuantity;
     }
   });
 
@@ -637,4 +641,129 @@ export async function getOrderItemByIdService(orderItemId: string) {
       },
     })
     .lean();
+}
+
+export async function processReturnRefundService(
+  itemId: string,
+  processRefund: boolean,
+  restoreStock: boolean
+) {
+  await connectDB();
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const orderItem = await OrderItem.findById(itemId).session(session);
+    if (!orderItem) {
+      await session.abortTransaction();
+      session.endSession();
+      return { success: false, message: "Order item not found" };
+    }
+
+    if (!orderItem.isReturned) {
+      await session.abortTransaction();
+      session.endSession();
+      return { success: false, message: "Item is not marked as returned" };
+    }
+
+    // Process refund
+    if (processRefund) {
+      orderItem.refundProcessed = true;
+      orderItem.refundProcessedAt = new Date();
+      // You would typically also update the company's balance here
+      // await updateCompanyBalance(orderItem.orderId, orderItem.quantity * orderItem.price);
+    }
+
+    // Restore stock
+    if (restoreStock) {
+      orderItem.stockRestored = true;
+      orderItem.stockRestoredAt = new Date();
+
+      // Update product stock
+      const product = await Product.findById(orderItem.productId).session(session);
+      if (product) {
+        product.stock = (product.stock || 0) + orderItem.quantity;
+        await product.save({ session });
+      }
+    }
+
+    // If both refund and stock restore are processed, mark as closed
+    if (orderItem.refundProcessed && orderItem.stockRestored) {
+      orderItem.status = "completed"; // Or use a different status like "closed"
+    }
+
+    await orderItem.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      success: true,
+      message: "Return processed successfully",
+      data: {
+        refundProcessed: orderItem.refundProcessed,
+        stockRestored: orderItem.stockRestored,
+        status: orderItem.status,
+      },
+    };
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error("❌ processReturnRefundService error:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+// src/services/order-item.ts
+export async function closeReturnService(itemId: string, userId: string) {
+  await connectDB();
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const orderItem = await OrderItem.findById(itemId).session(session);
+    if (!orderItem) {
+      await session.abortTransaction();
+      session.endSession();
+      return { success: false, message: "Order item not found" };
+    }
+
+    // Only returned items can be closed
+    if (orderItem.status !== "returned") {
+      await session.abortTransaction();
+      session.endSession();
+      return { success: false, message: "Only returned items can be closed" };
+    }
+
+    // Update to closed status
+    const updatedItem = await OrderItem.findByIdAndUpdate(
+      itemId,
+      {
+        $set: {
+          status: "closed",
+          closedAt: new Date(),
+          closedBy: new mongoose.Types.ObjectId(userId),
+        },
+      },
+      { session, new: true, runValidators: false }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      success: true,
+      message: "Return closed successfully. Stock restored.",
+      data: {
+        itemId: updatedItem._id.toString(),
+        status: updatedItem.status,
+        closedAt: updatedItem.closedAt,
+      },
+    };
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error("❌ closeReturnService error:", error);
+    return { success: false, message: error.message };
+  }
 }
